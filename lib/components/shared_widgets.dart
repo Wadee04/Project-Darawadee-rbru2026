@@ -308,3 +308,56 @@ class PillButton extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// AppBarBack - แถบบนพร้อมปุ่มกลับ + title
+// ============================================================
+class AppBarBack extends StatelessWidget {
+  const AppBarBack({
+    super.key,
+    required this.title,
+    this.onBack,
+  });
+
+  final String title;
+  final VoidCallback? onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        context.rs(24),
+        context.rs(8),
+        context.rs(24),
+        0,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: onBack ?? () => Navigator.maybePop(context),
+            child: SizedBox(
+              width: context.rs(24),
+              height: context.rs(24),
+              child: Icon(
+                Icons.chevron_left,
+                size: context.rs(28),
+                color: AppColors.black,
+              ),
+            ),
+          ),
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: context.rs(15),
+              fontWeight: FontWeight.w600,
+              color: AppColors.black,
+            ),
+          ),
+          const Text(''),
+        ],
+      ),
+    );
+  }
+}

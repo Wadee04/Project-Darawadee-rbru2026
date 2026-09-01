@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'view/Intro/intro1.dart';
 import 'view/Signin/signin_one.dart';
+import 'view/Signup/signup.dart';
+import 'view/OTP/otp.dart';
 
 void main() {
   runApp(const MyApp());

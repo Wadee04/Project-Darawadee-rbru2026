@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 
@@ -42,24 +43,8 @@ class _SignUpState extends State<SignUp> {
       body: SafeArea(
         child: Column(
           children: [
-            // ---- Back button ----
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: context.rs(8),
-                  top: context.rs(4),
-                ),
-                child: IconButton(
-                  onPressed: widget.onBack ?? () => Navigator.maybePop(context),
-                  icon: Icon(
-                    Icons.chevron_left,
-                    size: context.rs(28),
-                    color: AppColors.black,
-                  ),
-                ),
-              ),
-            ),
+            // ---- AppBar ----
+            const AppBarBack(title: ''),
 
             // ---- Scrollable content ----
             Expanded(
@@ -80,8 +65,8 @@ class _SignUpState extends State<SignUp> {
                       'ลงทะเบียน',
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: context.rs(18),
-                        fontWeight: FontWeight.w700,
+                        fontSize: context.rs(14),
+                        fontWeight: FontWeight.w400,
                         color: AppColors.black,
                         height: 1.3,
                       ),
@@ -152,7 +137,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
 
-                    SizedBox(height: context.rs(28)),
+                    SizedBox(height: context.rs(25)),
 
                     // ปุ่มลงทะเบียน
                     SizedBox(
@@ -192,7 +177,7 @@ class _SignUpState extends State<SignUp> {
 
             // ---- Sign in link ----
             Padding(
-              padding: EdgeInsets.only(bottom: context.rs(20)),
+              padding: EdgeInsets.only(bottom: context.rs(48)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -392,7 +377,7 @@ class _EyeToggle extends StatelessWidget {
       child: Icon(
         obscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
         size: context.rs(18),
-        color: AppColors.inputHint,
+        color: AppColors.textGray,
       ),
     );
   }

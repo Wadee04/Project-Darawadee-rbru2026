@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 
@@ -40,36 +41,8 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ---- AppBar row ----
-            SizedBox(
-              height: context.rs(52),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    left: context.rs(4),
-                    child: IconButton(
-                      onPressed:
-                          widget.onBack ?? () => Navigator.maybePop(context),
-                      icon: Icon(
-                        Icons.chevron_left,
-                        size: context.rs(28),
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'เบอร์โทรศัพท์',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(15),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // ---- AppBar ----
+            const AppBarBack(title: 'เบอร์โทรศัพท์'),
 
             // ---- Content ----
             Padding(

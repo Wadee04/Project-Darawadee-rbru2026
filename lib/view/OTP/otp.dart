@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import '../HomeScreen/home_page_one.dart';
 
 // ============================================================
 // OTPPage - หน้ากรอกรหัสยืนยันตัวตน
@@ -13,7 +15,7 @@ class OTPPage extends StatefulWidget {
   const OTPPage({
     super.key,
     required this.target,     // อีเมลที่ส่ง OTP ไป
-    this.otpLength = 5,
+    this.otpLength = 6,
     this.resendCooldown = 60,
     this.onBack,
     this.onNext,              // callback เมื่อกด "ถัดไป" ส่ง OTP string กลับ
@@ -116,38 +118,8 @@ class _OTPPageState extends State<OTPPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ---- AppBar row: back + title ----
-            SizedBox(
-              height: context.rs(52),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Back button ซ้าย
-                  Positioned(
-                    left: context.rs(4),
-                    child: IconButton(
-                      onPressed:
-                          widget.onBack ?? () => Navigator.maybePop(context),
-                      icon: Icon(
-                        Icons.chevron_left,
-                        size: context.rs(28),
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ),
-                  // Title กึ่งกลาง
-                  Text(
-                    'กรอกรหัสยืนยันตัวตน',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(15),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // ---- AppBar ----
+            const AppBarBack(title: 'กรอกรหัสยืนยันตัวตน'),
 
             // ---- Content ----
             Expanded(
@@ -156,7 +128,7 @@ class _OTPPageState extends State<OTPPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: context.rs(28)),
+                    SizedBox(height: context.rs(30)),
 
                     // Subtitle
                     Text(
@@ -164,27 +136,38 @@ class _OTPPageState extends State<OTPPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: context.rs(13),
+                        fontSize: context.rs(14),
                         fontWeight: FontWeight.w400,
-                        color: AppColors.textGray,
-                        height: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: context.rs(2)),
-                    // Email bold
-                    Text(
-                      widget.target,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: context.rs(13),
-                        fontWeight: FontWeight.w700,
                         color: AppColors.black,
                         height: 1.5,
                       ),
                     ),
-
-                    SizedBox(height: context.rs(28)),
+                    SizedBox(height: context.rs(2)),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        text: '6614631011@rbru.ac.th ',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(13),
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.black,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: widget.target,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: context.rs(13),
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textGray,
+                            ),
+                          ),
+                        ],
+                      ),
+                     ),
+ 
+                    SizedBox(height: context.rs(30)),
 
                     // ---- OTP boxes ----
                     Row(
@@ -212,15 +195,27 @@ class _OTPPageState extends State<OTPPage> {
                     // ---- ปุ่มถัดไป ----
                     SizedBox(
                       width: double.infinity,
-                      height: context.rs(48),
+                      height: context.rs(40),
                       child: ElevatedButton(
                         onPressed: _isFilled
-                            ? () => widget.onNext?.call(_otpValue)
+                            ? () {
+                                widget.onNext?.call(_otpValue);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const HomePageOne(),
+                                  ),
+                                );
+                              }
                             : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.registerButton,
+                          backgroundColor: _isFilled
+                              ? AppColors.purple
+                              : AppColors.registerButton,
                           disabledBackgroundColor: AppColors.registerButton,
-                          foregroundColor: AppColors.black,
+                          foregroundColor: _isFilled
+                              ? AppColors.white
+                              : AppColors.textGray,
                           disabledForegroundColor: AppColors.textGray,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -234,12 +229,13 @@ class _OTPPageState extends State<OTPPage> {
                             fontFamily: 'Inter',
                             fontSize: context.rs(15),
                             fontWeight: FontWeight.w500,
+                            color: _isFilled ? AppColors.white : AppColors.black,
                           ),
                         ),
                       ),
                     ),
 
-                    SizedBox(height: context.rs(16)),
+                    SizedBox(height: context.rs(30)),
 
                     // ---- Resend timer ----
                     _secondsLeft > 0
@@ -255,7 +251,7 @@ class _OTPPageState extends State<OTPPage> {
                                 TextSpan(
                                   text: '$_secondsLeft',
                                   style: const TextStyle(
-                                    color: Color(0xFFE53935),
+                                    color: AppColors.reddentbook,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -266,13 +262,12 @@ class _OTPPageState extends State<OTPPage> {
                         : GestureDetector(
                             onTap: _handleResend,
                             child: Text(
-                              'ขอรหัสใหม่',
+                              'รับรหัสผ่านใหม่อีกครั้ง',
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: context.rs(12),
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.purple,
-                                decoration: TextDecoration.underline,
                                 decorationColor: AppColors.purple,
                               ),
                             ),
@@ -308,13 +303,12 @@ class _OTPBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = context.rs(52);
     return KeyboardListener(
       focusNode: keyListenerFocusNode,
       onKeyEvent: onKeyEvent,
       child: SizedBox(
-        width: size,
-        height: size,
+        width: context.rs(35),
+        height: context.rs(40),
         child: TextField(
           controller: controller,
           focusNode: focusNode,
@@ -325,7 +319,7 @@ class _OTPBox extends StatelessWidget {
           onChanged: onChanged,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: context.rs(20),
+            fontSize: context.rs(16),
             fontWeight: FontWeight.w600,
             color: AppColors.black,
           ),
@@ -342,8 +336,8 @@ class _OTPBox extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(context.rs(10)),
               borderSide: const BorderSide(
-                color: AppColors.purple,
-                width: 2,
+                color: AppColors.orange,
+                width: 1.5,
               ),
             ),
           ),

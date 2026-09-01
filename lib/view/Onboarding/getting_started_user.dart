@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
 import '../../theme/responsive.dart';
 import '../Signin/signin_one.dart';
+import '../Signup/signup.dart';
 
 class GettingStartedUser extends StatelessWidget {
   final VoidCallback? onRegister;
@@ -108,7 +108,14 @@ class GettingStartedUser extends StatelessWidget {
                   width: double.infinity,
                   height: context.rs(49),
                   child: ElevatedButton(
-                    onPressed: onRegister,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SignUp(),
+                        ),
+                      );
+                    },
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all(AppColors.purple),
                       surfaceTintColor: WidgetStateProperty.all(AppColors.purple),

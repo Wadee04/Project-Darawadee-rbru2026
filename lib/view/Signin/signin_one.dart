@@ -1,9 +1,11 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import '../OTP/otp.dart';
+import '../Signup/signup.dart';
 
 // ============================================================
 // SignInOne - หน้า Sign In
@@ -38,24 +40,8 @@ class _SignInOneState extends State<SignInOne> {
       body: SafeArea(
         child: Column(
           children: [
-            // ---- Back button ----
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: context.rs(8),
-                  top: context.rs(4),
-                ),
-                child: IconButton(
-                  onPressed: widget.onBack ?? () => Navigator.maybePop(context),
-                  icon: Icon(
-                    Icons.chevron_left,
-                    size: context.rs(28),
-                    color: AppColors.black,
-                  ),
-                ),
-              ),
-            ),
+            // ---- AppBar ----
+            const AppBarBack(title: ''),
 
             // ---- Scrollable content ----
             Expanded(
@@ -76,7 +62,7 @@ class _SignInOneState extends State<SignInOne> {
                       'ยินดีต้อนรับ',
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: context.rs(18),
+                        fontSize: context.rs(14),
                         fontWeight: FontWeight.w700,
                         color: AppColors.black,
                         height: 1.3,
@@ -132,19 +118,25 @@ class _SignInOneState extends State<SignInOne> {
                     // Sign in button
                     SizedBox(
                       width: double.infinity,
-                      height: context.rs(50),
+                      height: context.rs(46),
                       child: ElevatedButton(
-                        onPressed: () => widget.onSignIn?.call(
-                          _emailController.text.trim(),
-                          _passwordController.text,
-                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OTPPage(
+                                target: _emailController.text.trim(),
+                              ),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.purple,
                           foregroundColor: AppColors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.circular(context.rs(30)),
+                                BorderRadius.circular(context.rs(16)),
                           ),
                         ),
                         child: Text(
@@ -165,21 +157,15 @@ class _SignInOneState extends State<SignInOne> {
 
                     SizedBox(height: context.rs(16)),
 
-                    // Social buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _SocialButton(
-                          onTap: () {},
-                          child: _GoogleIcon(size: context.rs(26)),
-                        ),
-                        SizedBox(width: context.rs(16)),
-                        _SocialButton(
-                          onTap: () {},
-                          child: _LineIcon(size: context.rs(26)),
-                        ),
-                      ],
-                    ),
+                     // Social icons
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         _GoogleIcon(),
+                         SizedBox(width: context.rs(30)),
+                         _LineIcon(),
+                       ],
+                     ),
 
                     SizedBox(height: context.rs(36)),
                   ],
@@ -189,7 +175,7 @@ class _SignInOneState extends State<SignInOne> {
 
             // ---- Register link ----
             Padding(
-              padding: EdgeInsets.only(bottom: context.rs(20)),
+              padding: EdgeInsets.only(bottom: context.rs(48)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -197,17 +183,24 @@ class _SignInOneState extends State<SignInOne> {
                     'ยังไม่มีบัญชี? ',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: context.rs(13),
-                      color: AppColors.textGray,
+                      fontSize: context.rs(12),
+                      color: AppColors.black,
                     ),
                   ),
                   GestureDetector(
-                    onTap: widget.onRegister,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SignUp(),
+                        ),
+                      );
+                    },
                     child: Text(
                       'ลงทะเบียน',
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: context.rs(13),
+                        fontSize: context.rs(12),
                         fontWeight: FontWeight.w600,
                         color: AppColors.purple,
                         decoration: TextDecoration.underline,
@@ -272,7 +265,7 @@ class _DentBookLogo extends StatelessWidget {
                   fontSize: fontSize * 0.28,
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0.4,
-                  color: AppColors.textGray,
+                  color: AppColors.purple,
                 ),
               ),
             ),
@@ -286,7 +279,7 @@ class _DentBookLogo extends StatelessWidget {
   Widget _divLine(BuildContext context) => Container(
         width: context.rs(22),
         height: 1,
-        color: AppColors.textGray.withValues(alpha: 0.4),
+        color: AppColors.purple.withValues(alpha: 0.4),
       );
 }
 
@@ -352,23 +345,23 @@ class _InputField extends StatelessWidget {
         ),
         suffixIcon: suffixIcon != null
             ? Padding(
-                padding: EdgeInsets.only(right: context.rs(12)),
+                padding: EdgeInsets.only(right: context.rs(16)),
                 child: suffixIcon,
               )
             : null,
         suffixIconConstraints: const BoxConstraints(),
         contentPadding: EdgeInsets.symmetric(
           horizontal: context.rs(16),
-          vertical: context.rs(14),
+          vertical: context.rs(18),
         ),
         filled: false,
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.rs(12)),
+          borderRadius: BorderRadius.circular(context.rs(16)),
           borderSide:
               const BorderSide(color: AppColors.inputBorder, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.rs(12)),
+          borderRadius: BorderRadius.circular(context.rs(16)),
           borderSide:
               const BorderSide(color: AppColors.purple, width: 1.5),
         ),
@@ -397,7 +390,7 @@ class _OrDivider extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: context.rs(13),
-              color: AppColors.textGray,
+              color: AppColors.black,
             ),
           ),
         ),
@@ -410,125 +403,39 @@ class _OrDivider extends StatelessWidget {
 }
 
 // ============================================================
-// Social button wrapper (วงกลม outline)
-// ============================================================
-class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.onTap, required this.child});
-  final VoidCallback onTap;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final double sz = context.rs(52);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: sz,
-        height: sz,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.inputBorder, width: 1.5),
-          color: AppColors.white,
-        ),
-        child: Center(child: child),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// Google "G" icon — วาดด้วย CustomPainter
+// Google icon
 // ============================================================
 class _GoogleIcon extends StatelessWidget {
-  const _GoogleIcon({required this.size});
-  final double size;
+  const _GoogleIcon();
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(painter: _GoogleIconPainter()),
-    );
+    return Center(
+        child: SvgPicture.asset(
+          'assets/images/signin/google.svg',
+          width: context.rs(24),
+          height: context.rs(24),
+          fit: BoxFit.contain,
+        ),
+      );
   }
-}
-
-class _GoogleIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double r = size.width / 2;
-    final Offset c = Offset(r, r);
-    final double sw = size.width * 0.18;
-    final double arcR = r - sw / 2;
-    final Rect rect = Rect.fromCircle(center: c, radius: arcR);
-
-    Paint arcPaint(Color color) => Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = sw
-      ..strokeCap = StrokeCap.butt;
-
-    // Red  (top-left to top-right)
-    canvas.drawArc(rect, math.pi * 1.25, math.pi * 0.5, false,
-        arcPaint(const Color(0xFFEA4335)));
-    // Blue (top-right to bottom-right)
-    canvas.drawArc(rect, math.pi * 1.75, math.pi * 0.5, false,
-        arcPaint(const Color(0xFF4285F4)));
-    // Yellow (bottom-right to bottom-left)
-    canvas.drawArc(rect, math.pi * 0.25, math.pi * 0.5, false,
-        arcPaint(const Color(0xFFFBBC05)));
-    // Green (bottom-left to top-left)
-    canvas.drawArc(rect, math.pi * 0.75, math.pi * 0.5, false,
-        arcPaint(const Color(0xFF34A853)));
-
-    // Horizontal bar (right arm of G)
-    canvas.drawLine(
-      Offset(c.dx, c.dy),
-      Offset(c.dx + arcR, c.dy),
-      Paint()
-        ..color = const Color(0xFF4285F4)
-        ..strokeWidth = sw
-        ..strokeCap = StrokeCap.square,
-    );
-    // Cover upper half of bar to make G shape
-    canvas.drawRect(
-      Rect.fromLTWH(c.dx, c.dy - sw, arcR, sw),
-      Paint()..color = AppColors.white,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_GoogleIconPainter oldDelegate) => false;
 }
 
 // ============================================================
 // LINE icon — วงกลมเขียว + "L"
 // ============================================================
 class _LineIcon extends StatelessWidget {
-  const _LineIcon({required this.size});
-  final double size;
+  const _LineIcon();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(
-        color: Color(0xFF06C755),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          'L',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: size * 0.55,
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-            height: 1,
-          ),
+    return Center(
+        child: SvgPicture.asset(
+          'assets/images/signin/line.svg',
+          width: context.rs(24),
+          height: context.rs(24),
+          fit: BoxFit.contain,
         ),
-      ),
-    );
+      );
   }
 }

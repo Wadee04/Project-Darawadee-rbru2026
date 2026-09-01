@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 
@@ -96,25 +97,8 @@ class _BirthdayPageState extends State<BirthdayPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // ---- Back button ----
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: context.rs(8),
-                  top: context.rs(4),
-                ),
-                child: IconButton(
-                  onPressed:
-                      widget.onBack ?? () => Navigator.maybePop(context),
-                  icon: Icon(
-                    Icons.chevron_left,
-                    size: context.rs(28),
-                    color: AppColors.black,
-                  ),
-                ),
-              ),
-            ),
+            // ---- AppBar ----
+            const AppBarBack(title: 'วันเกิด'),
 
             Expanded(
               child: SingleChildScrollView(

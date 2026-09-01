@@ -7,6 +7,7 @@ class AppColors {
   // ---- สีพื้นฐาน ----
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
+  static const Color black20 = Color(0x33000000); // #000000 at 20%
 
   // ---- สีหลัก ----
   static const Color purple = Color(0xFF4E4C85); // ม่วงหลัก
@@ -16,6 +17,8 @@ class AppColors {
   static const Color orangeLight = Color(0xFFFCD6B5); // ส้มอ่อน
   static const Color blue = Color(0xFFA7E7FF); // ฟ้า
   static const Color blueLight = Color(0xFFEAF0FB); // ฟ้าอ่อน
+  static const Color reddentbook = Color(0xFFDD191D); // แดง
+
 
   // ---- หน้า Intro ----
   static const Color cream = Color(0xFFF8E9DB);

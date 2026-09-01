@@ -1,15 +1,57 @@
 import 'package:flutter/material.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 
 // ============================================================
-// HomePage - หน้าหลัก
+// HomePageTwo - หน้าหลัก (สถานะ: เลือกคลินิกแล้ว มีนัดหมาย)
 // ============================================================
-class HomePage extends StatefulWidget {
-  const HomePage({
+
+/// ข้อมูลแถวคิวแต่ละห้อง
+class ClinicQueueItem {
+  const ClinicQueueItem({
+    required this.roomName,
+    required this.doctorName,
+    this.currentNumber,   // null = ว่าง
+    this.isServing = false,
+  });
+
+  final String roomName;
+  final String doctorName;
+  final int? currentNumber;
+  final bool isServing;
+}
+
+class HomePageTwo extends StatefulWidget {
+  const HomePageTwo({
     super.key,
     this.userName = 'คุณดาราวดี อลัย',
+    this.clinicName = 'Dentbook Clinic',
+    this.appointmentService = 'ขูดหินปูน',
+    this.appointmentNumber = '001',
+    this.appointmentDoctor = 'ทพ.อรุณี ใจดี',
+    this.appointmentTime = '10.00 น.',
+    this.queueItems = const [
+      ClinicQueueItem(
+        roomName: 'ห้อง 1',
+        doctorName: 'ทพญ. อรุณี',
+        currentNumber: 14,
+        isServing: true,
+      ),
+      ClinicQueueItem(
+        roomName: 'ห้อง 2',
+        doctorName: 'ทพ. ธนากร',
+        currentNumber: 9,
+        isServing: true,
+      ),
+      ClinicQueueItem(
+        roomName: 'ห้อง 3',
+        doctorName: 'ทพญ. พิมพ์พลอย',
+        currentNumber: null,
+        isServing: false,
+      ),
+    ],
     this.onNotification,
     this.onProfile,
     this.onSelectClinic,
@@ -18,6 +60,12 @@ class HomePage extends StatefulWidget {
   });
 
   final String userName;
+  final String clinicName;
+  final String appointmentService;
+  final String appointmentNumber;
+  final String appointmentDoctor;
+  final String appointmentTime;
+  final List<ClinicQueueItem> queueItems;
   final VoidCallback? onNotification;
   final VoidCallback? onProfile;
   final VoidCallback? onSelectClinic;
@@ -25,10 +73,10 @@ class HomePage extends StatefulWidget {
   final VoidCallback? onMyQueue;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePageTwo> createState() => _HomePageTwoState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageTwoState extends State<HomePageTwo> {
   int _navIndex = 0;
 
   @override
@@ -38,6 +86,7 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: Column(
           children: [
+            const AppBarBack(title: 'หน้าหลัก'),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
@@ -50,7 +99,6 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Greeting
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +126,6 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
-                        // Icons
                         Row(
                           children: [
                             _IconBtn(
@@ -97,74 +144,68 @@ class _HomePageState extends State<HomePage> {
 
                     SizedBox(height: context.rs(12)),
 
-                    // ---- Location bar ----
+                    // ---- Location bar (คลินิกที่เลือกแล้ว) ----
                     GestureDetector(
                       onTap: widget.onSelectClinic,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.rs(12),
-                          vertical: context.rs(8),
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius:
-                              BorderRadius.circular(context.rs(10)),
-                          border: Border.all(
-                              color: AppColors.inputBorder, width: 1),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              size: context.rs(16),
-                              color: AppColors.purple,
-                            ),
-                            SizedBox(width: context.rs(6)),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: context.rs(15),
+                            color: AppColors.purple,
+                          ),
+                          SizedBox(width: context.rs(4)),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'คลินิกปัจจุบัน',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: context.rs(11),
+                                  color: AppColors.textGray,
+                                ),
+                              ),
+                              Row(
                                 children: [
                                   Text(
-                                    'ยังไม่ได้เลือกคลินิก',
+                                    widget.clinicName,
                                     style: TextStyle(
                                       fontFamily: 'Inter',
-                                      fontSize: context.rs(12),
+                                      fontSize: context.rs(13),
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.black,
                                     ),
                                   ),
-                                  Text(
-                                    'กรุณาเลือกคลินิก เพื่อเริ่มใช้งาน',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: context.rs(11),
-                                      color: AppColors.textGray,
-                                    ),
+                                  SizedBox(width: context.rs(2)),
+                                  Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    size: context.rs(16),
+                                    color: AppColors.textGray,
                                   ),
                                 ],
                               ),
-                            ),
-                            Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: context.rs(18),
-                              color: AppColors.textGray,
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
 
                     SizedBox(height: context.rs(16)),
 
-                    // ---- Appointment card ----
-                    _AppointmentCard(),
+                    // ---- Appointment card (มีนัด) ----
+                    _ActiveAppointmentCard(
+                      service: widget.appointmentService,
+                      number: widget.appointmentNumber,
+                      doctor: widget.appointmentDoctor,
+                      time: widget.appointmentTime,
+                    ),
 
                     SizedBox(height: context.rs(20)),
 
-                    // ---- บริการแนะนำ ----
+                    // ---- คิวคลินิกวันนี้ ----
                     Text(
-                      'บริการแนะนำ',
+                      'คิวคลินิกวันนี้',
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: context.rs(15),
@@ -172,7 +213,30 @@ class _HomePageState extends State<HomePage> {
                         color: AppColors.black,
                       ),
                     ),
+                    SizedBox(height: context.rs(10)),
+                    Column(
+                      children: widget.queueItems
+                          .map((item) => Padding(
+                                padding: EdgeInsets.only(
+                                    bottom: context.rs(8)),
+                                child: _QueueRow(item: item),
+                              ))
+                          .toList(),
+                    ),
+
                     SizedBox(height: context.rs(12)),
+
+                    // ---- จองด่วน ----
+                    Text(
+                      'จองด่วน',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(15),
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    SizedBox(height: context.rs(10)),
                     Row(
                       children: [
                         Expanded(
@@ -225,7 +289,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 // ============================================================
-// _IconBtn — ปุ่ม icon วงกลมใน header
+// _IconBtn
 // ============================================================
 class _IconBtn extends StatelessWidget {
   const _IconBtn({required this.icon, this.onTap});
@@ -250,10 +314,20 @@ class _IconBtn extends StatelessWidget {
 }
 
 // ============================================================
-// _AppointmentCard — card นัดหมาย (gradient ม่วง)
+// _ActiveAppointmentCard — card นัดหมายที่มีข้อมูล
 // ============================================================
-class _AppointmentCard extends StatelessWidget {
-  const _AppointmentCard();
+class _ActiveAppointmentCard extends StatelessWidget {
+  const _ActiveAppointmentCard({
+    required this.service,
+    required this.number,
+    required this.doctor,
+    required this.time,
+  });
+
+  final String service;
+  final String number;
+  final String doctor;
+  final String time;
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +335,7 @@ class _AppointmentCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: context.rs(20),
-        vertical: context.rs(28),
+        vertical: context.rs(20),
       ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -275,42 +349,70 @@ class _AppointmentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.rs(16)),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon ปฏิทิน
-          Container(
-            width: context.rs(48),
-            height: context.rs(48),
-            decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.18),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.calendar_today_outlined,
-              size: context.rs(24),
-              color: AppColors.white,
-            ),
-          ),
-          SizedBox(height: context.rs(12)),
+          // Label บน
           Text(
-            'ยังไม่มีการนัดหมาย',
+            'บัตรนัดถัดไปของคุณ',
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: context.rs(15),
-              fontWeight: FontWeight.w700,
-              color: AppColors.white,
+              fontSize: context.rs(11),
+              fontWeight: FontWeight.w400,
+              color: AppColors.white.withValues(alpha: 0.75),
             ),
           ),
-          SizedBox(height: context.rs(4)),
+          SizedBox(height: context.rs(8)),
+
+          // บริการ + หมายเลข
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  service,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(20),
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                    height: 1.2,
+                  ),
+                ),
+              ),
+              // หมายเลข badge
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.rs(12),
+                  vertical: context.rs(4),
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(context.rs(8)),
+                ),
+                child: Text(
+                  number,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(20),
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: context.rs(8)),
+
+          // แพทย์ + เวลา
           Text(
-            'เมื่อคุณเลือกคลินิกแล้ว\nการนัดหมายของคุณจะแสดงที่นี่',
-            textAlign: TextAlign.center,
+            '$doctor - $time',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: context.rs(12),
               fontWeight: FontWeight.w400,
-              color: AppColors.white.withValues(alpha: 0.8),
-              height: 1.5,
+              color: AppColors.white.withValues(alpha: 0.85),
             ),
           ),
         ],
@@ -320,7 +422,116 @@ class _AppointmentCard extends StatelessWidget {
 }
 
 // ============================================================
-// _ServiceCard — card บริการแนะนำ
+// _QueueRow — แถวคิวแต่ละห้อง
+// ============================================================
+class _QueueRow extends StatelessWidget {
+  const _QueueRow({required this.item});
+  final ClinicQueueItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isServing =
+        item.isServing && item.currentNumber != null;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: context.rs(14),
+        vertical: context.rs(12),
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(context.rs(12)),
+        border: Border.all(color: AppColors.inputBorder, width: 1),
+      ),
+      child: Row(
+        children: [
+          // สถานะ dot
+          Container(
+            width: context.rs(8),
+            height: context.rs(8),
+            decoration: BoxDecoration(
+              color: isServing
+                  ? AppColors.orange
+                  : AppColors.inputBorder,
+              shape: BoxShape.circle,
+            ),
+          ),
+          SizedBox(width: context.rs(8)),
+
+          // ชื่อห้อง
+          SizedBox(
+            width: context.rs(56),
+            child: Text(
+              item.roomName,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(13),
+                fontWeight: FontWeight.w600,
+                color: AppColors.black,
+              ),
+            ),
+          ),
+
+          // ชื่อแพทย์
+          Expanded(
+            child: Text(
+              item.doctorName,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(12),
+                color: AppColors.textGray,
+              ),
+            ),
+          ),
+
+          // สถานะ / หมายเลข
+          if (isServing) ...[
+            Text(
+              'กำลังให้บริการ',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(11),
+                color: AppColors.textGray,
+              ),
+            ),
+            SizedBox(width: context.rs(6)),
+            Text(
+              item.currentNumber!.toString().padLeft(3, '0'),
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(14),
+                fontWeight: FontWeight.w700,
+                color: AppColors.black,
+              ),
+            ),
+          ] else ...[
+            Text(
+              'ว่าง',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(12),
+                color: AppColors.textGray,
+              ),
+            ),
+            SizedBox(width: context.rs(6)),
+            Text(
+              '-',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(14),
+                fontWeight: FontWeight.w700,
+                color: AppColors.textGray,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _ServiceCard — card จองด่วน
 // ============================================================
 class _ServiceCard extends StatelessWidget {
   const _ServiceCard({
@@ -371,7 +582,7 @@ class _ServiceCard extends StatelessWidget {
 }
 
 // ============================================================
-// _BottomNav — Bottom Navigation Bar
+// _BottomNav
 // ============================================================
 class _BottomNav extends StatelessWidget {
   const _BottomNav({required this.currentIndex, required this.onTap});
@@ -380,7 +591,7 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<_NavItem> items = const [
+    const List<_NavItem> items = [
       _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'หน้าหลัก'),
       _NavItem(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month, label: 'จองคิว'),
       _NavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long, label: 'คิวของฉัน'),
