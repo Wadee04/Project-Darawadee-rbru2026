@@ -4,6 +4,7 @@ import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 import '../Signin/signin_one.dart';
+import 'phone_number.dart';
 
 // ============================================================
 // SignUp - หน้าลงทะเบียน
@@ -27,6 +28,29 @@ class _SignUpState extends State<SignUp> {
 
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _isFormFilled = false;
+
+  bool get _allFieldsFilled =>
+      _nameController.text.trim().isNotEmpty &&
+      _emailController.text.trim().isNotEmpty &&
+      _passwordController.text.isNotEmpty &&
+      _confirmController.text.isNotEmpty;
+
+  void _onFieldChanged() {
+    final filled = _allFieldsFilled;
+    if (filled != _isFormFilled) {
+      setState(() => _isFormFilled = filled);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_onFieldChanged);
+    _emailController.addListener(_onFieldChanged);
+    _passwordController.addListener(_onFieldChanged);
+    _confirmController.addListener(_onFieldChanged);
+  }
 
   @override
   void dispose() {
@@ -145,14 +169,29 @@ class _SignUpState extends State<SignUp> {
                       width: double.infinity,
                       height: context.rs(46),
                       child: ElevatedButton(
-                        onPressed: () => widget.onSignUp?.call(
-                          _nameController.text.trim(),
-                          _emailController.text.trim(),
-                          _passwordController.text,
-                        ),
+                        onPressed: () {
+                          if (_isFormFilled) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const PhoneNumberPage(),
+                              ),
+                            );
+                          } else {
+                            widget.onSignUp?.call(
+                              _nameController.text.trim(),
+                              _emailController.text.trim(),
+                              _passwordController.text,
+                            );
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.registerButton,
-                          foregroundColor: AppColors.black,
+                          backgroundColor: _isFormFilled
+                              ? AppColors.purple
+                              : AppColors.registerButton,
+                          foregroundColor: _isFormFilled
+                              ? AppColors.white
+                              : AppColors.black,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius:
@@ -165,6 +204,9 @@ class _SignUpState extends State<SignUp> {
                             fontFamily: 'Inter',
                             fontSize: context.rs(16),
                             fontWeight: FontWeight.w500,
+                            color: _isFormFilled
+                                ? AppColors.white
+                                : AppColors.black,
                           ),
                         ),
                       ),

@@ -93,12 +93,12 @@ class _BirthdayPageState extends State<BirthdayPage> {
     final double drumHeight = itemHeight * 5; // แสดง 5 แถว
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F4FA),
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
             // ---- AppBar ----
-            const AppBarBack(title: 'วันเกิด'),
+            const AppBarBack(title: ''),
 
             Expanded(
               child: SingleChildScrollView(
@@ -110,21 +110,15 @@ class _BirthdayPageState extends State<BirthdayPage> {
 
                     // ---- Mascot ----
                     Container(
-                      width: context.rs(120),
-                      height: context.rs(120),
-                      decoration: BoxDecoration(
-                        color: AppColors.purpleLight,
-                        shape: BoxShape.circle,
-                      ),
+                      width: context.rs(200),
+                      height: context.rs(200),
                       child: ClipOval(
                         child: Image.asset(
-                          'assets/images/onboarding/toothmascot.png',
+                          'assets/images/signup/mascotsignup.png',
                           fit: BoxFit.contain,
                         ),
                       ),
                     ),
-
-                    SizedBox(height: context.rs(20)),
 
                     // ---- Title ----
                     Text(
@@ -158,6 +152,10 @@ class _BirthdayPageState extends State<BirthdayPage> {
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(context.rs(16)),
+                        border: Border.all(
+                          color: AppColors.inputBorder,
+                          width: 1,
+                        ),
                       ),
                       padding: EdgeInsets.symmetric(
                         horizontal: context.rs(8),
@@ -277,7 +275,7 @@ class _BirthdayPageState extends State<BirthdayPage> {
                           fontFamily: 'Inter',
                           fontSize: context.rs(13),
                           fontWeight: FontWeight.w500,
-                          color: AppColors.black,
+                          color: AppColors.purple,
                         ),
                       ),
                     ),
