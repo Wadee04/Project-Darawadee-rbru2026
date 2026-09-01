@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import '../Signin/signin_one.dart';
 
 // ============================================================
 // SignUp - หน้าลงทะเบียน
@@ -190,13 +191,21 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: widget.onSignIn,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SignInOne(),
+                        ),
+                      );
+                    },
                     child: Text(
                       'เข้าสู่ระบบ',
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: context.rs(12),
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.underline,
                         color: AppColors.purple,
                       ),
                     ),
