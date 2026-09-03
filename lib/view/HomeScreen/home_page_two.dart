@@ -89,12 +89,15 @@ class _HomePageTwoState extends State<HomePageTwo> {
             const AppBarBack(title: 'หน้าหลัก'),
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
+                padding: EdgeInsets.fromLTRB(
+                  context.rs(20),
+                  MediaQuery.of(context).size.height * 0.05,
+                  context.rs(20),
+                  0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: context.rs(16)),
-
                     // ---- Header row ----
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

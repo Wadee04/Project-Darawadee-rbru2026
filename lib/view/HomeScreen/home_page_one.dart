@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
@@ -10,7 +11,7 @@ import '../../theme/responsive.dart';
 class HomePageOne extends StatefulWidget {
   const HomePageOne({
     super.key,
-    this.userName = 'คุณดาราวดี อลัย',
+    this.userName = 'คุณดาราวดี อาลัย',
     this.onNotification,
     this.onProfile,
     this.onSelectClinic,
@@ -41,15 +42,18 @@ class _HomePageOneState extends State<HomePageOne> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
+                padding: EdgeInsets.fromLTRB(
+                  context.rs(20),
+                  MediaQuery.of(context).size.height * 0.05,
+                  context.rs(20),
+                  0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: context.rs(16)),
-
                     // ---- Header row ----
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // Greeting
                         Expanded(
@@ -60,7 +64,7 @@ class _HomePageOneState extends State<HomePageOne> {
                                 'สวัสดีตอนบ่าย',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: context.rs(13),
+                                  fontSize: context.rs(14),
                                   fontWeight: FontWeight.w400,
                                   color: AppColors.textGray,
                                 ),
@@ -70,7 +74,7 @@ class _HomePageOneState extends State<HomePageOne> {
                                 widget.userName,
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: context.rs(17),
+                                  fontSize: context.rs(16),
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.purple,
                                   height: 1.2,
@@ -83,13 +87,17 @@ class _HomePageOneState extends State<HomePageOne> {
                         Row(
                           children: [
                             _IconBtn(
-                              icon: Icons.notifications_none_outlined,
+                              svgAsset: 'assets/images/homescreen/bell.svg',
                               onTap: widget.onNotification,
+                              width: 15,
+                              height: 17,
                             ),
-                            SizedBox(width: context.rs(4)),
+                            SizedBox(width: context.rs(25)),
                             _IconBtn(
-                              icon: Icons.account_circle_outlined,
+                              svgAsset: 'assets/images/homescreen/contact.svg',
                               onTap: widget.onProfile,
+                              width: 20,
+                              height: 18.16,
                             ),
                           ],
                         ),
@@ -102,21 +110,20 @@ class _HomePageOneState extends State<HomePageOne> {
                     GestureDetector(
                       onTap: widget.onSelectClinic,
                       child: Container(
+                      
                         padding: EdgeInsets.symmetric(
                           horizontal: context.rs(12),
                           vertical: context.rs(8),
                         ),
-                        decoration: BoxDecoration(
+                         decoration: BoxDecoration(
                           color: AppColors.white,
                           borderRadius:
                               BorderRadius.circular(context.rs(10)),
-                          border: Border.all(
-                              color: AppColors.inputBorder, width: 1),
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              Icons.location_on_outlined,
+                              Icons.location_on,
                               size: context.rs(16),
                               color: AppColors.purple,
                             ),
@@ -146,10 +153,21 @@ class _HomePageOneState extends State<HomePageOne> {
                                 ],
                               ),
                             ),
-                            Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: context.rs(18),
-                              color: AppColors.textGray,
+                            Container(
+                              width: context.rs(32),
+                              height: context.rs(32),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.inputBorder,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: context.rs(18),
+                                color: AppColors.textGray,
+                              ),
                             ),
                           ],
                         ),
@@ -229,22 +247,29 @@ class _HomePageOneState extends State<HomePageOne> {
 // _IconBtn — ปุ่ม icon วงกลมใน header
 // ============================================================
 class _IconBtn extends StatelessWidget {
-  const _IconBtn({required this.icon, this.onTap});
-  final IconData icon;
+  const _IconBtn({
+    required this.svgAsset,
+    this.onTap,
+    this.width = 20,
+    this.height = 20,
+  });
+  final String svgAsset;
   final VoidCallback? onTap;
+  final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: context.rs(36),
-        height: context.rs(36),
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          shape: BoxShape.circle,
+      child: SvgPicture.asset(
+        svgAsset,
+        width: context.rs(width),
+        height: context.rs(height),
+        colorFilter: const ColorFilter.mode(
+          Color(0xB3000000),
+          BlendMode.srcIn,
         ),
-        child: Icon(icon, size: context.rs(20), color: AppColors.purple),
       ),
     );
   }
