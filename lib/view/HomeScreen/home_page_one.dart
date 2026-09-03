@@ -122,10 +122,21 @@ class _HomePageOneState extends State<HomePageOne> {
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              Icons.location_on,
-                              size: context.rs(16),
-                              color: AppColors.purple,
+                            Container(
+                              width: context.rs(32),
+                              height: context.rs(32),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.inputBorder,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.location_on,
+                                size: context.rs(16),
+                                color: AppColors.purple,
+                              ),
                             ),
                             SizedBox(width: context.rs(6)),
                             Expanded(
