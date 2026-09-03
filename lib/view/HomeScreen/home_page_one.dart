@@ -126,18 +126,13 @@ class _HomePageOneState extends State<HomePageOne> {
                               width: context.rs(32),
                               height: context.rs(32),
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
+                                color: AppColors.white,
+                                borderRadius:
+                                    BorderRadius.circular(context.rs(10)),
                                 border: Border.all(
                                   color: AppColors.inputBorder,
                                   width: 1,
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.black.withOpacity(0.1),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
                               ),
                               child: Icon(
                                 Icons.location_on,
