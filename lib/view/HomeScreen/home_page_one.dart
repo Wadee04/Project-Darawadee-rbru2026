@@ -164,21 +164,10 @@ class _HomePageOneState extends State<HomePageOne> {
                                 ],
                               ),
                             ),
-                            Container(
-                              width: context.rs(32),
-                              height: context.rs(32),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppColors.inputBorder,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                size: context.rs(18),
-                                color: AppColors.textGray,
-                              ),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: context.rs(18),
+                              color: AppColors.textGray,
                             ),
                           ],
                         ),
