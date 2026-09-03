@@ -131,6 +131,13 @@ class _HomePageOneState extends State<HomePageOne> {
                                   color: AppColors.inputBorder,
                                   width: 1,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Icon(
                                 Icons.location_on,
