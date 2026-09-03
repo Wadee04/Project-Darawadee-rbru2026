@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import 'intro2.dart';
 
@@ -25,7 +26,7 @@ class _Intro1State extends State<Intro1> {
       // ใช้ pushReplacement เพื่อไม่ให้กดย้อนกลับมาหน้า Splash ได้
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Intro2()),
+        noAnimRoute(const Intro2()),
       );
     });
   }

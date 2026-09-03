@@ -173,9 +173,7 @@ class _SignUpState extends State<SignUp> {
                           if (_isFormFilled) {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => const PhoneNumberPage(),
-                              ),
+                              noAnimRoute(const PhoneNumberPage()),
                             );
                           } else {
                             widget.onSignUp?.call(
@@ -236,9 +234,7 @@ class _SignUpState extends State<SignUp> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const SignInOne(),
-                        ),
+                        noAnimRoute(const SignInOne()),
                       );
                     },
                     child: Text(

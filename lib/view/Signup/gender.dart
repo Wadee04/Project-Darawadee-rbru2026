@@ -31,12 +31,12 @@ class _GenderPageState extends State<GenderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F4FA),
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
             // ---- AppBar ----
-            const AppBarBack(title: 'เพศ'),
+            const AppBarBack(title: ''),
 
             // ---- Content ----
             Expanded(
@@ -49,29 +49,29 @@ class _GenderPageState extends State<GenderPage> {
 
                     // ---- Mascot ----
                     SizedBox(
-                      width: context.rs(130),
-                      height: context.rs(130),
+                      width: context.rs(160),
+                      height: context.rs(160),
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
                           // Glow circle
                           Container(
-                            width: context.rs(110),
-                            height: context.rs(110),
+                            width: context.rs(160),
+                            height: context.rs(160),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  const Color(0xFFFFF3C4),
-                                  const Color(0xFFFFF3C4).withValues(alpha: 0),
+                                  const Color(0xFFEACD85),
+                                  const Color(0xFFEACD85).withValues(alpha: 0),
                                 ],
                               ),
                             ),
                           ),
                           Image.asset(
-                            'assets/images/onboarding/toothmascot.png',
-                            width: context.rs(110),
-                            height: context.rs(110),
+                            'assets/images/signup/mascot3.png',
+                            width: context.rs(94),
+                            height: context.rs(94),
                             fit: BoxFit.contain,
                           ),
                         ],
@@ -163,7 +163,7 @@ class _GenderPageState extends State<GenderPage> {
                   // ปุ่มถัดไป
                   SizedBox(
                     width: double.infinity,
-                    height: context.rs(50),
+                    height: context.rs(40),
                     child: ElevatedButton(
                       onPressed: _selected != null
                           ? () => widget.onNext?.call(_selected!)

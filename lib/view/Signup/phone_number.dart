@@ -151,9 +151,7 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                                   ?.call(_phoneController.text.trim());
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => const BirthdayPage(),
-                                ),
+                                noAnimRoute(const BirthdayPage()),
                               );
                             }
                           : null,

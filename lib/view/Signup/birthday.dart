@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import 'gender.dart';
 
 // ============================================================
 // BirthdayPage - หน้าเลือกวันเกิด
@@ -109,14 +110,40 @@ class _BirthdayPageState extends State<BirthdayPage> {
                     SizedBox(height: context.rs(8)),
 
                     // ---- Mascot ----
-                    Container(
-                      width: context.rs(200),
-                      height: context.rs(200),
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/signup/mascotsignup.png',
-                          fit: BoxFit.contain,
-                        ),
+                    SizedBox(
+                      width: context.rs(160),
+                      height: context.rs(160),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Glow layer — radial gradient, no hard edge
+                          Container(
+                            width: context.rs(160),
+                            height: context.rs(160),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  const Color(0xFFCDBFF6).withOpacity(0.6),
+                                  const Color(0xFFCDBFF6).withOpacity(0.25),
+                                  const Color(0xFFCDBFF6).withOpacity(0.0),
+                                ],
+                                stops: const [0.0, 0.55, 1.0],
+                              ),
+                            ),
+                          ),
+                          // Mascot image
+                          Container(
+                            width: context.rs(94),
+                            height: context.rs(94),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/images/signup/mascotsignup2.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -268,73 +295,109 @@ class _BirthdayPageState extends State<BirthdayPage> {
                           width: 1,
                         ),
                       ),
-                      child: Text(
-                        'วันเกิดที่เลือก  $_selectedDateText',
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'วันเกิดที่เลือก  ',
+                              style: TextStyle(
+                                color: AppColors.purple,
+                              ),
+                            ),
+                            TextSpan(
+                              text: _selectedDateText,
+                              style: TextStyle(
+                                color: AppColors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: context.rs(13),
                           fontWeight: FontWeight.w500,
-                          color: AppColors.purple,
                         ),
                       ),
                     ),
 
                     SizedBox(height: context.rs(20)),
-
-                    // ---- ปุ่มถัดไป ----
-                    SizedBox(
-                      width: double.infinity,
-                      height: context.rs(50),
-                      child: ElevatedButton(
-                        onPressed: () =>
-                            widget.onNext?.call(_selectedDateTime),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.purple,
-                          foregroundColor: AppColors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(context.rs(30)),
-                          ),
-                        ),
-                        child: Text(
-                          'ถัดไป',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: context.rs(15),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: context.rs(12)),
-
-                    // ---- ข้ามไปก่อน ----
-                    GestureDetector(
-                      onTap: widget.onSkip,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: context.rs(8),
-                        ),
-                        child: Text(
-                          'ข้ามไปก่อน',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: context.rs(13),
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textGray,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColors.textGray,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: context.rs(24)),
                   ],
                 ),
+              ),
+            ),
+
+            // ---- ปุ่มถัดไป + ข้ามไปก่อน (ชิดขอบล่าง) ----
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                context.rs(24),
+                0,
+                context.rs(24),
+                context.rs(48),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: context.rs(40),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        widget.onNext?.call(_selectedDateTime);
+                        Navigator.push(
+                          context,
+                          noAnimRoute(const GenderPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.purple,
+                        foregroundColor: AppColors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(context.rs(30)),
+                        ),
+                      ),
+                      child: Text(
+                        'ถัดไป',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(15),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: context.rs(12)),
+
+                  // ---- ข้ามไปก่อน ----
+                  GestureDetector(
+                    onTap: () {
+                      widget.onSkip?.call();
+                      Navigator.push(
+                        context,
+                        noAnimRoute(const GenderPage()),
+                      );
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.rs(8),
+                      ),
+                      child: Text(
+                        'ข้ามไปก่อน',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(13),
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textGray,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.textGray,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -5,8 +5,13 @@ import '../theme/app_text.dart';
 import '../theme/responsive.dart';
 
 // ============================================================
-// BrandLogo - โลโก้แบรนด์ "DentBook"
+// noAnimRoute — เปลี่ยนหน้าแบบไม่มี animation
 // ============================================================
+Route<T> noAnimRoute<T>(Widget page) => PageRouteBuilder<T>(
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+    );
 
 class BrandLogo extends StatelessWidget {
   const BrandLogo({
@@ -175,13 +180,18 @@ class OnboardingPage extends StatelessWidget {
                 ),
               ),
               SafeArea(
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: TextButton(
-                    onPressed: onSkip,
-                    child: Text(
-                      'ข้าม',
-                      style: AppText.skip.copyWith(fontSize: context.rs(14)),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height * 0.05,
+                  ),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: TextButton(
+                      onPressed: onSkip,
+                      child: Text(
+                        'ข้าม',
+                        style: AppText.skip.copyWith(fontSize: context.rs(14)),
+                      ),
                     ),
                   ),
                 ),
@@ -327,7 +337,7 @@ class AppBarBack extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         context.rs(24),
-        context.rs(8),
+        MediaQuery.of(context).size.height * 0.05,
         context.rs(24),
         0,
       ),

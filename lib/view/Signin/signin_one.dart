@@ -123,11 +123,9 @@ class _SignInOneState extends State<SignInOne> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => OTPPage(
-                                target: _emailController.text.trim(),
-                              ),
-                            ),
+                            noAnimRoute(OTPPage(
+                              target: _emailController.text.trim(),
+                            )),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -191,9 +189,7 @@ class _SignInOneState extends State<SignInOne> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const SignUp(),
-                        ),
+                        noAnimRoute(const SignUp()),
                       );
                     },
                     child: Text(

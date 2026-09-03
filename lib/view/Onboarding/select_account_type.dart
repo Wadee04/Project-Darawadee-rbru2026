@@ -173,9 +173,7 @@ class _SheetContent extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const GettingStartedUser(),
-              ),
+              noAnimRoute(const GettingStartedUser()),
             );
           },
         ),

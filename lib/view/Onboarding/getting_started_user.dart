@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text.dart';
 import '../../theme/responsive.dart';
@@ -111,9 +112,7 @@ class GettingStartedUser extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const SignUp(),
-                        ),
+                        noAnimRoute(const SignUp()),
                       );
                     },
                     style: ButtonStyle(
@@ -144,9 +143,7 @@ class GettingStartedUser extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => SignInOne(),
-                        ),
+                        noAnimRoute(const SignInOne()),
                       );
                     },
                     style: ElevatedButton.styleFrom(

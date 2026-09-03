@@ -202,9 +202,7 @@ class _OTPPageState extends State<OTPPage> {
                                 widget.onNext?.call(_otpValue);
                                 Navigator.pushReplacement(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const HomePageOne(),
-                                  ),
+                                  noAnimRoute(const HomePageOne()),
                                 );
                               }
                             : null,
