@@ -35,11 +35,10 @@ class _HomePageOneState extends State<HomePageOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.homeBackground,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
-            const AppBarBack(title: 'หน้าหลัก'),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
@@ -58,7 +57,7 @@ class _HomePageOneState extends State<HomePageOne> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'สวัสดีตอนนาย',
+                                'สวัสดีตอนบ่าย',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: context.rs(13),

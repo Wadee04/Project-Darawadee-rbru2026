@@ -65,6 +65,7 @@ flutter:
     - assets/images/onboarding/
     - assets/images/signin/
     - assets/images/signup/
+    - assets/Book_an_appointment/
 
 
   # ฟอนต์ฝังในแอป (bundle) เพื่อไม่ต้องโหลดผ่านเน็ตตอนรัน -> ข้อความขึ้นทันที
