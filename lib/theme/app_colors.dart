@@ -48,7 +48,7 @@ class AppColors {
   // ---- หน้า Home ----
   static const Color homeBackground = Color(0xFFF5F4FA);
   static const Color cardAppointment1 = Color(0xFF4E4C85); // gradient start
-  static const Color cardAppointment2 = Color(0xFF6B68C0); // gradient end
+  static const Color cardAppointment2 = Color(0xFF302F50); // gradient end
   static const Color navBarSelected = Color(0xFF4E4C85);
   static const Color navBarUnselected = Color(0xFFAAAAAA);
 }
