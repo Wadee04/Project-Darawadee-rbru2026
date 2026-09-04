@@ -4,36 +4,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 import 'home_page_one.dart';
+import 'home_page_two.dart';
 
 // ============================================================
-// HomePageTwo - หน้าหลัก (สถานะ: เลือกคลินิกแล้ว มีนัดหมาย)
+// HomePageThree - หน้าหลัก (สถานะ: เลือกคลินิกแล้ว ยังไม่มีนัด)
 // ============================================================
-
-/// ข้อมูลแถวคิวแต่ละห้อง
-class ClinicQueueItem {
-  const ClinicQueueItem({
-    required this.roomName,
-    required this.doctorName,
-    this.currentNumber,
-    this.isServing = false,
-  });
-
-  final String roomName;
-  final String doctorName;
-  final int? currentNumber;
-  final bool isServing;
-}
-
-class HomePageTwo extends StatefulWidget {
-  const HomePageTwo({
+class HomePageThree extends StatefulWidget {
+  const HomePageThree({
     super.key,
     this.userName = 'คุณดาราวดี อลัย',
     this.clinicName = 'Dentbook Clinic',
     this.clinicProvince = 'กรุงเทพมหานคร',
-    this.appointmentService = 'ขูดหินปูน',
-    this.appointmentNumber = 'A-001',
-    this.appointmentDoctor = 'ทพ.อรุณี ใจดี',
-    this.appointmentTime = '10.00 น.',
     this.queueItem = const ClinicQueueItem(
       roomName: 'ห้อง 1',
       doctorName: 'ทพญ. อรุณี',
@@ -50,10 +31,6 @@ class HomePageTwo extends StatefulWidget {
   final String userName;
   final String clinicName;
   final String clinicProvince;
-  final String appointmentService;
-  final String appointmentNumber;
-  final String appointmentDoctor;
-  final String appointmentTime;
   final ClinicQueueItem queueItem;
   final VoidCallback? onNotification;
   final VoidCallback? onProfile;
@@ -62,10 +39,10 @@ class HomePageTwo extends StatefulWidget {
   final VoidCallback? onMyQueue;
 
   @override
-  State<HomePageTwo> createState() => _HomePageTwoState();
+  State<HomePageThree> createState() => _HomePageThreeState();
 }
 
-class _HomePageTwoState extends State<HomePageTwo> {
+class _HomePageThreeState extends State<HomePageThree> {
   int _navIndex = 0;
 
   @override
@@ -141,7 +118,7 @@ class _HomePageTwoState extends State<HomePageTwo> {
 
                     SizedBox(height: context.rs(10)),
 
-                    // ---- Location bar (คลินิกที่เลือกแล้ว) ----
+                    // ---- Location bar ----
                     GestureDetector(
                       onTap: () {
                         showSelectClinicSheet(context,
@@ -149,7 +126,7 @@ class _HomePageTwoState extends State<HomePageTwo> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => HomePageTwo(
+                              builder: (_) => HomePageThree(
                                 clinicName: clinic.name,
                                 clinicProvince: clinic.province,
                               ),
@@ -231,13 +208,8 @@ class _HomePageTwoState extends State<HomePageTwo> {
 
                     SizedBox(height: context.rs(10)),
 
-                    // ---- Appointment card (มีนัด) ----
-                    _ActiveAppointmentCard(
-                      service: widget.appointmentService,
-                      number: widget.appointmentNumber,
-                      doctor: widget.appointmentDoctor,
-                      time: widget.appointmentTime,
-                    ),
+                    // ---- Appointment card (ยังไม่มีนัด) ----
+                    _NoAppointmentCard(onBooking: widget.onBooking),
 
                     SizedBox(height: context.rs(20)),
 
@@ -366,7 +338,7 @@ class _HomePageTwoState extends State<HomePageTwo> {
 }
 
 // ============================================================
-// _IconBtn — ปุ่ม icon SVG ใน header
+// _IconBtn
 // ============================================================
 class _IconBtn extends StatelessWidget {
   const _IconBtn({
@@ -398,20 +370,11 @@ class _IconBtn extends StatelessWidget {
 }
 
 // ============================================================
-// _ActiveAppointmentCard — card นัดหมายที่มีข้อมูล
+// _NoAppointmentCard — card เมื่อยังไม่มีนัดหมาย
 // ============================================================
-class _ActiveAppointmentCard extends StatelessWidget {
-  const _ActiveAppointmentCard({
-    required this.service,
-    required this.number,
-    required this.doctor,
-    required this.time,
-  });
-
-  final String service;
-  final String number;
-  final String doctor;
-  final String time;
+class _NoAppointmentCard extends StatelessWidget {
+  const _NoAppointmentCard({this.onBooking});
+  final VoidCallback? onBooking;
 
   @override
   Widget build(BuildContext context) {
@@ -436,7 +399,7 @@ class _ActiveAppointmentCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'นัดหมายถัดไปของคุณ',
+            'ยังไม่มีการนัดหมาย',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: context.rs(14),
@@ -445,49 +408,29 @@ class _ActiveAppointmentCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: context.rs(13)),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  service,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(16),
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.white,
-                    height: 1.1,
-                  ),
-                ),
-              ),
-              Transform.translate(
-                offset: const Offset(0, -11),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: context.rs(4),
-                  ),
-                  child: Text(
-                    number,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(20),
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.white,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
           Text(
-            '$doctor - $time',
+            'จองคิวล่วงหน้าไม่ต้องรอหน้าคลินิก',
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: context.rs(14),
-              fontWeight: FontWeight.w400,
-              color: AppColors.white.withValues(alpha: 0.85),
-              height: 0.9,
+              fontSize: context.rs(16),
+              fontWeight: FontWeight.w700,
+              color: AppColors.white,
+              height: 1.3,
+            ),
+          ),
+          SizedBox(height: context.rs(8)),
+          GestureDetector(
+            onTap: onBooking,
+            child: Text(
+              'จองคิวเลย',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(14),
+                fontWeight: FontWeight.w500,
+                color: AppColors.white.withValues(alpha: 0.9),
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.white.withValues(alpha: 0.9),
+              ),
             ),
           ),
         ],
@@ -523,7 +466,6 @@ class _QueueRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // ซ้าย: ชื่อห้อง + dot + ชื่อหมอ
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -564,7 +506,6 @@ class _QueueRow extends StatelessWidget {
               ],
             ),
           ),
-          // ขวา: สถานะ + เลข
           if (isServing) ...[
             Text(
               'กำลังให้บริการ',
@@ -611,7 +552,7 @@ class _QueueRow extends StatelessWidget {
 }
 
 // ============================================================
-// _ServiceCard — card บริการแนะนำ (SVG icon เหมือน HomePageOne)
+// _ServiceCard
 // ============================================================
 class _ServiceCard extends StatelessWidget {
   const _ServiceCard({
@@ -668,7 +609,7 @@ class _ServiceCard extends StatelessWidget {
 }
 
 // ============================================================
-// _BottomNav — Bottom Navigation Bar (SVG เหมือน HomePageOne)
+// _BottomNav
 // ============================================================
 class _BottomNav extends StatelessWidget {
   const _BottomNav({required this.currentIndex, required this.onTap});
@@ -749,10 +690,7 @@ class _BottomNav extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem({
-    required this.svgPath,
-    required this.label,
-  });
+  const _NavItem({required this.svgPath, required this.label});
   final String svgPath;
   final String label;
 }

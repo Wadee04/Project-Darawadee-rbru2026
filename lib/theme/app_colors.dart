@@ -19,6 +19,7 @@ class AppColors {
   static const Color blue = Color(0xFFA7E7FF); // ฟ้า
   static const Color blueLight = Color(0xFFEAF0FB); // ฟ้าอ่อน
   static const Color reddentbook = Color(0xFFDD191D); // แดง
+  static const Color greendentbook = Color(0xFF34C759); // แดง
 
 
   // ---- หน้า Intro ----

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import '../HomeScreen/home_page_one.dart';
 import 'gender.dart';
 
 // ============================================================
@@ -342,13 +343,19 @@ class _BirthdayPageState extends State<BirthdayPage> {
                     width: double.infinity,
                     height: context.rs(40),
                     child: ElevatedButton(
-                      onPressed: () {
-                        widget.onNext?.call(_selectedDateTime);
-                        Navigator.push(
-                          context,
-                          noAnimRoute(const GenderPage()),
-                        );
-                      },
+                      onPressed: _selectedDateText.isNotEmpty
+                          ? () {
+                              if (widget.onNext != null) {
+                                widget.onNext!(_selectedDateTime);
+                              } else {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  noAnimRoute(const HomePageOne()),
+                                  (route) => false,
+                                );
+                              }
+                            }
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.purple,
                         foregroundColor: AppColors.white,

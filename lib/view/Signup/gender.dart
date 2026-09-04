@@ -203,7 +203,14 @@ class _GenderPageState extends State<GenderPage> {
 
                   // ข้ามไปก่อน
                   GestureDetector(
-                    onTap: widget.onSkip,
+                    onTap: () {
+                      widget.onSkip?.call();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        noAnimRoute(const HomePageOne()),
+                        (route) => false,
+                      );
+                    },
                     child: Padding(
                       padding:
                           EdgeInsets.symmetric(vertical: context.rs(8)),

@@ -3,10 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
-import 'home_page_two.dart';
+import 'home_page_three.dart';
 
 // ============================================================
-// โมเดลข้อมูลคลินิก
+// หน้าหลักตอนที่ยังไม่ได้เลือกคลินิก 
 // ============================================================
 class ClinicItem {
   const ClinicItem({
@@ -501,8 +501,9 @@ class _HomePageOneState extends State<HomePageOne> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => HomePageTwo(
+                              builder: (_) => HomePageThree(
                                 clinicName: clinic.name,
+                                clinicProvince: clinic.province,
                               ),
                             ),
                           );
