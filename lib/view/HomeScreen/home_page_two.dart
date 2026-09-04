@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import '../Book_an_appointment/book_an_appointment_one.dart';
 import 'home_page_one.dart';
 import 'home_page_three.dart';
 
@@ -678,94 +680,4 @@ class _ServiceCard extends StatelessWidget {
       ),
     );
   }
-}
-
-// ============================================================
-// _BottomNav — Bottom Navigation Bar (SVG เหมือน HomePageOne)
-// ============================================================
-class _BottomNav extends StatelessWidget {
-  const _BottomNav({required this.currentIndex, required this.onTap});
-  final int currentIndex;
-  final void Function(int) onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final List<_NavItem> items = const [
-      _NavItem(
-          svgPath: 'assets/images/homescreen/homepage.svg',
-          label: 'หน้าหลัก'),
-      _NavItem(
-          svgPath: 'assets/images/homescreen/book_an_appointment.svg',
-          label: 'จองคิว'),
-      _NavItem(
-          svgPath: 'assets/images/homescreen/queue_of.svg',
-          label: 'คิวของฉัน'),
-      _NavItem(
-          svgPath: 'assets/images/homescreen/profile.svg',
-          label: 'โปรไฟล์'),
-    ];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.07),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.only(
-        top: context.rs(12),
-        bottom: context.rs(15),
-      ),
-      child: Row(
-        children: List.generate(items.length, (i) {
-          final bool active = i == currentIndex;
-          return Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => onTap(i),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset(
-                    items[i].svgPath,
-                    width: context.rs(24),
-                    height: context.rs(24),
-                    colorFilter: ColorFilter.mode(
-                      active ? AppColors.orange : AppColors.black50,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  SizedBox(height: context.rs(4)),
-                  Text(
-                    items[i].label,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(10),
-                      fontWeight:
-                          active ? FontWeight.w600 : FontWeight.w400,
-                      color:
-                          active ? AppColors.orange : AppColors.black50,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-class _NavItem {
-  const _NavItem({
-    required this.svgPath,
-    required this.label,
-  });
-  final String svgPath;
-  final String label;
 }

@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import '../HomeScreen/home_page_one.dart';
 // ============================================================
 // BookAnAppointment0 - หน้าเลือกประเภทการจองนัด
 // ============================================================
@@ -29,7 +29,7 @@ class BookAnAppointmentOne extends StatefulWidget {
 }
 
 class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
-  final int _navIndex = 1; // จองคิว active
+  int _navIndex = 1; // จองคิว active
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +55,18 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                       text: TextSpan(
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: context.rs(22),
-                          fontWeight: FontWeight.w700,
+                          fontSize: context.rs(20),
+                          fontWeight: FontWeight.w600,
                           height: 1.3,
                         ),
                         children: [
                           TextSpan(
-                            text: 'เราใส่ใจ',
-                            style: TextStyle(color: AppColors.purple),
+                            text: 'เรา',
+                            style: TextStyle(color: AppColors.black),
+                          ),
+                          TextSpan(
+                            text: 'ใส่ใจ',
+                            style: TextStyle(color: AppColors.orange),
                           ),
                           TextSpan(
                             text: 'ทุกปัญหาช่องปากของคุณ',
@@ -76,10 +80,10 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                       'เลือกวิธีที่เหมาะสมกับคุณ เพื่อให้เรา\nดูแลคุณได้อย่างตรงจุด',
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: context.rs(12),
+                        fontSize: context.rs(14),
                         fontWeight: FontWeight.w400,
                         color: AppColors.textGray,
-                        height: 1.6,
+                        height: 1.3,
                       ),
                     ),
 
@@ -92,16 +96,23 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                       description:
                           'บอกเราว่าคุณต้องการอะไร\nเพื่อให้เราจัดบริการที่เหมาะสม\nกับความต้องการของคุณ',
                       gradientColors: const [
-                        Color(0xFF4E4C85),
-                        Color(0xFF6B68C0),
+                        AppColors.blue50,
+                        AppColors.white,
                       ],
                       badgeColor: AppColors.purple,
+                      accentColor: AppColors.purple,
+                      borderColor: AppColors.purple,
                       features: const [
                         _Feature(icon: Icons.location_on_outlined, label: 'ทุกที่'),
                         _Feature(icon: Icons.access_time_outlined, label: 'ทุกเวลา'),
                         _Feature(icon: Icons.bolt_outlined, label: 'ประหยัดเวลา'),
                       ],
-                      mascotWidget: _NurseMascot(),
+                      mascotWidget: Image.asset(
+                        'assets/images/Book_an_appointment/book.png',
+                        height: 110,
+                        fit: BoxFit.contain,
+                      ),
+                      mascotOnLeft: true,
                       onTap: widget.onSelectDescribe,
                     ),
 
@@ -114,16 +125,23 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                       description:
                           'พูดคุยกับทันตแพทย์ของเราโดยตรง\nเพื่อรับคำปรึกษาที่ถูกต้องที่สุด\nและตรงตามความต้องการของคุณ',
                       gradientColors: const [
-                        Color(0xFFFF8D28),
-                        Color(0xFFFFB347),
+                        AppColors.orange10,
+                        AppColors.white,
                       ],
                       badgeColor: AppColors.orange,
+                      accentColor: AppColors.orange,
+                      borderColor: AppColors.orange,
                       features: const [
                         _Feature(icon: Icons.chat_bubble_outline, label: 'ปรึกษาฟรี'),
                         _Feature(icon: Icons.verified_user_outlined, label: 'ทันตแพทย์\nที่แนะนำ'),
                         _Feature(icon: Icons.schedule_outlined, label: 'นัดหมาย\nได้เลย'),
                       ],
-                      mascotWidget: _DoctorMascot(),
+                      mascotWidget: Image.asset(
+                        'assets/images/Book_an_appointment/maskgroupone.png',
+                        height: 110,
+                        fit: BoxFit.contain,
+                      ),
+                      mascotOnLeft: true,
                       onTap: widget.onSelectConsult,
                     ),
 
@@ -160,10 +178,17 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
             ),
 
             // ---- Bottom Navigation ----
-            _BottomNav(
+            AppBottomNav(
               currentIndex: _navIndex,
               onTap: (i) {
-                if (i == 0) widget.onHome?.call();
+                setState(() => _navIndex = i);
+                if (i == 0) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomePageOne()),
+                    (route) => false,
+                  );
+                }
                 if (i == 2) widget.onMyQueue?.call();
                 if (i == 3) widget.onProfile?.call();
               },
@@ -194,8 +219,11 @@ class _ServiceCard extends StatelessWidget {
     required this.description,
     required this.gradientColors,
     required this.badgeColor,
+    required this.accentColor,
+    required this.borderColor,
     required this.features,
     required this.mascotWidget,
+    this.mascotOnLeft = false,
     this.onTap,
   });
 
@@ -204,8 +232,11 @@ class _ServiceCard extends StatelessWidget {
   final String description;
   final List<Color> gradientColors;
   final Color badgeColor;
+  final Color accentColor;
+  final Color borderColor;
   final List<_Feature> features;
   final Widget mascotWidget;
+  final bool mascotOnLeft;
   final VoidCallback? onTap;
 
   @override
@@ -216,130 +247,148 @@ class _ServiceCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          borderRadius: BorderRadius.circular(context.rs(18)),
+          borderRadius: BorderRadius.circular(context.rs(16)),
+          border: Border.all(color: borderColor, width: 1.5),
         ),
-        child: Stack(
-          clipBehavior: Clip.hardEdge,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Mascot (มุมขวา)
-            Positioned(
-              right: context.rs(-4),
-              bottom: context.rs(32),
-              child: mascotWidget,
-            ),
+            // ---- Top section: Mascot + Content side by side ----
+            Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                // Mascot (ซ้ายหรือขวาตาม mascotOnLeft)
+                Positioned(
+                  left: mascotOnLeft ? context.rs(-4) : null,
+                  right: mascotOnLeft ? null : context.rs(-4),
+                  bottom: 0,
+                  child: mascotWidget,
+                ),
 
-            // Content
-            Padding(
-              padding: EdgeInsets.all(context.rs(18)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Badge
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.rs(10),
-                      vertical: context.rs(4),
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(context.rs(20)),
-                    ),
-                    child: Text(
-                      badge,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: context.rs(10),
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.white,
-                      ),
-                    ),
+                // Content — เพิ่ม padding ด้านที่มี mascot เพื่อหลบ
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: context.rs(18),
+                    bottom: context.rs(18),
+                    left: mascotOnLeft ? context.rs(90) : context.rs(18),
+                    right: mascotOnLeft ? context.rs(18) : context.rs(90),
                   ),
-
-                  SizedBox(height: context.rs(10)),
-
-                  // Title + Arrow row
-                  Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
+                      // Badge
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.rs(10),
+                          vertical: context.rs(4),
+                        ),
+                        decoration: BoxDecoration(
+                          color: accentColor,
+                          borderRadius: BorderRadius.circular(context.rs(10)),
+                        ),
                         child: Text(
-                          title,
+                          badge,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: context.rs(17),
-                            fontWeight: FontWeight.w700,
+                            fontSize: context.rs(10),
+                            fontWeight: FontWeight.w600,
                             color: AppColors.white,
-                            height: 1.3,
                           ),
                         ),
                       ),
-                      Container(
-                        width: context.rs(28),
-                        height: context.rs(28),
-                        decoration: BoxDecoration(
-                          color: AppColors.white.withValues(alpha: 0.25),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.chevron_right,
-                          size: context.rs(18),
-                          color: AppColors.white,
+
+                      SizedBox(height: context.rs(10)),
+
+                      // Title + Arrow row
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: context.rs(17),
+                                fontWeight: FontWeight.w700,
+                                color: accentColor,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: context.rs(28),
+                            height: context.rs(28),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.chevron_right,
+                              size: context.rs(18),
+                              color: accentColor,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: context.rs(8)),
+
+                      // Description
+                      SizedBox(
+                        width: context.rs(190),
+                        child: Text(
+                          description,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(11),
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textGray.withValues(alpha: 0.85),
+                            height: 1.55,
+                          ),
                         ),
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
 
-                  SizedBox(height: context.rs(8)),
-
-                  // Description
-                  SizedBox(
-                    width: context.rs(190),
-                    child: Text(
-                      description,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: context.rs(11),
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.white.withValues(alpha: 0.85),
-                        height: 1.55,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: context.rs(14)),
-
-                  // Feature icons row
-                  Row(
-                    children: features.map((f) {
-                      return Padding(
-                        padding: EdgeInsets.only(right: context.rs(18)),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              f.icon,
-                              size: context.rs(14),
-                              color: AppColors.white,
-                            ),
-                            SizedBox(width: context.rs(4)),
-                            Text(
-                              f.label,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: context.rs(10),
-                                color: AppColors.white,
-                                height: 1.3,
-                              ),
-                            ),
-                          ],
+            // ---- Bottom section: Feature icons row ----
+            Padding(
+              padding: EdgeInsets.only(
+                left: context.rs(18),
+                right: context.rs(18),
+                bottom: context.rs(14),
+              ),
+              child: Row(
+                children: features.map((f) {
+                  return Padding(
+                    padding: EdgeInsets.only(right: context.rs(18)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          f.icon,
+                          size: context.rs(14),
+                          color: accentColor,
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                        SizedBox(width: context.rs(4)),
+                        Text(
+                          f.label,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(10),
+                            color: accentColor,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ],
@@ -532,82 +581,4 @@ class _DoctorPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_DoctorPainter old) => false;
-}
-
-// ============================================================
-// _BottomNav
-// ============================================================
-class _BottomNav extends StatelessWidget {
-  const _BottomNav({required this.currentIndex, required this.onTap});
-  final int currentIndex;
-  final void Function(int) onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final List<_NavItem> items = const [
-      _NavItem(svgPath: 'assets/images/homescreen/homepage.svg', label: 'หน้าหลัก'),
-      _NavItem(svgPath: 'assets/images/homescreen/book_an_appointment.svg', label: 'จองคิว'),
-      _NavItem(svgPath: 'assets/images/homescreen/queue_of.svg', label: 'คิวของฉัน'),
-      _NavItem(svgPath: 'assets/images/homescreen/profile.svg', label: 'โปรไฟล์'),
-    ];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.07),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.only(
-        top: context.rs(12),
-        bottom: context.rs(15),
-      ),
-      child: Row(
-        children: List.generate(items.length, (i) {
-          final bool active = i == currentIndex;
-          return Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => onTap(i),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset(
-                    items[i].svgPath,
-                    width: context.rs(24),
-                    height: context.rs(24),
-                    colorFilter: ColorFilter.mode(
-                      active ? AppColors.orange : AppColors.black50,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  SizedBox(height: context.rs(4)),
-                  Text(
-                    items[i].label,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(10),
-                      fontWeight:
-                          active ? FontWeight.w600 : FontWeight.w400,
-                      color: active ? AppColors.orange : AppColors.black50,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-class _NavItem {
-  const _NavItem({required this.svgPath, required this.label});
-  final String svgPath;
-  final String label;
 }

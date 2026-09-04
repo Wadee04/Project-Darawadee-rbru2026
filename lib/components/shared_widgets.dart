@@ -392,10 +392,26 @@ class AppBottomNav extends StatelessWidget {
   final void Function(int) onTap;
 
   static const List<_AppNavItem> _items = [
-    _AppNavItem(svgPath: 'assets/images/homescreen/homepage.svg', label: 'หน้าหลัก'),
-    _AppNavItem(svgPath: 'assets/images/homescreen/book_an_appointment.svg', label: 'จองคิว'),
-    _AppNavItem(svgPath: 'assets/images/homescreen/queue_of.svg', label: 'คิวของฉัน'),
-    _AppNavItem(svgPath: 'assets/images/homescreen/profile.svg', label: 'โปรไฟล์'),
+    _AppNavItem(
+      activeSvg: 'assets/images/homescreen/homepage_active.svg',
+      inactiveSvg: 'assets/images/homescreen/homepage_inactive.svg',
+      label: 'หน้าหลัก',
+    ),
+    _AppNavItem(
+      activeSvg: 'assets/images/homescreen/book_an_appointment_active.svg',
+      inactiveSvg: 'assets/images/homescreen/book_an_appointment_inactive.svg',
+      label: 'จองคิว',
+    ),
+    _AppNavItem(
+      activeSvg: 'assets/images/homescreen/queue_of_active.svg',
+      inactiveSvg: 'assets/images/homescreen/queue_of_inactive.svg',
+      label: 'คิวของฉัน',
+    ),
+    _AppNavItem(
+      activeSvg: 'assets/images/homescreen/profile_active.svg',
+      inactiveSvg: 'assets/images/homescreen/profile_inactive.svg',
+      label: 'โปรไฟล์',
+    ),
   ];
 
   @override
@@ -426,9 +442,9 @@ class AppBottomNav extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SvgPicture.asset(
-                    _items[i].svgPath,
-                    width: context.rs(active ? 26 : 24),
-                    height: context.rs(active ? 26 : 24),
+                    active ? _items[i].activeSvg : _items[i].inactiveSvg,
+                    width: context.rs(24),
+                    height: context.rs(24),
                     colorFilter: ColorFilter.mode(
                       active ? AppColors.orange : AppColors.black50,
                       BlendMode.srcIn,
@@ -455,7 +471,12 @@ class AppBottomNav extends StatelessWidget {
 }
 
 class _AppNavItem {
-  const _AppNavItem({required this.svgPath, required this.label});
-  final String svgPath;
+  const _AppNavItem({
+    required this.activeSvg,
+    required this.inactiveSvg,
+    required this.label,
+  });
+  final String activeSvg;
+  final String inactiveSvg;
   final String label;
 }

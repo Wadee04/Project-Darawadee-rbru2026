@@ -15,8 +15,11 @@ class AppColors {
   static const Color purpleDark = Color(0xFF3D3B6E); // ม่วงเข้ม
   static const Color purpleLight = Color(0xFFD0CFF1); // ม่วงอ่อน
   static const Color orange = Color(0xFFFF8D28); // ส้มหลัก
+  static const Color orange10 = Color(0x1AFF8D28); // #FF8D28 at 10%
+  static const Color orangestroke = Color(0xFFA85206); // #FF8D28 at 10%
   static const Color orangeLight = Color(0xFFFCD6B5); // ส้มอ่อน
   static const Color blue = Color(0xFFA7E7FF); // ฟ้า
+  static const Color blue50 = Color(0x80A7E7FF); // #A7E7FF at 50%
   static const Color blueLight = Color(0xFFEAF0FB); // ฟ้าอ่อน
   static const Color reddentbook = Color(0xFFDD191D); // แดง
   static const Color greendentbook = Color(0xFF34C759); // แดง
