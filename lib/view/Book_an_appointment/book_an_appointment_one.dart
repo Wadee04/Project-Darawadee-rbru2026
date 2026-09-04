@@ -1,9 +1,10 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
-
 // ============================================================
 // BookAnAppointment0 - หน้าเลือกประเภทการจองนัด
 // ============================================================
@@ -33,17 +34,17 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.homeBackground,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
             // ---- AppBar ----
-            const AppBarBack(title: 'คุณต้องการบริการแบบไหน'),
+            const AppBarBack(title: 'คุณต้องการบริการแบบไหน', showBack: false),
 
             // ---- Content ----
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
+                padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -543,11 +544,11 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const List<_NavItem> items = [
-      _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'หน้าหลัก'),
-      _NavItem(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month, label: 'จองคิว'),
-      _NavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long, label: 'คิวของฉัน'),
-      _NavItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'โปรไฟล์'),
+    final List<_NavItem> items = const [
+      _NavItem(svgPath: 'assets/images/homescreen/homepage.svg', label: 'หน้าหลัก'),
+      _NavItem(svgPath: 'assets/images/homescreen/book_an_appointment.svg', label: 'จองคิว'),
+      _NavItem(svgPath: 'assets/images/homescreen/queue_of.svg', label: 'คิวของฉัน'),
+      _NavItem(svgPath: 'assets/images/homescreen/profile.svg', label: 'โปรไฟล์'),
     ];
 
     return Container(
@@ -562,8 +563,8 @@ class _BottomNav extends StatelessWidget {
         ],
       ),
       padding: EdgeInsets.only(
-        top: context.rs(8),
-        bottom: context.rs(8),
+        top: context.rs(12),
+        bottom: context.rs(15),
       ),
       child: Row(
         children: List.generate(items.length, (i) {
@@ -575,14 +576,16 @@ class _BottomNav extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    active ? items[i].activeIcon : items[i].icon,
-                    size: context.rs(22),
-                    color: active
-                        ? AppColors.navBarSelected
-                        : AppColors.black50,
+                  SvgPicture.asset(
+                    items[i].svgPath,
+                    width: context.rs(24),
+                    height: context.rs(24),
+                    colorFilter: ColorFilter.mode(
+                      active ? AppColors.orange : AppColors.black50,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                  SizedBox(height: context.rs(3)),
+                  SizedBox(height: context.rs(4)),
                   Text(
                     items[i].label,
                     style: TextStyle(
@@ -590,9 +593,7 @@ class _BottomNav extends StatelessWidget {
                       fontSize: context.rs(10),
                       fontWeight:
                           active ? FontWeight.w600 : FontWeight.w400,
-                      color: active
-                          ? AppColors.navBarSelected
-                          : AppColors.black50,
+                      color: active ? AppColors.orange : AppColors.black50,
                     ),
                   ),
                 ],
@@ -606,12 +607,7 @@ class _BottomNav extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
-  });
-  final IconData icon;
-  final IconData activeIcon;
+  const _NavItem({required this.svgPath, required this.label});
+  final String svgPath;
   final String label;
 }

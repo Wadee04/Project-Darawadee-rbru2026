@@ -348,10 +348,9 @@ class _BirthdayPageState extends State<BirthdayPage> {
                               if (widget.onNext != null) {
                                 widget.onNext!(_selectedDateTime);
                               } else {
-                                Navigator.pushAndRemoveUntil(
+                                Navigator.push(
                                   context,
-                                  noAnimRoute(const HomePageOne()),
-                                  (route) => false,
+                                  noAnimRoute(const GenderPage()),
                                 );
                               }
                             }
@@ -382,9 +381,10 @@ class _BirthdayPageState extends State<BirthdayPage> {
                   GestureDetector(
                     onTap: () {
                       widget.onSkip?.call();
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                         context,
-                        noAnimRoute(const GenderPage()),
+                        noAnimRoute(const HomePageOne()),
+                        (route) => false,
                       );
                     },
                     child: Padding(

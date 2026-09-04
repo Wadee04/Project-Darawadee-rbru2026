@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
@@ -327,10 +328,12 @@ class AppBarBack extends StatelessWidget {
     super.key,
     required this.title,
     this.onBack,
+    this.showBack = true,
   });
 
   final String title;
   final VoidCallback? onBack;
+  final bool showBack;
 
   @override
   Widget build(BuildContext context) {
@@ -344,18 +347,21 @@ class AppBarBack extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: onBack ?? () => Navigator.maybePop(context),
-            child: SizedBox(
-              width: context.rs(24),
-              height: context.rs(24),
-              child: Icon(
-                Icons.chevron_left,
-                size: context.rs(28),
-                color: AppColors.black,
+          if (showBack)
+            GestureDetector(
+              onTap: onBack ?? () => Navigator.maybePop(context),
+              child: SizedBox(
+                width: context.rs(24),
+                height: context.rs(24),
+                child: Icon(
+                  Icons.chevron_left,
+                  size: context.rs(28),
+                  color: AppColors.black,
+                ),
               ),
-            ),
-          ),
+            )
+          else
+            SizedBox(width: context.rs(24)),
           Text(
             title,
             style: TextStyle(
@@ -365,9 +371,91 @@ class AppBarBack extends StatelessWidget {
               color: AppColors.black,
             ),
           ),
-          const Text(''),
+          SizedBox(width: context.rs(24)),
         ],
       ),
     );
   }
+}
+
+// ============================================================
+// AppBottomNav — Shared Bottom Navigation Bar
+// ============================================================
+class AppBottomNav extends StatelessWidget {
+  const AppBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  final int currentIndex;
+  final void Function(int) onTap;
+
+  static const List<_AppNavItem> _items = [
+    _AppNavItem(svgPath: 'assets/images/homescreen/homepage.svg', label: 'หน้าหลัก'),
+    _AppNavItem(svgPath: 'assets/images/homescreen/book_an_appointment.svg', label: 'จองคิว'),
+    _AppNavItem(svgPath: 'assets/images/homescreen/queue_of.svg', label: 'คิวของฉัน'),
+    _AppNavItem(svgPath: 'assets/images/homescreen/profile.svg', label: 'โปรไฟล์'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.07),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.only(
+        top: context.rs(12),
+        bottom: context.rs(15),
+      ),
+      child: Row(
+        children: List.generate(_items.length, (i) {
+          final bool active = i == currentIndex;
+          return Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onTap(i),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    _items[i].svgPath,
+                    width: context.rs(active ? 26 : 24),
+                    height: context.rs(active ? 26 : 24),
+                    colorFilter: ColorFilter.mode(
+                      active ? AppColors.orange : AppColors.black50,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  SizedBox(height: context.rs(4)),
+                  Text(
+                    _items[i].label,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(10),
+                      fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                      color: active ? AppColors.orange : AppColors.black50,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _AppNavItem {
+  const _AppNavItem({required this.svgPath, required this.label});
+  final String svgPath;
+  final String label;
 }

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 import 'home_page_one.dart';
+import 'home_page_three.dart';
 
 // ============================================================
 // HomePageTwo - หน้าหลัก (สถานะ: เลือกคลินิกแล้ว มีนัดหมาย)
@@ -149,7 +150,7 @@ class _HomePageTwoState extends State<HomePageTwo> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => HomePageTwo(
+                              builder: (_) => HomePageThree(
                                 clinicName: clinic.name,
                                 clinicProvince: clinic.province,
                               ),
@@ -349,11 +350,23 @@ class _HomePageTwoState extends State<HomePageTwo> {
             ),
 
             // ---- Bottom Navigation ----
-            _BottomNav(
+            AppBottomNav(
               currentIndex: _navIndex,
               onTap: (i) {
                 setState(() => _navIndex = i);
-                if (i == 1) widget.onBooking?.call();
+                if (i == 0) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomePageOne()),
+                    (route) => false,
+                  );
+                }
+                if (i == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BookAnAppointmentOne()),
+                  );
+                }
                 if (i == 2) widget.onMyQueue?.call();
                 if (i == 3) widget.onProfile?.call();
               },

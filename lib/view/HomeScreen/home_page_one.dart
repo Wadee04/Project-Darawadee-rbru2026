@@ -650,11 +650,18 @@ class _HomePageOneState extends State<HomePageOne> {
             ),
 
             // ---- Bottom Navigation ----
-            _BottomNav(
+            AppBottomNav(
               currentIndex: _navIndex,
               onTap: (i) {
                 setState(() => _navIndex = i);
-                if (i == 1) widget.onBooking?.call();
+                if (i == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BookAnAppointmentOne(),
+                    ),
+                  );
+                }
                 if (i == 2) widget.onMyQueue?.call();
                 if (i == 3) widget.onProfile?.call();
               },

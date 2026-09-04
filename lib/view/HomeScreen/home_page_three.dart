@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import '../Book_an_appointment/book_an_appointment_one.dart';
 import 'home_page_one.dart';
 import 'home_page_two.dart';
 
@@ -321,11 +322,23 @@ class _HomePageThreeState extends State<HomePageThree> {
             ),
 
             // ---- Bottom Navigation ----
-            _BottomNav(
+            AppBottomNav(
               currentIndex: _navIndex,
               onTap: (i) {
                 setState(() => _navIndex = i);
-                if (i == 1) widget.onBooking?.call();
+                if (i == 0) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomePageOne()),
+                    (route) => false,
+                  );
+                }
+                if (i == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BookAnAppointmentOne()),
+                  );
+                }
                 if (i == 2) widget.onMyQueue?.call();
                 if (i == 3) widget.onProfile?.call();
               },
@@ -415,12 +428,19 @@ class _NoAppointmentCard extends StatelessWidget {
               fontSize: context.rs(16),
               fontWeight: FontWeight.w700,
               color: AppColors.white,
-              height: 1.3,
+              height: 1.1,
             ),
           ),
           SizedBox(height: context.rs(8)),
           GestureDetector(
-            onTap: onBooking,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const BookAnAppointmentOne(),
+                ),
+              );
+            },
             child: Text(
               'จองคิวเลย',
               style: TextStyle(
