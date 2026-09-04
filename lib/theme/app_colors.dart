@@ -8,6 +8,7 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
   static const Color black20 = Color(0x33000000); // #000000 at 20%
+  static const Color black60 = Color(0x99000000); // #000000 at 60%
 
   // ---- สีหลัก ----
   static const Color purple = Color(0xFF4E4C85); // ม่วงหลัก
@@ -50,5 +51,6 @@ class AppColors {
   static const Color cardAppointment1 = Color(0xFF4E4C85); // gradient start
   static const Color cardAppointment2 = Color(0xFF302F50); // gradient end
   static const Color navBarSelected = Color(0xFF4E4C85);
-  static const Color navBarUnselected = Color(0xFFAAAAAA);
+  static const Color black50 = Color(0x80000000); // #000000 at 50%
+  static const Color introductioncard = Color(0xFF7CA6CD); // สีฟ้ากรอบบริการแนะนำ
 }

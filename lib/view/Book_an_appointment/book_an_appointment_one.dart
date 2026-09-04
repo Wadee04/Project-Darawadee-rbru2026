@@ -580,7 +580,7 @@ class _BottomNav extends StatelessWidget {
                     size: context.rs(22),
                     color: active
                         ? AppColors.navBarSelected
-                        : AppColors.navBarUnselected,
+                        : AppColors.black50,
                   ),
                   SizedBox(height: context.rs(3)),
                   Text(
@@ -592,7 +592,7 @@ class _BottomNav extends StatelessWidget {
                           active ? FontWeight.w600 : FontWeight.w400,
                       color: active
                           ? AppColors.navBarSelected
-                          : AppColors.navBarUnselected,
+                          : AppColors.black50,
                     ),
                   ),
                 ],

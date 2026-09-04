@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import 'home_page_one.dart';
 
 // ============================================================
 // HomePageTwo - หน้าหลัก (สถานะ: เลือกคลินิกแล้ว มีนัดหมาย)
@@ -13,7 +14,7 @@ class ClinicQueueItem {
   const ClinicQueueItem({
     required this.roomName,
     required this.doctorName,
-    this.currentNumber,   // null = ว่าง
+    this.currentNumber,
     this.isServing = false,
   });
 
@@ -28,30 +29,17 @@ class HomePageTwo extends StatefulWidget {
     super.key,
     this.userName = 'คุณดาราวดี อลัย',
     this.clinicName = 'Dentbook Clinic',
+    this.clinicProvince = 'กรุงเทพมหานคร',
     this.appointmentService = 'ขูดหินปูน',
-    this.appointmentNumber = '001',
+    this.appointmentNumber = 'A-001',
     this.appointmentDoctor = 'ทพ.อรุณี ใจดี',
     this.appointmentTime = '10.00 น.',
-    this.queueItems = const [
-      ClinicQueueItem(
-        roomName: 'ห้อง 1',
-        doctorName: 'ทพญ. อรุณี',
-        currentNumber: 14,
-        isServing: true,
-      ),
-      ClinicQueueItem(
-        roomName: 'ห้อง 2',
-        doctorName: 'ทพ. ธนากร',
-        currentNumber: 9,
-        isServing: true,
-      ),
-      ClinicQueueItem(
-        roomName: 'ห้อง 3',
-        doctorName: 'ทพญ. พิมพ์พลอย',
-        currentNumber: null,
-        isServing: false,
-      ),
-    ],
+    this.queueItem = const ClinicQueueItem(
+      roomName: 'ห้อง 1',
+      doctorName: 'ทพญ. อรุณี',
+      currentNumber: 14,
+      isServing: true,
+    ),
     this.onNotification,
     this.onProfile,
     this.onSelectClinic,
@@ -61,11 +49,12 @@ class HomePageTwo extends StatefulWidget {
 
   final String userName;
   final String clinicName;
+  final String clinicProvince;
   final String appointmentService;
   final String appointmentNumber;
   final String appointmentDoctor;
   final String appointmentTime;
-  final List<ClinicQueueItem> queueItems;
+  final ClinicQueueItem queueItem;
   final VoidCallback? onNotification;
   final VoidCallback? onProfile;
   final VoidCallback? onSelectClinic;
@@ -82,11 +71,10 @@ class _HomePageTwoState extends State<HomePageTwo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.homeBackground,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
-            const AppBarBack(title: 'หน้าหลัก'),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.fromLTRB(
@@ -100,17 +88,17 @@ class _HomePageTwoState extends State<HomePageTwo> {
                   children: [
                     // ---- Header row ----
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'สวัสดีตอนนาย',
+                                'สวัสดีตอนบ่าย',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: context.rs(13),
+                                  fontSize: context.rs(14),
                                   fontWeight: FontWeight.w400,
                                   color: AppColors.textGray,
                                 ),
@@ -120,7 +108,7 @@ class _HomePageTwoState extends State<HomePageTwo> {
                                 widget.userName,
                                 style: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontSize: context.rs(17),
+                                  fontSize: context.rs(16),
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.purple,
                                   height: 1.2,
@@ -132,69 +120,116 @@ class _HomePageTwoState extends State<HomePageTwo> {
                         Row(
                           children: [
                             _IconBtn(
-                              icon: Icons.notifications_none_outlined,
+                              svgAsset:
+                                  'assets/images/homescreen/bell.svg',
                               onTap: widget.onNotification,
+                              width: 15,
+                              height: 17,
                             ),
-                            SizedBox(width: context.rs(4)),
+                            SizedBox(width: context.rs(25)),
                             _IconBtn(
-                              icon: Icons.account_circle_outlined,
+                              svgAsset:
+                                  'assets/images/homescreen/contact.svg',
                               onTap: widget.onProfile,
+                              width: 20,
+                              height: 18.16,
                             ),
                           ],
                         ),
                       ],
                     ),
 
-                    SizedBox(height: context.rs(12)),
+                    SizedBox(height: context.rs(10)),
 
                     // ---- Location bar (คลินิกที่เลือกแล้ว) ----
                     GestureDetector(
-                      onTap: widget.onSelectClinic,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: context.rs(15),
-                            color: AppColors.purple,
-                          ),
-                          SizedBox(width: context.rs(4)),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'คลินิกปัจจุบัน',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: context.rs(11),
-                                  color: AppColors.textGray,
+                      onTap: () {
+                        showSelectClinicSheet(context,
+                            onSelect: (clinic) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HomePageTwo(
+                                clinicName: clinic.name,
+                                clinicProvince: clinic.province,
+                              ),
+                            ),
+                          );
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          top: context.rs(8),
+                          bottom: context.rs(8),
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius:
+                              BorderRadius.circular(context.rs(10)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: context.rs(32),
+                              height: context.rs(32),
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(
+                                    context.rs(10)),
+                                border: Border.all(
+                                  color: AppColors.inputBorder,
+                                  width: 1,
                                 ),
                               ),
-                              Row(
+                              child: Icon(
+                                Icons.location_on,
+                                size: context.rs(16),
+                                color: AppColors.purple,
+                              ),
+                            ),
+                            SizedBox(width: context.rs(6)),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     widget.clinicName,
                                     style: TextStyle(
                                       fontFamily: 'Inter',
-                                      fontSize: context.rs(13),
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.black,
+                                      fontSize: context.rs(14),
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.black60,
                                     ),
                                   ),
-                                  SizedBox(width: context.rs(2)),
-                                  Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    size: context.rs(16),
-                                    color: AppColors.textGray,
+                                  Row(
+                                    children: [
+                                      Text(
+                                        widget.clinicProvince,
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: context.rs(11),
+                                          color: AppColors.black60,
+                                        ),
+                                      ),
+                                      SizedBox(width: context.rs(6)),
+                                      Icon(
+                                        Icons
+                                            .keyboard_arrow_down_rounded,
+                                        size: context.rs(15),
+                                        color: AppColors.textGray,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
-                    SizedBox(height: context.rs(16)),
+                    SizedBox(height: context.rs(10)),
 
                     // ---- Appointment card (มีนัด) ----
                     _ActiveAppointmentCard(
@@ -207,44 +242,63 @@ class _HomePageTwoState extends State<HomePageTwo> {
                     SizedBox(height: context.rs(20)),
 
                     // ---- คิวคลินิกวันนี้ ----
-                    Text(
-                      'คิวคลินิกวันนี้',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: context.rs(15),
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 4,
+                          height: context.rs(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.purple,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        SizedBox(width: context.rs(8)),
+                        Text(
+                          'คิวคลินิกวันนี้',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(15),
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: context.rs(10)),
-                    Column(
-                      children: widget.queueItems
-                          .map((item) => Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: context.rs(8)),
-                                child: _QueueRow(item: item),
-                              ))
-                          .toList(),
-                    ),
+                    _QueueRow(item: widget.queueItem),
 
-                    SizedBox(height: context.rs(12)),
+                    SizedBox(height: context.rs(20)),
 
-                    // ---- จองด่วน ----
-                    Text(
-                      'จองด่วน',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: context.rs(15),
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
+                    // ---- บริการแนะนำ ----
+                    Row(
+                      children: [
+                        Container(
+                          width: 4,
+                          height: context.rs(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.purple,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        SizedBox(width: context.rs(8)),
+                        Text(
+                          'บริการแนะนำ',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(15),
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: context.rs(10)),
+                    SizedBox(height: context.rs(13)),
                     Row(
                       children: [
                         Expanded(
                           child: _ServiceCard(
-                            icon: Icons.health_and_safety_outlined,
+                            svgAsset:
+                                'assets/images/homescreen/check_up.svg',
                             label: 'ตรวจสุขภาพฟัน',
                             onTap: widget.onBooking,
                           ),
@@ -252,7 +306,8 @@ class _HomePageTwoState extends State<HomePageTwo> {
                         SizedBox(width: context.rs(10)),
                         Expanded(
                           child: _ServiceCard(
-                            icon: Icons.cleaning_services_outlined,
+                            svgAsset:
+                                'assets/images/homescreen/teeth_scaling.svg',
                             label: 'ขูดหินปูน',
                             onTap: widget.onBooking,
                           ),
@@ -260,7 +315,8 @@ class _HomePageTwoState extends State<HomePageTwo> {
                         SizedBox(width: context.rs(10)),
                         Expanded(
                           child: _ServiceCard(
-                            icon: Icons.build_outlined,
+                            svgAsset:
+                                'assets/images/homescreen/tooth_ filling.svg',
                             label: 'อุดฟัน',
                             onTap: widget.onBooking,
                           ),
@@ -292,25 +348,32 @@ class _HomePageTwoState extends State<HomePageTwo> {
 }
 
 // ============================================================
-// _IconBtn
+// _IconBtn — ปุ่ม icon SVG ใน header
 // ============================================================
 class _IconBtn extends StatelessWidget {
-  const _IconBtn({required this.icon, this.onTap});
-  final IconData icon;
+  const _IconBtn({
+    required this.svgAsset,
+    this.onTap,
+    this.width = 20,
+    this.height = 20,
+  });
+  final String svgAsset;
   final VoidCallback? onTap;
+  final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: context.rs(36),
-        height: context.rs(36),
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          shape: BoxShape.circle,
+      child: SvgPicture.asset(
+        svgAsset,
+        width: context.rs(width),
+        height: context.rs(height),
+        colorFilter: const ColorFilter.mode(
+          Color(0xB3000000),
+          BlendMode.srcIn,
         ),
-        child: Icon(icon, size: context.rs(20), color: AppColors.purple),
       ),
     );
   }
@@ -337,8 +400,8 @@ class _ActiveAppointmentCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: context.rs(20),
-        vertical: context.rs(20),
+        horizontal: context.rs(24),
+        vertical: context.rs(24),
       ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -346,27 +409,24 @@ class _ActiveAppointmentCard extends StatelessWidget {
             AppColors.cardAppointment1,
             AppColors.cardAppointment2,
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.circular(context.rs(16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label บน
           Text(
-            'บัตรนัดถัดไปของคุณ',
+            'นัดหมายถัดไปของคุณ',
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: context.rs(11),
+              fontSize: context.rs(14),
               fontWeight: FontWeight.w400,
               color: AppColors.white.withValues(alpha: 0.75),
             ),
           ),
-          SizedBox(height: context.rs(8)),
-
-          // บริการ + หมายเลข
+          SizedBox(height: context.rs(13)),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -375,47 +435,41 @@ class _ActiveAppointmentCard extends StatelessWidget {
                   service,
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: context.rs(20),
+                    fontSize: context.rs(16),
                     fontWeight: FontWeight.w700,
                     color: AppColors.white,
-                    height: 1.2,
+                    height: 1.1,
                   ),
                 ),
               ),
-              // หมายเลข badge
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.rs(12),
-                  vertical: context.rs(4),
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(context.rs(8)),
-                ),
-                child: Text(
-                  number,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(20),
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.white,
-                    letterSpacing: 2,
+              Transform.translate(
+                offset: const Offset(0, -11),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: context.rs(4),
+                  ),
+                  child: Text(
+                    number,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(20),
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.white,
+                      letterSpacing: 2,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-
-          SizedBox(height: context.rs(8)),
-
-          // แพทย์ + เวลา
           Text(
             '$doctor - $time',
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: context.rs(12),
+              fontSize: context.rs(14),
               fontWeight: FontWeight.w400,
               color: AppColors.white.withValues(alpha: 0.85),
+              height: 0.9,
             ),
           ),
         ],
@@ -425,7 +479,7 @@ class _ActiveAppointmentCard extends StatelessWidget {
 }
 
 // ============================================================
-// _QueueRow — แถวคิวแต่ละห้อง
+// _QueueRow — แถวคิว
 // ============================================================
 class _QueueRow extends StatelessWidget {
   const _QueueRow({required this.item});
@@ -444,11 +498,13 @@ class _QueueRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(context.rs(12)),
-        border: Border.all(color: AppColors.inputBorder, width: 1),
+        border: Border.all(
+          color: AppColors.introductioncard,
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
-          // สถานะ dot
           Container(
             width: context.rs(8),
             height: context.rs(8),
@@ -460,8 +516,6 @@ class _QueueRow extends StatelessWidget {
             ),
           ),
           SizedBox(width: context.rs(8)),
-
-          // ชื่อห้อง
           SizedBox(
             width: context.rs(56),
             child: Text(
@@ -474,8 +528,6 @@ class _QueueRow extends StatelessWidget {
               ),
             ),
           ),
-
-          // ชื่อแพทย์
           Expanded(
             child: Text(
               item.doctorName,
@@ -486,8 +538,6 @@ class _QueueRow extends StatelessWidget {
               ),
             ),
           ),
-
-          // สถานะ / หมายเลข
           if (isServing) ...[
             Text(
               'กำลังให้บริการ',
@@ -534,16 +584,16 @@ class _QueueRow extends StatelessWidget {
 }
 
 // ============================================================
-// _ServiceCard — card จองด่วน
+// _ServiceCard — card บริการแนะนำ (SVG icon เหมือน HomePageOne)
 // ============================================================
 class _ServiceCard extends StatelessWidget {
   const _ServiceCard({
-    required this.icon,
+    required this.svgAsset,
     required this.label,
     this.onTap,
   });
 
-  final IconData icon;
+  final String svgAsset;
   final String label;
   final VoidCallback? onTap;
 
@@ -559,12 +609,18 @@ class _ServiceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(context.rs(14)),
-          border: Border.all(color: AppColors.inputBorder, width: 1),
+          border: Border.all(color: AppColors.introductioncard, width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: context.rs(28), color: AppColors.purple),
+            SvgPicture.asset(
+              svgAsset,
+              width: context.rs(16),
+              height: context.rs(16),
+              colorFilter: ColorFilter.mode(
+                  AppColors.black, BlendMode.srcIn),
+            ),
             SizedBox(height: context.rs(8)),
             Text(
               label,
@@ -585,7 +641,7 @@ class _ServiceCard extends StatelessWidget {
 }
 
 // ============================================================
-// _BottomNav
+// _BottomNav — Bottom Navigation Bar (SVG เหมือน HomePageOne)
 // ============================================================
 class _BottomNav extends StatelessWidget {
   const _BottomNav({required this.currentIndex, required this.onTap});
@@ -594,11 +650,19 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const List<_NavItem> items = [
-      _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'หน้าหลัก'),
-      _NavItem(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month, label: 'จองคิว'),
-      _NavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long, label: 'คิวของฉัน'),
-      _NavItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'โปรไฟล์'),
+    final List<_NavItem> items = const [
+      _NavItem(
+          svgPath: 'assets/images/homescreen/homepage.svg',
+          label: 'หน้าหลัก'),
+      _NavItem(
+          svgPath: 'assets/images/homescreen/book_an_appointment.svg',
+          label: 'จองคิว'),
+      _NavItem(
+          svgPath: 'assets/images/homescreen/queue_of.svg',
+          label: 'คิวของฉัน'),
+      _NavItem(
+          svgPath: 'assets/images/homescreen/profile.svg',
+          label: 'โปรไฟล์'),
     ];
 
     return Container(
@@ -613,8 +677,8 @@ class _BottomNav extends StatelessWidget {
         ],
       ),
       padding: EdgeInsets.only(
-        top: context.rs(8),
-        bottom: context.rs(8),
+        top: context.rs(12),
+        bottom: context.rs(15),
       ),
       child: Row(
         children: List.generate(items.length, (i) {
@@ -626,14 +690,16 @@ class _BottomNav extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    active ? items[i].activeIcon : items[i].icon,
-                    size: context.rs(22),
-                    color: active
-                        ? AppColors.navBarSelected
-                        : AppColors.navBarUnselected,
+                  SvgPicture.asset(
+                    items[i].svgPath,
+                    width: context.rs(24),
+                    height: context.rs(24),
+                    colorFilter: ColorFilter.mode(
+                      active ? AppColors.orange : AppColors.black50,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                  SizedBox(height: context.rs(3)),
+                  SizedBox(height: context.rs(4)),
                   Text(
                     items[i].label,
                     style: TextStyle(
@@ -641,9 +707,8 @@ class _BottomNav extends StatelessWidget {
                       fontSize: context.rs(10),
                       fontWeight:
                           active ? FontWeight.w600 : FontWeight.w400,
-                      color: active
-                          ? AppColors.navBarSelected
-                          : AppColors.navBarUnselected,
+                      color:
+                          active ? AppColors.orange : AppColors.black50,
                     ),
                   ),
                 ],
@@ -658,11 +723,9 @@ class _BottomNav extends StatelessWidget {
 
 class _NavItem {
   const _NavItem({
-    required this.icon,
-    required this.activeIcon,
+    required this.svgPath,
     required this.label,
   });
-  final IconData icon;
-  final IconData activeIcon;
+  final String svgPath;
   final String label;
 }
