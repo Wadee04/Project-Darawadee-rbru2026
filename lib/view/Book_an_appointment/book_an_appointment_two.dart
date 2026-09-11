@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import 'book_an_appointment_three.dart';
+import 'book_an_appointment_four.dart';
 
 // ============================================================
 // BookAnAppointmentTwo - หน้าเลือกสถานการณ์
@@ -10,8 +14,8 @@ class BookAnAppointmentTwo extends StatelessWidget {
   const BookAnAppointmentTwo({
     super.key,
     this.onBack,
-    this.onSelectCase1,  // มีอาการแต่ไม่รู้สาเหตุ
-    this.onSelectCase2,  // ทราบสาเหตุแล้ว
+    this.onSelectCase1, // มีอาการแต่ไม่รู้สาเหตุ
+    this.onSelectCase2, // ทราบสาเหตุแล้ว
   });
 
   final VoidCallback? onBack;
@@ -26,42 +30,17 @@ class BookAnAppointmentTwo extends StatelessWidget {
         child: Column(
           children: [
             // ---- AppBar ----
-            SizedBox(
-              height: context.rs(52),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    left: context.rs(4),
-                    child: IconButton(
-                      onPressed:
-                          onBack ?? () => Navigator.maybePop(context),
-                      icon: Icon(
-                        Icons.chevron_left,
-                        size: context.rs(28),
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'เลือกสถานการณ์ของคุณ',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(15),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ],
-              ),
+            AppBarBack(
+              title: 'เลือกสถานการณ์ของคุณ',
+              onBack: onBack,
             ),
 
             // ---- Content ----
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.rs(20),
-                  vertical: context.rs(12),
+                  horizontal: context.rs(24),
+                  vertical: context.rs(24),
                 ),
                 child: Column(
                   children: [
@@ -69,19 +48,37 @@ class BookAnAppointmentTwo extends StatelessWidget {
                     _CaseCard(
                       badgeNumber: '1',
                       badgeColor: AppColors.purple,
-                      cardBackground: const Color(0xFFF3F2FF),
+                      cardBackground: AppColors.blue50,
                       title: 'มีอาการแต่\nไม่รู้ว่าเกิดจากอะไร',
                       titleColor: AppColors.purple,
-                      subtitle: 'ฉันมีความกังวลปัญหาฟันแต่ไม่ทราบว่าต้องการ\nการรักษาใด',
+                      subtitle:
+                          'ฉันไม่ทราบว่าปัญหาฟันเกิดจากอะไร\nต้องการเข้ารับการรักษา',
                       bullets: const [
-                        'ไม่ทราบสาเหตุที่แน่ชัดของอาการ',
+                        'ไม่ทราบสาเหตุแต่รู้อาการ',
                         'ต้องการวางแผนการรักษา\nโดยทันตแพทย์',
                         'ต้องการตรวจวินิจฉัยเพิ่มเติม',
                       ],
                       bulletColor: AppColors.purple,
                       buttonColor: AppColors.purple,
-                      mascotWidget: _Case1Mascot(),
-                      onTap: onSelectCase1,
+                      mascotAsset:
+                          'assets/images/Book_an_appointment/tooth2.svg',
+                      mascotWidth: 300,
+                      mascotHeight: 300,
+                      mascotVerticalCenter: true,
+                      mascotOffsetX: -90,
+                      mascotOffsetY: -10,
+                      onTap: () {
+                        if (onSelectCase1 != null) {
+                          onSelectCase1!();
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const BookAnAppointmentThree(),
+                            ),
+                          );
+                        }
+                      },
                     ),
 
                     SizedBox(height: context.rs(16)),
@@ -90,10 +87,12 @@ class BookAnAppointmentTwo extends StatelessWidget {
                     _CaseCard(
                       badgeNumber: '2',
                       badgeColor: AppColors.orange,
-                      cardBackground: const Color(0xFFFFF5EC),
+                      cardBackground: AppColors.orangebgbook,
+                      borderColor: AppColors.orangestroke2,
                       title: 'ทราบสาเหตุ\nของปัญหาฟันแล้ว',
                       titleColor: AppColors.orange,
-                      subtitle: 'ฉันเคยรับการตรวจหรือปรึกษามาแล้วและ\nต้องการนำผลมาดำเนินการต่อ',
+                      subtitle:
+                          'ฉันเคยรับการตรวจหรือปรึกษาที่อื่นมาแล้ว\nต้องการนำผลตรวจมารักษาต่อที่นี่',
                       bullets: const [
                         'มีผลตรวจ / X-ray จากที่อื่น',
                         'ต้องการให้ทันตแพทย์ประเมิน\nและวางแผนการรักษา',
@@ -101,8 +100,25 @@ class BookAnAppointmentTwo extends StatelessWidget {
                       ],
                       bulletColor: AppColors.orange,
                       buttonColor: AppColors.orange,
-                      mascotWidget: _Case2Mascot(),
-                      onTap: onSelectCase2,
+                      mascotAsset:
+                          'assets/images/Book_an_appointment/tooth5.svg',
+                      mascotWidth: 300,
+                      mascotHeight: 300,
+                      mascotVerticalCenter: true,
+                      mascotOffsetX: -86,
+                      mascotOffsetY: 2,
+                      onTap: () {
+                        if (onSelectCase2 != null) {
+                          onSelectCase2!();
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const BookAnAppointmentFour(),
+                            ),
+                          );
+                        }
+                      },
                     ),
 
                     SizedBox(height: context.rs(24)),
@@ -131,40 +147,91 @@ class _CaseCard extends StatelessWidget {
     required this.bullets,
     required this.bulletColor,
     required this.buttonColor,
-    required this.mascotWidget,
+    required this.mascotAsset,
+    required this.mascotWidth,
+    required this.mascotHeight,
     this.onTap,
+    this.borderColor,
+    this.mascotVerticalCenter = false,
+    this.mascotOffsetX = -20,
+    this.mascotOffsetY = -20,
   });
 
   final String badgeNumber;
   final Color badgeColor;
   final Color cardBackground;
+  final Color? borderColor;
+  final bool mascotVerticalCenter;
+  final double mascotOffsetX;
+  final double mascotOffsetY;
   final String title;
   final Color titleColor;
   final String subtitle;
   final List<String> bullets;
   final Color bulletColor;
   final Color buttonColor;
-  final Widget mascotWidget;
+  final String mascotAsset;
+  final double mascotWidth;
+  final double mascotHeight;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: cardBackground,
         borderRadius: BorderRadius.circular(context.rs(18)),
-      ),
-      clipBehavior: Clip.hardEdge,
-      child: Stack(
-        children: [
-          // Mascot มุมขวาบน
-          Positioned(
-            right: context.rs(0),
-            top: context.rs(0),
-            child: mascotWidget,
+        border: Border.all(
+          color: borderColor ?? AppColors.purple,
+          width: 1.5,
+        ),
+        boxShadow: [
+          // Shadow 1: X=3, Y=0, Blur=2, Spread=0
+          BoxShadow(
+            color: (borderColor ?? AppColors.purple).withOpacity(0.25),
+            offset: const Offset(3, 0),
+            blurRadius: 2,
+            spreadRadius: 0,
           ),
+          // Shadow 2: X=0, Y=4, Blur=2, Spread=0
+          BoxShadow(
+            color: (borderColor ?? AppColors.purple).withOpacity(0.25),
+            offset: const Offset(0, 4),
+            blurRadius: 2,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(context.rs(18)),
+        child: ColoredBox(
+          color: cardBackground,
+          child: Stack(
+        children: [
+          // ---- Mascot ----
+          if (mascotVerticalCenter)
+            Positioned(
+              right: context.rs(mascotOffsetX),
+              bottom: context.rs(mascotOffsetY),
+              child: SvgPicture.asset(
+                mascotAsset,
+                width: context.rs(mascotWidth),
+                height: context.rs(mascotHeight),
+                fit: BoxFit.contain,
+              ),
+            )
+          else
+            Positioned(
+              right: 0,
+              top: 0,
+              child: SvgPicture.asset(
+                mascotAsset,
+                width: context.rs(mascotWidth),
+                height: context.rs(mascotHeight),
+                fit: BoxFit.contain,
+              ),
+            ),
 
-          // Content
+          // ---- Content ----
           Padding(
             padding: EdgeInsets.all(context.rs(18)),
             child: Column(
@@ -181,7 +248,7 @@ class _CaseCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(context.rs(20)),
                   ),
                   child: Text(
-                    'เคส $badgeNumber',
+                    'เคสที่ $badgeNumber',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: context.rs(11),
@@ -208,7 +275,7 @@ class _CaseCard extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: context.rs(8)),
+                SizedBox(height: context.rs(5)),
 
                 // Subtitle
                 Text(
@@ -222,7 +289,7 @@ class _CaseCard extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: context.rs(14)),
+                SizedBox(height: context.rs(17)),
 
                 // Bullets
                 ...bullets.map(
@@ -242,10 +309,10 @@ class _CaseCard extends StatelessWidget {
                             b,
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: context.rs(12),
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.black,
-                              height: 1.4,
+                              fontSize: context.rs(14),
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textGray,
+                              height: 1.3,
                             ),
                           ),
                         ),
@@ -257,7 +324,19 @@ class _CaseCard extends StatelessWidget {
                 SizedBox(height: context.rs(16)),
 
                 // ปุ่ม "เลือกเคสนี้"
-                SizedBox(
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(context.rs(12)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0x40000000), // #000000 opacity 25%
+                        offset: const Offset(0, 4),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
                   width: double.infinity,
                   height: context.rs(44),
                   child: ElevatedButton(
@@ -265,6 +344,8 @@ class _CaseCard extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonColor,
                       foregroundColor: AppColors.white,
+                      disabledBackgroundColor: buttonColor,
+                      disabledForegroundColor: AppColors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(context.rs(12)),
@@ -286,203 +367,15 @@ class _CaseCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  ),
                 ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-// ============================================================
-// _Case1Mascot — ผู้หญิงมือจีบหน้า (card ม่วง)
-// ============================================================
-class _Case1Mascot extends StatelessWidget {
-  const _Case1Mascot();
-
-  @override
-  Widget build(BuildContext context) {
-    final double sz = context.rs(105);
-    return SizedBox(
-      width: sz,
-      height: sz,
-      child: CustomPaint(painter: _Case1Painter()),
-    );
-  }
-}
-
-class _Case1Painter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint fill = Paint()..style = PaintingStyle.fill;
-    final double cx = size.width * 0.5;
-
-    // Body (ม่วงอ่อน)
-    fill.color = const Color(0xFFB0AEE0);
-    final Path body = Path()
-      ..moveTo(cx * 0.2, size.height)
-      ..cubicTo(cx * 0.1, size.height * 0.65,
-          cx * 0.3, size.height * 0.55, cx, size.height * 0.52)
-      ..cubicTo(cx * 1.7, size.height * 0.55,
-          cx * 1.9, size.height * 0.65, cx * 1.8, size.height)
-      ..close();
-    canvas.drawPath(body, fill);
-
-    // Head (skin)
-    fill.color = const Color(0xFFF5C6A0);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx, size.height * 0.3),
-        width: size.width * 0.44,
-        height: size.height * 0.38,
-      ),
-      fill,
-    );
-
-    // Hair (น้ำตาลแดง)
-    fill.color = const Color(0xFF8B4513);
-    canvas.drawArc(
-      Rect.fromCenter(
-        center: Offset(cx, size.height * 0.27),
-        width: size.width * 0.48,
-        height: size.height * 0.3,
-      ),
-      3.14,
-      3.14,
-      true,
-      fill,
-    );
-    // ผมยาวข้าง
-    fill.color = const Color(0xFF8B4513);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx - size.width * 0.22, size.height * 0.35),
-        width: size.width * 0.1,
-        height: size.height * 0.2,
-      ),
-      fill,
-    );
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx + size.width * 0.22, size.height * 0.35),
-        width: size.width * 0.1,
-        height: size.height * 0.2,
-      ),
-      fill,
-    );
-
-    // มือ/แขนข้างปาก (คิดหน้า)
-    fill.color = const Color(0xFFF5C6A0);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx + size.width * 0.18, size.height * 0.55),
-        width: size.width * 0.16,
-        height: size.height * 0.12,
-      ),
-      fill,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_Case1Painter old) => false;
-}
-
-// ============================================================
-// _Case2Mascot — ผู้หญิงถือแฟ้ม (card ส้ม)
-// ============================================================
-class _Case2Mascot extends StatelessWidget {
-  const _Case2Mascot();
-
-  @override
-  Widget build(BuildContext context) {
-    final double sz = context.rs(105);
-    return SizedBox(
-      width: sz,
-      height: sz,
-      child: CustomPaint(painter: _Case2Painter()),
-    );
-  }
-}
-
-class _Case2Painter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint fill = Paint()..style = PaintingStyle.fill;
-    final double cx = size.width * 0.5;
-
-    // Body (ส้มอ่อน)
-    fill.color = const Color(0xFFFFB870);
-    final Path body = Path()
-      ..moveTo(cx * 0.2, size.height)
-      ..cubicTo(cx * 0.1, size.height * 0.65,
-          cx * 0.3, size.height * 0.55, cx, size.height * 0.52)
-      ..cubicTo(cx * 1.7, size.height * 0.55,
-          cx * 1.9, size.height * 0.65, cx * 1.8, size.height)
-      ..close();
-    canvas.drawPath(body, fill);
-
-    // Head (skin)
-    fill.color = const Color(0xFFF5C6A0);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx, size.height * 0.3),
-        width: size.width * 0.44,
-        height: size.height * 0.38,
-      ),
-      fill,
-    );
-
-    // Hair (ดำ)
-    fill.color = const Color(0xFF2C2C2C);
-    canvas.drawArc(
-      Rect.fromCenter(
-        center: Offset(cx, size.height * 0.26),
-        width: size.width * 0.48,
-        height: size.height * 0.3,
-      ),
-      3.14,
-      3.14,
-      true,
-      fill,
-    );
-
-    // Folder/แฟ้ม (มุมขวาล่าง)
-    fill.color = const Color(0xFFFF8D28);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(cx * 1.0, size.height * 0.56,
-            size.width * 0.38, size.height * 0.28),
-        Radius.circular(size.width * 0.04),
-      ),
-      fill,
-    );
-    // แถบบนแฟ้ม
-    fill.color = const Color(0xFFFF6B00);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(cx * 1.0, size.height * 0.56,
-            size.width * 0.2, size.height * 0.05),
-        Radius.circular(size.width * 0.02),
-      ),
-      fill,
-    );
-    // เส้นในแฟ้ม
-    fill.color = Colors.white.withValues(alpha: 0.7);
-    for (int i = 0; i < 3; i++) {
-      canvas.drawRect(
-        Rect.fromLTWH(
-          cx * 1.06,
-          size.height * (0.63 + i * 0.06),
-          size.width * 0.26,
-          size.height * 0.018,
         ),
-        fill,
-      );
-    }
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(_Case2Painter old) => false;
 }

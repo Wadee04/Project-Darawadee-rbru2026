@@ -235,7 +235,7 @@ class _SheetContent extends StatelessWidget {
                   'ปลอดภัย มั่นใจ ใช้งานได้กับทุกคลินิกทันตกรรม',
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: context.rs(12),
+                    fontSize: context.rs(10),
                     fontWeight: FontWeight.w400,
                     color: AppColors.textGray,
                   ),

@@ -1,4 +1,5 @@
 
+import 'package:ant_icons_plus/ant_icons_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -7,6 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 import '../HomeScreen/home_page_one.dart';
 import 'book_an_appointment_two.dart';
+import 'book_an_appointment_three.dart';
 // ============================================================
 // BookAnAppointment0 - หน้าเลือกประเภทการจองนัด
 // ============================================================
@@ -46,7 +48,7 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
             // ---- Content ----
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+              padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -124,7 +126,19 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const BookAnAppointmentTwo(),
+                            builder: (_) => BookAnAppointmentTwo(
+                              onBack: () => Navigator.pop(context),
+                              onSelectCase1: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => BookAnAppointmentThree(
+                                      onBack: () => Navigator.pop(context),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         );
                       },
@@ -173,7 +187,7 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
 
             // ---- Disclaimer ----
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+              padding: EdgeInsets.symmetric(horizontal: context.rs(50)),
               child: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: context.rs(5),
@@ -188,8 +202,8 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.info_outline,
-                      size: context.rs(12),
+                      AntIcons.safetyOutlined,
+                      size: context.rs(14),
                       color: AppColors.textGray,
                     ),
                     SizedBox(width: context.rs(4)),
@@ -454,7 +468,7 @@ class _ServiceCard extends StatelessWidget {
                             size: context.rs(14),
                             color: accentColor,
                           ),
-                        SizedBox(width: context.rs(4)),
+                        SizedBox(width: context.rs(9)),
                         Text(
                           f.label,
                           style: TextStyle(

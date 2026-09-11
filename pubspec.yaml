@@ -66,6 +66,9 @@ flutter:
     - assets/images/signin/
     - assets/images/signup/
     - assets/images/Book_an_appointment/
+    - assets/images/Book_an_appointment/icons/
+    - assets/images/Book_an_appointment/list_of_symptoms/
+    - assets/images/Book_an_appointment/list_of_services/
     - assets/images/homescreen/
 
 

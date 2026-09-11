@@ -17,9 +17,12 @@ class AppColors {
   static const Color orange = Color(0xFFFF8D28); // ส้มหลัก
   static const Color orange10 = Color(0x1AFF8D28); // #FF8D28 at 10%
   static const Color orangestroke = Color(0xFFA85206); // #FF8D28 at 10%
+  static const Color orangestroke2 = Color(0xFFA94F00); //ขอบหน้าเลือกสถานการณ์
+  static const Color orangebgbook = Color(0xFFFFF5EC); //สีพื้นหลังการ์าดที่2 ในหน้าเลือกสถานการณ์
   static const Color orangeLight = Color(0xFFFCD6B5); // ส้มอ่อน
   static const Color blue = Color(0xFFA7E7FF); // ฟ้า
-  static const Color blue50 = Color(0x80A7E7FF); // #A7E7FF at 50%
+  static const Color blue10 = Color(0x1AA7E7FF); // #A7E7FF at 10%
+  static const Color blue50 = Color(0xFFF6FDFF); // #A7E7FF at 50%
   static const Color blueLight = Color(0xFFEAF0FB); // ฟ้าอ่อน
   static const Color reddentbook = Color(0xFFDD191D); // แดง
   static const Color greendentbook = Color(0xFF34C759); // แดง
