@@ -34,6 +34,8 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
 
   bool _isLoading = false;
   bool _isResending = false;
+  bool _isSendingOtp = false;
+  bool _hasSentOtp = false;
   int _resendCooldown = 0;
 
   String get _otp =>
@@ -44,16 +46,16 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
   @override
   void initState() {
     super.initState();
-    // focus ช่องแรกทันที
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNodes[0].requestFocus();
+      _sendOtp();
     });
+    _focusNodes[0].requestFocus();
   }
 
   @override
   void dispose() {
-    for (final c in _controllers) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    for (final c in _controllers) { c.dispose(); }
+    for (final f in _focusNodes) { f.dispose(); }
     super.dispose();
   }
 
@@ -65,6 +67,39 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
         index > 0) {
       _focusNodes[index - 1].requestFocus();
       _controllers[index - 1].clear();
+    }
+  }
+
+  Future<void> _sendOtp() async {
+    if (_hasSentOtp) return;
+    setState(() => _isSendingOtp = true);
+    try {
+      await supabase.auth.signInWithOtp(
+        email: widget.email,
+        data: {
+          'full_name': widget.fullName,
+        },
+      );
+      RegistrationData.email = widget.email;
+      RegistrationData.password = widget.password;
+      RegistrationData.fullName = widget.fullName;
+      setState(() => _hasSentOtp = true);
+    } catch (e) {
+      if (!mounted) return;
+      String message = 'ไม่สามารถส่งรหัส OTP ได้ กรุณาลองใหม่';
+      final err = e.toString();
+      if (err.contains('over_email_send_rate_limit') || err.contains('rate_limit')) {
+        message = 'ส่งอีเมลบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่';
+      } else if (err.contains('User already registered') || err.contains('already been registered')) {
+        message = 'อีเมลนี้ถูกใช้งานแล้ว';
+      } else if (err.contains('invalid format') || err.contains('validation_failed')) {
+        message = 'รูปแบบอีเมลไม่ถูกต้อง';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } finally {
+      if (mounted) setState(() => _isSendingOtp = false);
     }
   }
 
@@ -106,7 +141,7 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
         SnackBar(content: Text(message)),
       );
       // clear ช่องทั้งหมด
-      for (final c in _controllers) c.clear();
+      for (final c in _controllers) { c.clear(); }
       _focusNodes[0].requestFocus();
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -365,7 +400,7 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
         ),
 
         // loading overlay
-        if (_isLoading) const ToothLoadingOverlay(),
+        if (_isLoading || _isSendingOtp) const ToothLoadingOverlay(),
       ],
     );
   }

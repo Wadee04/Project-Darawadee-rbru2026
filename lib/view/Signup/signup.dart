@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../supabase_client.dart';
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
 import '../Signin/signin_one.dart';
 import 'email_otp_page.dart';
-import 'phone_number.dart';
 
 // ============================================================
 // SignUp - หน้าลงทะเบียน
@@ -194,64 +192,14 @@ class _SignUpState extends State<SignUp> {
                               );
                               return;
                             }
-                            try {
-                              // สมัครสมาชิก
-                              final response = await supabase.auth.signUp(
+                            Navigator.push(
+                              context,
+                              noAnimRoute(EmailOtpPage(
                                 email: _emailController.text.trim(),
                                 password: _passwordController.text,
-                                data: {
-                                  'full_name': _nameController.text.trim(),
-                                },
-                              );
-
-                              // บันทึกข้อมูลลง Sign_up table ทันที
-                              final userId = response.user?.id;
-                              if (userId != null) {
-                                await supabase.from('Sign_up').upsert({
-                                  'id': userId,
-                                  'email': _emailController.text.trim(),
-                                  'full_name': _nameController.text.trim(),
-                                });
-                              }
-
-                              if (!context.mounted) return;
-
-                              // ถ้า email confirmation ปิดอยู่ → session จะมีทันที ข้าม OTP ได้
-                              // ถ้าเปิดอยู่ → ไปหน้า OTP
-                              final hasSession = response.session != null;
-                              if (hasSession) {
-                                Navigator.push(
-                                  context,
-                                  noAnimRoute(const PhoneNumberPage()),
-                                );
-                              } else {
-                                Navigator.push(
-                                  context,
-                                  noAnimRoute(EmailOtpPage(
-                                    email: _emailController.text.trim(),
-                                    password: _passwordController.text,
-                                    fullName: _nameController.text.trim(),
-                                  )),
-                                );
-                              }
-                            } catch (e, st) {
-                              print('SIGNUP ERROR: $e');
-                              print(st);
-                              String message = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
-                              final err = e.toString();
-                              if (err.contains('over_email_send_rate_limit') || err.contains('rate_limit')) {
-                                message = 'ส่งอีเมลบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่';
-                              } else if (err.contains('User already registered') || err.contains('already been registered')) {
-                                message = 'อีเมลนี้ถูกใช้งานแล้ว';
-                              } else if (err.contains('invalid format') || err.contains('validation_failed')) {
-                                message = 'รูปแบบอีเมลไม่ถูกต้อง';
-                              } else if (err.contains('weak_password') || err.contains('at least 6')) {
-                                message = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
-                              }
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(message)),
-                              );
-                            }
+                                fullName: _nameController.text.trim(),
+                              )),
+                            );
                           } else {
                             widget.onSignUp?.call(
                               _nameController.text.trim(),

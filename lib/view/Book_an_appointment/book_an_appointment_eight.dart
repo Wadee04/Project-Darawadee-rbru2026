@@ -54,7 +54,7 @@ class BookAnAppointmentEight extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
                 child: Column(
                   children: [
-                    SizedBox(height: context.rs(16)),
+                    SizedBox(height: context.rs(28)),
 
                     // ---- Booking Summary Card ----
                     _BookingSummaryCard(

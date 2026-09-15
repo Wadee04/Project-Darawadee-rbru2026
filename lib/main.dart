@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, // ซ่อนป้าย debug มุมขวาบน
       theme: AppTheme.light,
       // เริ่มที่หน้า Intro1 เป็นหน้าแรก
-      home: const BookAnAppointmentOne(),
+      home: const Intro1(),
     );
   }
 }

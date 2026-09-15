@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
@@ -54,7 +55,7 @@ class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(context.rs(20)),
+          top: Radius.circular(context.rs(16)),
         ),
       ),
       builder: (_) => Padding(
@@ -145,7 +146,7 @@ class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
               onBack: widget.onBack,
             ),
 
-            SizedBox(height: context.rs(16)),
+            SizedBox(height: context.rs(19)),
 
             // ---- Scrollable content ----
             Expanded(
@@ -166,54 +167,12 @@ class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
                       accountName: widget.accountName,
                       accountNumber: widget.accountNumber,
                       qrImageAsset: widget.qrImageAsset,
+                      slipFile: _slipFile,
+                      onPickFile: _pickFile,
+                      onOpenCamera: _openCamera,
                     ),
 
                     SizedBox(height: context.rs(20)),
-
-                    // ---- Upload slip ----
-                    _SlipUploadSection(
-                      slipFile: _slipFile,
-                      onPickFile: _pickFile,
-                    ),
-
-                    SizedBox(height: context.rs(16)),
-
-                    // ---- or divider ----
-                    _OrDivider(),
-
-                    SizedBox(height: context.rs(16)),
-
-                    // ---- Open Camera button ----
-                    SizedBox(
-                      width: double.infinity,
-                      height: context.rs(44),
-                      child: ElevatedButton.icon(
-                        onPressed: _openCamera,
-                        icon: Icon(
-                          Icons.camera_alt_outlined,
-                          size: context.rs(18),
-                          color: AppColors.white,
-                        ),
-                        label: Text(
-                          'Open Camera & Take Photo',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: context.rs(14),
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.white,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.purple,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(context.rs(30)),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: context.rs(12)),
                   ],
                 ),
               ),
@@ -221,6 +180,7 @@ class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
 
             // ---- ปุ่มยืนยัน ----
             _BottomConfirmBar(
+              isEnabled: _slipFile != null,
               onConfirm: () => widget.onConfirm?.call(_slipFile),
             ),
           ],
@@ -239,6 +199,9 @@ class _PaymentInfoCard extends StatelessWidget {
     required this.bookingId,
     required this.accountName,
     required this.accountNumber,
+    required this.slipFile,
+    required this.onPickFile,
+    required this.onOpenCamera,
     this.qrImageAsset,
   });
 
@@ -246,6 +209,9 @@ class _PaymentInfoCard extends StatelessWidget {
   final String bookingId;
   final String accountName;
   final String accountNumber;
+  final File? slipFile;
+  final VoidCallback onPickFile;
+  final VoidCallback onOpenCamera;
   final String? qrImageAsset;
 
   @override
@@ -265,25 +231,25 @@ class _PaymentInfoCard extends StatelessWidget {
             'โปรดชำระระเบียนมัดจำ',
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: context.rs(13),
-              fontWeight: FontWeight.w400,
-              color: AppColors.black,
+              fontSize: context.rs(14),
+              fontWeight: FontWeight.w500,
+              color: AppColors.purple,
             ),
           ),
 
-          SizedBox(height: context.rs(2)),
+          SizedBox(height: context.rs(6)),
 
           Text(
             clinicName,
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: context.rs(15),
-              fontWeight: FontWeight.w700,
-              color: AppColors.black,
+              fontSize: context.rs(16),
+              fontWeight: FontWeight.w800,
+              color: AppColors.purple,
             ),
           ),
 
-          SizedBox(height: context.rs(4)),
+          SizedBox(height: context.rs(6)),
 
           // ---- เลขที่อ้างอิง ----
           Row(
@@ -293,56 +259,120 @@ class _PaymentInfoCard extends StatelessWidget {
                 'เลขที่อ้างอิง',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: context.rs(12),
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.black,
+                  fontSize: context.rs(14),
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.purple,
                 ),
               ),
               Text(
                 bookingId,
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: context.rs(12),
-                  fontWeight: FontWeight.w600,
+                  fontSize: context.rs(14),
+                  fontWeight: FontWeight.w700,
                   color: AppColors.purple,
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: context.rs(16)),
+          SizedBox(height: context.rs(20)),
 
           // ---- QR Code ----
           Center(
-            child: _QrBox(imageAsset: qrImageAsset),
+            child: _QrBox(
+              imageAsset: 'assets/images/Book_an_appointment/qrcode.png',
+            ),
           ),
 
-          SizedBox(height: context.rs(16)),
+          SizedBox(height: context.rs(20)),
 
           // ---- ข้อมูลบัญชี ----
           Center(
             child: Column(
               children: [
-                Text(
-                  'ชื่อบัญชี : $accountName',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(13),
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.black,
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(14),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.purple,
+                    ),
+                    children: [
+                      TextSpan(text: 'ชื่อบัญชี : '),
+                      TextSpan(
+                        text: accountName,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(height: context.rs(4)),
-                Text(
-                  'เลขบัญชี : $accountNumber',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(13),
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.black,
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(14),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.purple,
+                    ),
+                    children: [
+                      TextSpan(text: 'เลขบัญชี : '),
+                      TextSpan(
+                        text: accountNumber,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
                   ),
                 ),
               ],
+            ),
+          ),
+
+          SizedBox(height: context.rs(22)),
+
+          _SlipUploadSection(
+            slipFile: slipFile,
+            onPickFile: onPickFile,
+          ),
+
+          SizedBox(height: context.rs(24)),
+
+          _OrDivider(),
+
+          SizedBox(height: context.rs(24)),
+
+          SizedBox(
+            width: double.infinity,
+            height: context.rs(36),
+            child: ElevatedButton.icon(
+              onPressed: onOpenCamera,
+              icon: SvgPicture.asset(
+                'assets/images/Book_an_appointment/solar_camera-bold.svg',
+                width: context.rs(12),
+                height: context.rs(12),
+                colorFilter: ColorFilter.mode(
+                  AppColors.white,
+                  BlendMode.srcIn,
+                ),
+              ),
+              label: Text(
+                'Open Camera & Take Photo',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: context.rs(11),
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.purple,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(context.rs(30)),
+                ),
+              ),
             ),
           ),
         ],
@@ -360,13 +390,13 @@ class _QrBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = context.rs(160);
+    final double size = context.rs(180);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(context.rs(8)),
+        borderRadius: BorderRadius.circular(context.rs(10)),
         border: Border.all(color: AppColors.inputBorder, width: 1),
       ),
       child: imageAsset != null
@@ -482,11 +512,11 @@ class _SlipUploadSection extends StatelessWidget {
         width: double.infinity,
         height: context.rs(140),
         decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(context.rs(12)),
+          color: AppColors.homeBackground,
+          borderRadius: BorderRadius.circular(context.rs(16)),
           border: Border.all(
-            color: AppColors.inputBorder,
-            width: 1.5,
+            color: AppColors.purple,
+            width: 2,
           ),
         ),
         child: slipFile != null
@@ -497,19 +527,23 @@ class _SlipUploadSection extends StatelessWidget {
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.image_outlined,
-                    size: context.rs(36),
-                    color: AppColors.inputBorder,
+                  SvgPicture.asset(
+                    'assets/images/Book_an_appointment/image.svg',
+                    width: context.rs(18),
+                    height: context.rs(18),
+                    colorFilter: ColorFilter.mode(
+                      AppColors.textGray,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   SizedBox(height: context.rs(8)),
                   Text(
                     'Select file',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: context.rs(13),
+                      fontSize: context.rs(14),
                       fontWeight: FontWeight.w400,
-                      color: AppColors.inputBorder,
+                      color: AppColors.textGray,
                     ),
                   ),
                 ],
@@ -554,27 +588,34 @@ class _OrDivider extends StatelessWidget {
 // _BottomConfirmBar — ปุ่มยืนยันด้านล่าง (สีเทา ตาม Figma)
 // ============================================================
 class _BottomConfirmBar extends StatelessWidget {
-  const _BottomConfirmBar({required this.onConfirm});
+  const _BottomConfirmBar({
+    required this.isEnabled,
+    required this.onConfirm,
+  });
+
+  final bool isEnabled;
   final VoidCallback onConfirm;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: AppColors.registerButton,
+      color: AppColors.white,
       padding: EdgeInsets.fromLTRB(
         context.rs(24),
-        context.rs(12),
+        context.rs(8),
         context.rs(24),
-        context.rs(16),
+        context.rs(48),
       ),
       child: SizedBox(
-        height: context.rs(44),
+        height: context.rs(40),
         child: ElevatedButton(
-          onPressed: onConfirm,
+          onPressed: isEnabled ? onConfirm : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.registerButton,
-            foregroundColor: AppColors.textGray,
+            backgroundColor: AppColors.purple,
+            foregroundColor: AppColors.white,
+            disabledBackgroundColor: AppColors.registerButton,
+            disabledForegroundColor: AppColors.textGray,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(context.rs(30)),
@@ -586,7 +627,6 @@ class _BottomConfirmBar extends StatelessWidget {
               fontFamily: 'Inter',
               fontSize: context.rs(15),
               fontWeight: FontWeight.w600,
-              color: AppColors.textGray,
             ),
           ),
         ),
