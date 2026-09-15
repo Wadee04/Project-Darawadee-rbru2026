@@ -9,6 +9,7 @@ class AppColors {
   static const Color black = Color(0xFF000000);
   static const Color black20 = Color(0x33000000); // #000000 at 20%
   static const Color black60 = Color(0x99000000); // #000000 at 60%
+  static const Color black20ff = Color(0xFFCCCCCC); // #000000 at 60%
 
   // ---- สีหลัก ----
   static const Color purple = Color(0xFF4E4C85); // ม่วงหลัก

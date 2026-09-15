@@ -3,16 +3,27 @@ import 'package:flutter/material.dart';
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import 'book_an_appointment_seven.dart';
 
 // ============================================================
 // BookAnAppointmentSix - หน้าตารางหมอ (ปฏิทินเลือกวันนัด)
 // ============================================================
 
 class BookAnAppointmentSix extends StatefulWidget {
-  const BookAnAppointmentSix({super.key, this.onBack, this.onNext});
+  const BookAnAppointmentSix({
+    super.key,
+    this.onBack,
+    this.onNext,
+    this.doctorName = 'ทพญ. อรุณี ป.',
+    this.doctorSpecialty = 'ทันตแพทย์ทั่วไป',
+    this.doctorImageAsset,
+  });
 
   final VoidCallback? onBack;
   final VoidCallback? onNext;
+  final String doctorName;
+  final String doctorSpecialty;
+  final String? doctorImageAsset;
 
   @override
   State<BookAnAppointmentSix> createState() => _BookAnAppointmentSixState();
@@ -80,64 +91,112 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // ---- AppBar ----
-            AppBarBack(
-              title: 'ตารางหมอ',
-              onBack: widget.onBack,
-            ),
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(16)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: context.rs(16)),
-
-                    // ---- Doctor profile ----
-                    _DoctorHeader(),
-
-                    SizedBox(height: context.rs(20)),
-
-                    Divider(color: AppColors.inputBorder, height: 1),
-
-                    SizedBox(height: context.rs(20)),
-
-                    // ---- Calendar ----
-                    _buildCalendar(context),
-
-                    SizedBox(height: context.rs(20)),
-
-                    // ---- Legend ----
-                    _buildLegend(context),
-
-                    SizedBox(height: context.rs(16)),
-
-                    // ---- Working hours card ----
-                    _buildWorkingHoursCard(context),
-
-                    SizedBox(height: context.rs(24)),
-                  ],
+            Column(
+              children: [
+                // ---- AppBar ----
+                AppBarBack(
+                  title: 'ตารางหมอ',
+                  onBack: widget.onBack,
                 ),
-              ),
+
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: context.rs(16)),
+
+                        // ---- Doctor profile ----
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+                          child: _DoctorProfile(
+                            name: widget.doctorName,
+                            specialty: widget.doctorSpecialty,
+                            imageAsset: widget.doctorImageAsset,
+                          ),
+                        ),
+
+                        SizedBox(height: context.rs(10)),
+
+                        Divider(color: AppColors.inputBorder, height: 0.5),
+
+                        SizedBox(height: context.rs(10)),
+
+                        // ---- Calendar ----
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+                          child: _buildCalendar(context),
+                        ),
+
+                        SizedBox(height: context.rs(15)),
+
+                        Divider(color: AppColors.inputBorder, height: 0.5),
+
+                        SizedBox(height: context.rs(15)),
+                        // ---- Legend ----
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+                          child: _buildLegend(context),
+                        ),
+
+                        SizedBox(height: context.rs(20)),
+
+                        // ---- Working hours card ----
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+                          child: _buildWorkingHoursCard(context),
+                        ),
+
+                        SizedBox(height: context.rs(24)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
 
-            // ---- Bottom Button ----
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                context.rs(16),
-                context.rs(8),
-                context.rs(16),
-                context.rs(24),
-              ),
-              child: PillButton(
-                label: 'ถัดไป',
-                variant: _selectedDay != null
-                    ? PillButtonVariant.primary
-                    : PillButtonVariant.secondary,
-                onPressed: _selectedDay != null ? widget.onNext : null,
+            // ---- ปุ่มถัดไป (ลอย) ----
+            Positioned(
+              left: context.rs(24),
+              right: context.rs(24),
+              bottom: context.rs(48),
+              child: GestureDetector(
+                onTap: _selectedDay != null
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BookAnAppointmentSeven(
+                              doctorName: widget.doctorName,
+                              doctorSpecialty: widget.doctorSpecialty,
+                              doctorImageAsset: widget.doctorImageAsset,
+                            ),
+                          ),
+                        );
+                      }
+                    : null,
+                child: Container(
+                  height: context.rs(40),
+                  decoration: BoxDecoration(
+                    color: _selectedDay != null
+                        ? AppColors.purple
+                        : AppColors.black20ff,
+                    borderRadius: BorderRadius.circular(context.rs(30)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'ถัดไป',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(14),
+                        fontWeight: FontWeight.w400,
+                        color: _selectedDay != null ? Colors.white : AppColors.black,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -199,9 +258,9 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
                   d,
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: context.rs(11),
+                    fontSize: context.rs(16),
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textGray,
+                    color: AppColors.black.withValues(alpha: 0.30),
                   ),
                 ),
               ),
@@ -261,10 +320,10 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
   // ---- Legend ----
   Widget _buildLegend(BuildContext context) {
     const items = [
-      _LegendItem(color: Color(0xFF7ED8F6), label: 'วันที่หมอเข้า'),
+      _LegendItem(color: Color(0xFFA6E7FF), label: 'วันที่หมอเข้า'),
       _LegendItem(color: AppColors.orange, label: 'คิวเต็ม'),
-      _LegendItem(color: Color(0xFF7FD99A), label: 'เลือกวัน'),
-      _LegendItem(color: Color(0xFFD0D0D0), label: 'วันหยุด'),
+      _LegendItem(color: Color(0xFFC5E8B3), label: 'เลือกวัน'),
+      _LegendItem(isBlackTen: true, label: 'วันหยุด'),
     ];
 
     return Wrap(
@@ -281,10 +340,12 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: context.rs(12),
-          height: context.rs(12),
+          width: context.rs(15),
+          height: context.rs(15),
           decoration: BoxDecoration(
-            color: item.color,
+            color: item.isBlackTen
+                ? AppColors.black.withValues(alpha: 0.10)
+                : item.color,
             shape: BoxShape.circle,
           ),
         ),
@@ -293,62 +354,66 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
           item.label,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: context.rs(11),
-            color: AppColors.textGray,
+            fontSize: context.rs(12),
+            color: AppColors.black,
           ),
         ),
       ],
     );
   }
 
-  // ---- Working hours card ----
+  // ---- Working hours ----
   Widget _buildWorkingHoursCard(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(context.rs(14)),
+      padding: EdgeInsets.all(context.rs(12)),
       decoration: BoxDecoration(
-        color: AppColors.homeBackground,
-        borderRadius: BorderRadius.circular(context.rs(12)),
+        border: Border.all(
+          color: AppColors.black.withValues(alpha: 0.10),
+        ),
+        borderRadius: BorderRadius.circular(context.rs(16)),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.access_time_outlined,
-                size: context.rs(16),
-                color: AppColors.textGray,
-              ),
-              SizedBox(width: context.rs(6)),
-              Text(
-                'เวลาที่หมอเข้า',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: context.rs(13),
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.black,
+          Icon(
+            Icons.access_time_outlined,
+            size: context.rs(18),
+            color: AppColors.black50,
+          ),
+          SizedBox(width: context.rs(6)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'เวลาที่หมอเข้า',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(13),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.black,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: context.rs(6)),
-          Text(
-            '09:00 - 17:00',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: context.rs(13),
-              fontWeight: FontWeight.w500,
-              color: AppColors.black,
-            ),
-          ),
-          SizedBox(height: context.rs(4)),
-          Text(
-            '*อาจมีการเปลี่ยนแปลง กรุณาตรวจสอบอีกครั้ง',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: context.rs(11),
-              color: AppColors.textGray,
+                SizedBox(height: context.rs(4)),
+                Text(
+                  '09:00 - 17:00',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(11),
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.black,
+                  ),
+                ),
+                SizedBox(height: context.rs(4)),
+                Text(
+                  '*อาจมีการเปลี่ยนแปลง กรุณาตรวจสอบอีกครั้ง',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(11),
+                    color: AppColors.black.withValues(alpha: 0.60),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -358,59 +423,56 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
 }
 
 // ============================================================
-// Doctor header
+// _DoctorProfile - โปรไฟล์หมอ (รูป + ชื่อ + ความเชี่ยวชาญ)
 // ============================================================
-class _DoctorHeader extends StatelessWidget {
-  const _DoctorHeader();
+class _DoctorProfile extends StatelessWidget {
+  const _DoctorProfile({
+    required this.name,
+    required this.specialty,
+    this.imageAsset,
+  });
+
+  final String name;
+  final String specialty;
+  final String? imageAsset;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Avatar with glow
-        SizedBox(
-          width: context.rs(60),
-          height: context.rs(60),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Glow
-              Container(
-                width: context.rs(60),
-                height: context.rs(60),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFFCDBFF6).withValues(alpha: 0.6),
-                      const Color(0xFFCDBFF6).withValues(alpha: 0.2),
-                      const Color(0xFFCDBFF6).withValues(alpha: 0.0),
-                    ],
-                    stops: const [0.0, 0.55, 1.0],
-                  ),
-                ),
-              ),
-              // Photo placeholder
-              CircleAvatar(
-                radius: context.rs(26),
-                backgroundColor: const Color(0xFFD6E4F0),
-                child: Icon(
+        // ---- Avatar ----
+        Container(
+          width: context.rs(52),
+          height: context.rs(52),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.homeBackground,
+            border: Border.all(
+              color: AppColors.inputBorder,
+              width: 1,
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: imageAsset != null
+              ? Image.asset(
+                  imageAsset!,
+                  fit: BoxFit.cover,
+                )
+              : Icon(
                   Icons.person,
                   size: context.rs(30),
-                  color: AppColors.purple.withValues(alpha: 0.5),
+                  color: AppColors.textGray,
                 ),
-              ),
-            ],
-          ),
         ),
 
         SizedBox(width: context.rs(12)),
 
+        // ---- Name & Specialty ----
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'ทพญ. อรุณี ป.',
+              name,
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: context.rs(14),
@@ -418,13 +480,13 @@ class _DoctorHeader extends StatelessWidget {
                 color: AppColors.black,
               ),
             ),
-            SizedBox(height: context.rs(3)),
+            SizedBox(height: context.rs(2)),
             Text(
-              'ทันตแพทย์ทั่วไป',
+              specialty,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: context.rs(12),
-                color: AppColors.textGray,
+                fontSize: context.rs(13),
+                color: AppColors.black.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -455,18 +517,14 @@ class _DayCell extends StatelessWidget {
   final VoidCallback onTap;
 
   Color get _bgColor {
-    if (isSelected) return const Color(0xFF7FD99A);
+    if (isSelected) return const Color(0xFFC5E8B3);
     if (isFull) return AppColors.orange;
-    if (isAvailable) return const Color(0xFF7ED8F6);
-    if (isHoliday) return const Color(0xFFD0D0D0);
+    if (isAvailable) return const Color(0xFFA6E7FF);
+    if (isHoliday) return AppColors.black.withValues(alpha: 0.10);
     return Colors.transparent;
   }
 
-  Color get _textColor {
-    if (isSelected || isFull || isAvailable) return AppColors.white;
-    if (isHoliday) return AppColors.textGray;
-    return AppColors.black;
-  }
+  Color get _textColor => AppColors.black;
 
   bool get _hasCircle =>
       isSelected || isFull || isAvailable || isHoliday;
@@ -478,8 +536,8 @@ class _DayCell extends StatelessWidget {
       child: Center(
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          width: context.rs(32),
-          height: context.rs(32),
+          width: context.rs(25),
+          height: context.rs(24),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _hasCircle ? _bgColor : Colors.transparent,
@@ -489,9 +547,8 @@ class _DayCell extends StatelessWidget {
               '$day',
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: context.rs(12),
-                fontWeight:
-                    _hasCircle ? FontWeight.w600 : FontWeight.w400,
+                fontSize: context.rs(14),
+                fontWeight: FontWeight.w500,
                 color: _textColor,
               ),
             ),
@@ -506,7 +563,8 @@ class _DayCell extends StatelessWidget {
 // Legend item data
 // ============================================================
 class _LegendItem {
-  const _LegendItem({required this.color, required this.label});
+  const _LegendItem({this.color = Colors.transparent, required this.label, this.isBlackTen = false});
   final Color color;
   final String label;
+  final bool isBlackTen;
 }

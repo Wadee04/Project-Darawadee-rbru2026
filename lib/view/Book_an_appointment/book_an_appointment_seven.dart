@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import 'book_an_appointment_eight.dart';
 
 // ============================================================
 // BookAnAppointmentSeven - หน้าเลือกเวลาจองคิว
@@ -34,6 +36,24 @@ class BookAnAppointmentSeven extends StatefulWidget {
 
 class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
   String? _selectedTime;
+  bool _isLoading = false;
+
+  Future<void> _handleConfirm() async {
+    if (_selectedTime == null) return;
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BookAnAppointmentEight(
+          onBack: () => Navigator.pop(context),
+        ),
+      ),
+    );
+    widget.onConfirm?.call(_selectedTime!);
+  }
 
   static const List<String> _timeSlots = [
     '09:00',
@@ -68,7 +88,9 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SafeArea(
+      body: Stack(
+        children: [
+          SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -82,7 +104,7 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
 
             // ---- Doctor Profile ----
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
+              padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
               child: _DoctorProfile(
                 name: widget.doctorName,
                 specialty: widget.doctorSpecialty,
@@ -90,26 +112,26 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
               ),
             ),
 
-            SizedBox(height: context.rs(20)),
+            SizedBox(height: context.rs(10)),
 
             // ---- Divider ----
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.inputBorder,
-            ),
+            Divider(color: AppColors.inputBorder, height: 0.5),
 
-            SizedBox(height: context.rs(16)),
+            SizedBox(height: context.rs(15)),
 
             // ---- Date Row ----
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
+              padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: context.rs(18),
-                    color: AppColors.black,
+                  SvgPicture.asset(
+                    'assets/images/Book_an_appointment/uil_calender.svg',
+                    width: context.rs(18),
+                    height: context.rs(18),
+                    colorFilter: ColorFilter.mode(
+                      AppColors.black,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   SizedBox(width: context.rs(8)),
                   Text(
@@ -137,12 +159,19 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
                 ],
               ),
             ),
+            
+            SizedBox(height: context.rs(15)),
 
-            SizedBox(height: context.rs(20)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Divider(color: AppColors.inputBorder, height: 0.5),
+            ),
+
+            SizedBox(height: context.rs(24)),
 
             // ---- Time Section ----
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
+              padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
               child: Text(
                 'เลือกเวลาที่ต้องการ',
                 style: TextStyle(
@@ -159,7 +188,7 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
             // ---- Time Slots Grid ----
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
+                padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
@@ -184,27 +213,28 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
             // ---- Bottom Buttons ----
             Padding(
               padding: EdgeInsets.fromLTRB(
-                context.rs(24),
+                context.rs(0),
                 0,
-                context.rs(24),
-                context.rs(16),
+                context.rs(0),
+                context.rs(48),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // ปุ่มยืนยันการจอง
-                  SizedBox(
-                    width: double.infinity,
-                    height: context.rs(44),
+                  Center(
                     child: ElevatedButton(
-                      onPressed: _selectedTime != null
-                          ? () => widget.onConfirm?.call(_selectedTime!)
-                          : null,
+                      onPressed: _selectedTime != null ? _handleConfirm : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.purple,
                         disabledBackgroundColor: AppColors.registerButton,
                         foregroundColor: AppColors.white,
                         disabledForegroundColor: AppColors.textGray,
                         elevation: 0,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.rs(24),
+                          vertical: context.rs(20),
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(context.rs(30)),
                         ),
@@ -214,13 +244,13 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: context.rs(14),
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ),
                   ),
 
-                  SizedBox(height: context.rs(8)),
+                  SizedBox(height: context.rs(13)),
 
                   // หมายเหตุ
                   Text(
@@ -237,6 +267,10 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
             ),
           ],
         ),
+      ),
+          // ---- Loading Overlay ----
+          if (_isLoading) const ToothLoadingOverlay(),
+        ],
       ),
     );
   }
@@ -305,9 +339,8 @@ class _DoctorProfile extends StatelessWidget {
               specialty,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: context.rs(12),
-                fontWeight: FontWeight.w400,
-                color: AppColors.textGray,
+                fontSize: context.rs(13),
+                color: AppColors.black.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -338,11 +371,11 @@ class _TimeSlotCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.purple : AppColors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(context.rs(12)),
           border: Border.all(
-            color: isSelected ? AppColors.purple : AppColors.inputBorder,
-            width: isSelected ? 1.5 : 1,
+            color: isSelected ? Colors.orange : AppColors.inputBorder,
+            width: isSelected ? 1.5 : 1.5,
           ),
         ),
         alignment: Alignment.center,
@@ -352,7 +385,7 @@ class _TimeSlotCard extends StatelessWidget {
             fontFamily: 'Inter',
             fontSize: context.rs(14),
             fontWeight: FontWeight.w500,
-            color: isSelected ? AppColors.white : AppColors.black,
+            color: AppColors.black,
           ),
         ),
       ),

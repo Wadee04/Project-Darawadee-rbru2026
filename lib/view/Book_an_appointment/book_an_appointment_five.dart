@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import 'book_an_appointment_six.dart';
 
 // ============================================================
 // BookAnAppointmentFive - หน้าเลือกทันตแพทย์
@@ -64,92 +66,129 @@ class _BookAnAppointmentFiveState extends State<BookAnAppointmentFive> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // ---- AppBar ----
-            AppBarBack(
-              title: 'เลือกทันตแพทย์',
-              onBack: widget.onBack,
-            ),
-
-            SizedBox(height: context.rs(16)),
-
-            // ---- Search Bar ----
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.rs(16)),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (v) => setState(() => _searchQuery = v),
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: context.rs(13),
-                  color: AppColors.black,
+            Column(
+              children: [
+                // ---- AppBar ----
+                AppBarBack(
+                  title: 'เลือกทันตแพทย์',
+                  onBack: widget.onBack,
                 ),
-                decoration: InputDecoration(
-                  hintText: 'ค้นหาทันตแพทย์',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(13),
-                    color: AppColors.inputHint,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: AppColors.inputHint,
-                    size: context.rs(20),
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: context.rs(10)),
-                  filled: true,
-                  fillColor: AppColors.homeBackground,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(context.rs(24)),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(context.rs(24)),
-                    borderSide:
-                        const BorderSide(color: AppColors.purple, width: 1),
+
+                SizedBox(height: context.rs(18)),
+
+                // ---- Search Bar ----
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(14),
+                      color: AppColors.black,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'ค้นหาทันตแพทย์',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(14),
+                        color: AppColors.inputHint,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: AppColors.black50,
+                        size: context.rs(20),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: context.rs(16),
+                        vertical: context.rs(10),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(context.rs(24)),
+                        borderSide: BorderSide(color: AppColors.black20, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(context.rs(24)),
+                        borderSide: BorderSide(color: AppColors.black20, width: 1),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+
+                SizedBox(height: context.rs(16)),
+
+                // ---- Dentist List ----
+                Expanded(
+                  child: ListView.separated(
+                    padding: EdgeInsets.fromLTRB(
+                      context.rs(24),
+                      0,
+                      context.rs(24),
+                      _selectedIndex != null
+                          ? context.rs(48 + 48 + 12)
+                          : context.rs(24),
+                    ),
+                    itemCount: _filtered.length,
+                    separatorBuilder: (_, __) =>
+                        SizedBox(height: context.rs(12)),
+                    itemBuilder: (context, i) {
+                      final dentist = _filtered[i];
+                      final isSelected = _selectedIndex == i;
+                      return _DentistCard(
+                        item: dentist,
+                        isSelected: isSelected,
+                        onTap: () => setState(() => _selectedIndex = i),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
 
-            SizedBox(height: context.rs(16)),
-
-            // ---- Dentist List ----
-            Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(16)),
-                itemCount: _filtered.length,
-                separatorBuilder: (_, _) =>
-                    SizedBox(height: context.rs(12)),
-                itemBuilder: (context, i) {
-                  final dentist = _filtered[i];
-                  final isSelected = _selectedIndex == i;
-                  return _DentistCard(
-                    item: dentist,
-                    isSelected: isSelected,
-                    onTap: () => setState(() => _selectedIndex = i),
-                  );
-                },
-              ),
-            ),
-
-            // ---- Bottom Button ----
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                context.rs(16),
-                context.rs(12),
-                context.rs(16),
-                context.rs(24),
-              ),
-              child: PillButton(
-                label: 'ถัดไป',
-                variant: _selectedIndex != null
-                    ? PillButtonVariant.primary
-                    : PillButtonVariant.secondary,
-                onPressed:
-                    _selectedIndex != null ? widget.onNext : null,
+            // ---- ปุ่มถัดไป (ลอย) ----
+            Positioned(
+              left: context.rs(24),
+              right: context.rs(24),
+              bottom: context.rs(48),
+              child: GestureDetector(
+                onTap: _selectedIndex != null
+                    ? () {
+                        final selected = _filtered[_selectedIndex!];
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BookAnAppointmentSix(
+                              doctorName: selected.name,
+                              doctorSpecialty: selected.specialty,
+                            ),
+                          ),
+                        );
+                      }
+                    : null,
+                child: Container(
+                  height: context.rs(40),
+                  decoration: BoxDecoration(
+                    color: _selectedIndex != null
+                        ? AppColors.purple
+                        : AppColors.black20ff,
+                    borderRadius: BorderRadius.circular(context.rs(30)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'ถัดไป',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(14),
+                        fontWeight: FontWeight.w400,
+                        color: _selectedIndex != null ? Colors.white : AppColors.black,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -226,25 +265,16 @@ class _DentistCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Glow background — same style as birthday.dart
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          colors: [
-                            const Color(0xFFCDBFF6).withValues(alpha: 0.5),
-                            const Color(0xFFCDBFF6).withValues(alpha: 0.15),
-                            const Color(0xFFCDBFF6).withValues(alpha: 0.0),
-                          ],
-                          stops: const [0.0, 0.55, 1.0],
-                        ),
-                      ),
-                    ),
-                    // Placeholder person icon
+                    // Placeholder doctor icon
                     Center(
-                      child: Icon(
-                        Icons.person,
-                        size: context.rs(48),
-                        color: AppColors.purple.withValues(alpha: 0.4),
+                      child: SvgPicture.asset(
+                        'assets/images/Book_an_appointment/doctor.svg',
+                        width: context.rs(40),
+                        height: context.rs(40),
+                        colorFilter: ColorFilter.mode(
+                          AppColors.purple.withValues(alpha: 0.4),
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ],
@@ -266,8 +296,8 @@ class _DentistCard extends StatelessWidget {
                       item.name,
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: context.rs(13),
-                        fontWeight: FontWeight.w600,
+                        fontSize: context.rs(14),
+                        fontWeight: FontWeight.w500,
                         color: AppColors.black,
                       ),
                     ),
@@ -279,9 +309,9 @@ class _DentistCard extends StatelessWidget {
                       item.specialty,
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: context.rs(11),
+                        fontSize: context.rs(12),
                         fontWeight: FontWeight.w400,
-                        color: AppColors.textGray,
+                        color: AppColors.black50,
                       ),
                     ),
 
@@ -292,7 +322,7 @@ class _DentistCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.location_on,
-                          size: context.rs(14),
+                          size: context.rs(18),
                           color: AppColors.purple,
                         ),
                         SizedBox(width: context.rs(4)),
@@ -300,9 +330,9 @@ class _DentistCard extends StatelessWidget {
                           item.room,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: context.rs(11),
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.purple,
+                            fontSize: context.rs(13),
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.black,
                           ),
                         ),
                       ],

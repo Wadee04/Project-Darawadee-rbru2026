@@ -290,9 +290,9 @@ class PillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isPrimary = variant == PillButtonVariant.primary;
     final Color bg =
-        isPrimary ? AppColors.purpleDark : AppColors.buttonSecondary;
+        isPrimary ? AppColors.purple : AppColors.buttonSecondary;
     final Color fg =
-        isPrimary ? AppColors.white : AppColors.purpleDark;
+        isPrimary ? AppColors.white : AppColors.purple;
 
     // ปรับขนาดปุ่มตามหน้าจอ
     final double h = context.rs(height);
@@ -482,4 +482,34 @@ class _AppNavItem {
   final String activeSvg;
   final String inactiveSvg;
   final String label;
+}
+
+// ============================================================
+// ToothLoadingOverlay - overlay loading แสดง GIF
+// วางไฟล์ GIF ที่ assets/images/loading.gif ก่อนใช้งาน
+// ============================================================
+class ToothLoadingOverlay extends StatelessWidget {
+  const ToothLoadingOverlay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black.withValues(alpha: 0.45),
+      child: Center(
+        child: Container(
+          width: 140,
+          height: 140,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Image.asset(
+            'assets/images/Book_an_appointment/Happy.gif',
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
+  }
 }

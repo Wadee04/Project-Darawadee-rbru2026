@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../components/shared_widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/responsive.dart';
+import 'book_an_appointment_five.dart';
 
 // ============================================================
 // BookAnAppointmentFour - หน้าเลือกบริการ (ทราบสาเหตุแล้ว)
@@ -152,8 +153,10 @@ class _BookAnAppointmentFourState extends State<BookAnAppointmentFour> {
                         color: AppColors.black50,
                         size: context.rs(20),
                       ),
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: context.rs(10)),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: context.rs(16),
+                          vertical: context.rs(10),
+                        ),
                       filled: true,
                       fillColor: Colors.white,
                       enabledBorder: OutlineInputBorder(
@@ -369,8 +372,8 @@ class _BookAnAppointmentFourState extends State<BookAnAppointmentFour> {
                                                   BorderRadius.circular(
                                                       context.rs(12)),
                                               borderSide: const BorderSide(
-                                                  color: AppColors.orange,
-                                                  width: 1.5),
+                                                  color: AppColors.purple,
+                                                  width: 1),
                                             ),
                                           ),
                                         ),
@@ -392,12 +395,17 @@ class _BookAnAppointmentFourState extends State<BookAnAppointmentFour> {
                 bottom: context.rs(48),
                 child: GestureDetector(
                   onTap: () {
-                    // TODO: navigate to next step
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BookAnAppointmentFive(),
+                      ),
+                    );
                   },
                   child: Container(
                     height: context.rs(40),
                     decoration: BoxDecoration(
-                      color: AppColors.orange,
+                      color: AppColors.purple,
                       borderRadius:
                           BorderRadius.circular(context.rs(30)),
                       boxShadow: const [
@@ -418,8 +426,8 @@ class _BookAnAppointmentFourState extends State<BookAnAppointmentFour> {
                         'ถัดไป',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: context.rs(15),
-                          fontWeight: FontWeight.w600,
+                          fontSize: context.rs(14),
+                          fontWeight: FontWeight.w400,
                           color: Colors.white,
                         ),
                       ),
@@ -489,7 +497,7 @@ class _OtherCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(context.rs(16)),
           border: Border.all(
             color: isSelected ? AppColors.orange : AppColors.black20,
-            width: isSelected ? 1.5 : 1,
+            width: isSelected ? 1 : 1,
           ),
         ),
         child: Stack(
@@ -583,7 +591,7 @@ class _ServiceCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(context.rs(16)),
           border: Border.all(
             color: isSelected ? AppColors.orange : AppColors.black20,
-            width: isSelected ? 1.5 : 1,
+            width: isSelected ? 1 : 1,
           ),
         ),
         child: Stack(

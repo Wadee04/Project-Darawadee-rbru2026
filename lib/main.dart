@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'supabase_client.dart';
 import 'package:wadee/view/Intro/intro1.dart';
 
 import 'theme/app_theme.dart';
 import 'view/Signup/birthday.dart';
 import 'view/HomeScreen/home_page_one.dart';
+import 'view/Book_an_appointment/book_an_appointment_one.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
+  await Supabase.initialize(
+    url: 'https://djfwfpvdnebctiqmbxpr.supabase.co',
+    anonKey: 'sb_publishable_GLjtPKzwTBktnsYCpowzYg_-3JY3NFC',
+  );
 
-void main() {
   runApp(const MyApp());
 }
 
@@ -21,7 +29,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, // ซ่อนป้าย debug มุมขวาบน
       theme: AppTheme.light,
       // เริ่มที่หน้า Intro1 เป็นหน้าแรก
-      home: const HomePageOne(),
+      home: const BookAnAppointmentOne(),
     );
   }
 }
