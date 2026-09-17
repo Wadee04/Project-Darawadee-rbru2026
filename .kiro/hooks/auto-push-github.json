@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Auto Push to GitHub",
+      "trigger": "PostFileSave",
+      "description": "Auto commit และ push ขึ้น GitHub ทุกครั้งที่บันทึกไฟล์ .dart/.yaml/.sql",
+      "matcher": "\\.(dart|yaml|sql)$",
+      "action": {
+        "type": "command",
+        "command": "bash scripts/auto_push.sh"
+      }
+    }
+  ]
+}
