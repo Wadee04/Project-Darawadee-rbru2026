@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'supabase_client.dart';
-import 'package:wadee/view/User/Intro/intro1.dart';
 
 import 'theme/app_theme.dart';
-import 'view/User/Signup/birthday.dart';
-import 'view/User/HomeScreen/home_page_one.dart';
-import 'view/User/Book_an_appointment/book_an_appointment_one.dart';
+import 'view/User/Onboarding/select_account_type.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
     url: 'https://djfwfpvdnebctiqmbxpr.supabase.co',
-    anonKey: 'sb_publishable_GLjtPKzwTBktnsYCpowzYg_-3JY3NFC',
+    publishableKey: 'sb_publishable_GLjtPKzwTBktnsYCpowzYg_-3JY3NFC',
   );
 
   runApp(const MyApp());
 }
 
-// คลาสหลักของแอป
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -26,10 +22,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Wadee',
-      debugShowCheckedModeBanner: false, // ซ่อนป้าย debug มุมขวาบน
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      // เริ่มที่หน้า Intro1 เป็นหน้าแรก
-      home: const BookAnAppointmentOne(),
+      // เริ่มที่หน้า SelectAccountType เสมอ
+      // AppRouter จะ navigate ไป Home ถ้า login อยู่แล้ว
+      home: const SelectAccountType(),
     );
   }
 }

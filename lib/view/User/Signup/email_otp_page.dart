@@ -116,8 +116,9 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
 
       final userId = response.user?.id;
       if (userId != null) {
-        // บันทึกข้อมูลผู้ใช้ลง Sign_up table
-        await supabase.from('Sign_up').upsert({
+        // บันทึกข้อมูลผู้ใช้ลง users table
+        // (trigger handle_new_user สร้างให้อัตโนมัติแล้ว upsert เพื่ออัปเดต full_name)
+        await supabase.from('users').upsert({
           'id': userId,
           'email': widget.email,
           'full_name': widget.fullName,

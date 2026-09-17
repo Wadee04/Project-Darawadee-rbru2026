@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../components/shared_widgets.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
+import '../HomeScreen/home_page_two.dart';
 
 // ============================================================
 // BookAnAppointmentTen - หน้าการจองเสร็จสมบูรณ์ (Booking Summary)
@@ -186,7 +188,10 @@ class _SummaryAppBar extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: onClose ?? () => Navigator.maybePop(context),
+            onTap: onClose ?? () => Navigator.pushReplacement(
+              context,
+              noAnimRoute(const HomePageTwo()),
+            ),
             child: Icon(
               Icons.close,
               size: context.rs(22),

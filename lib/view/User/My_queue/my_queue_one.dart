@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../components/shared_widgets.dart';
+import '../../../services/service_locator.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
-import '../HomeScreen/home_page_one.dart';
 import '../Book_an_appointment/book_an_appointment_one.dart';
 import 'my_queue_two.dart';
 
@@ -97,49 +97,56 @@ class MyQueueOne extends StatefulWidget {
 
 class _MyQueueOneState extends State<MyQueueOne>
     with SingleTickerProviderStateMixin {
-  int _navIndex = 2; // คิวของฉัน active
+  int _navIndex = 2;
   late TabController _tabController;
+  List<QueueItem> _allQueues = [];
+  bool _loading = true;
 
-  // ข้อมูลตัวอย่าง
-  static const List<QueueItem> _allQueues = [
-    QueueItem(
-      bookingId: 'SC680516-001',
-      clinicName: 'DentBook Clinic สาขาจันทบุรี',
-      serviceName: 'ตรวจสุขภาพฟัน + X-ray / อุดฟัน',
-      doctorName: 'ทพญ. อรุณี ป.',
-      appointmentDate: 'พุธ 12 สิงหาคม 2569',
-      appointmentTime: '09:00 น.',
-      status: QueueStatus.waitingPayment,
-      depositAmount: 200,
-    ),
-    QueueItem(
-      bookingId: 'SC680516-002',
-      clinicName: 'DentBook Clinic สาขาจันทบุรี',
-      serviceName: 'ขูดหินปูน',
-      doctorName: 'ทพ. วิชัย ส.',
-      appointmentDate: 'ศุกร์ 14 สิงหาคม 2569',
-      appointmentTime: '13:00 น.',
-      status: QueueStatus.confirmed,
-    ),
-    QueueItem(
-      bookingId: 'SC680412-003',
-      clinicName: 'DentBook Clinic สาขาจันทบุรี',
-      serviceName: 'จัดฟัน',
-      doctorName: 'ทพญ. อรุณี ป.',
-      appointmentDate: 'จันทร์ 10 เมษายน 2568',
-      appointmentTime: '10:00 น.',
-      status: QueueStatus.completed,
-    ),
-    QueueItem(
-      bookingId: 'SC680301-004',
-      clinicName: 'DentBook Clinic สาขาจันทบุรี',
-      serviceName: 'ถอนฟัน',
-      doctorName: 'ทพ. วิชัย ส.',
-      appointmentDate: 'อังคาร 1 มีนาคม 2568',
-      appointmentTime: '14:00 น.',
-      status: QueueStatus.cancelled,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _loadQueues();
+  }
+
+  Future<void> _loadQueues() async {
+    try {
+      final bookings = await ServiceLocator.booking.getMyBookings();
+      if (!mounted) return;
+      setState(() {
+        _allQueues = (bookings as List).map((b) {
+          QueueStatus status;
+          switch ((b.status as BookingStatus)) {
+            case BookingStatus.waitingPayment: status = QueueStatus.waitingPayment; break;
+            case BookingStatus.confirmed:      status = QueueStatus.confirmed; break;
+            case BookingStatus.inProgress:     status = QueueStatus.inProgress; break;
+            case BookingStatus.completed:      status = QueueStatus.completed; break;
+            default:                           status = QueueStatus.cancelled;
+          }
+          return QueueItem(
+            bookingId:       b.bookingCode as String,
+            clinicName:      b.clinicName as String,
+            serviceName:     b.serviceName as String,
+            doctorName:      b.doctorName as String,
+            appointmentDate: _fmtDate(b.appointmentDate as DateTime),
+            appointmentTime: '${b.appointmentTime} น.',
+            status:          status,
+            depositAmount:   (b.depositAmount as double).toInt(),
+          );
+        }).toList();
+        _loading = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _fmtDate(DateTime d) {
+    const days = ['', 'จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์','อาทิตย์'];
+    const months = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม',
+                    'มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    return '${days[d.weekday]} ${d.day} ${months[d.month]} ${d.year + 543}';
+  }
 
   List<QueueItem> get _activeQueues => _allQueues
       .where((q) =>
@@ -155,12 +162,6 @@ class _MyQueueOneState extends State<MyQueueOne>
       .toList();
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
@@ -168,6 +169,11 @@ class _MyQueueOneState extends State<MyQueueOne>
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.homeBackground,
       body: SafeArea(
@@ -257,13 +263,7 @@ class _MyQueueOneState extends State<MyQueueOne>
               currentIndex: _navIndex,
               onTap: (i) {
                 setState(() => _navIndex = i);
-                if (i == 0) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HomePageOne()),
-                    (route) => false,
-                  );
-                }
+                if (i == 0) widget.onHome?.call();
                 if (i == 1) {
                   Navigator.push(
                     context,
