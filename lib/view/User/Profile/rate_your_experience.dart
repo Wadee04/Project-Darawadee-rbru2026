@@ -395,10 +395,12 @@ class _CommentCard extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   const _BottomBar({
     required this.onSubmit,
+    required this.isSubmitting,
     this.onSkip,
   });
 
   final VoidCallback onSubmit;
+  final bool isSubmitting;
   final VoidCallback? onSkip;
 
   @override
