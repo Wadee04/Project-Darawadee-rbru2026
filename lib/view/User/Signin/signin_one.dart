@@ -27,6 +27,7 @@ class _SignInOneState extends State<SignInOne> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isSigningIn = false;
 
   @override
   void dispose() {
