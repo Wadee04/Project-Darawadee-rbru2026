@@ -411,8 +411,9 @@ class _SummaryRow extends StatelessWidget {
 // _ConfirmBar — ปุ่มยืนยันการลงทะเบียนด้านล่าง
 // ============================================================
 class _ConfirmBar extends StatelessWidget {
-  const _ConfirmBar({this.onConfirm});
+  const _ConfirmBar({this.onConfirm, this.isSaving = false});
   final VoidCallback? onConfirm;
+  final bool isSaving;
 
   @override
   Widget build(BuildContext context) {
