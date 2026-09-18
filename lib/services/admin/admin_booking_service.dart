@@ -143,21 +143,36 @@ class AdminBookingService {
 
   dynamic subscribeToTodayQueue(void Function() onChanged) {
     if (_useMock) { return null; }
-    final clinicId = _mock.currentAdmin.clinicId;
-    return _db
-        .channel('bookings:$clinicId')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'bookings',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'clinic_id',
-            value: clinicId,
-          ),
-          callback: (_) => onChanged(),
-        )
-        .subscribe();
+    // clinicId ต้องดึง async แต่ subscribe sync — ใช้ pattern นี้
+    _getClinicId().then((clinicId) {
+      if (clinicId.isEmpty) return;
+      _db
+          .channel('bookings:$clinicId')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'bookings',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'clinic_id',
+              value: clinicId,
+            ),
+            callback: (_) => onChanged(),
+          )
+          .subscribe();
+    });
+  }
+
+  // ---- Helper: ดึง clinicId ของ admin ที่ login อยู่ ------
+  Future<String> _getClinicId() async {
+    final uid = _db.auth.currentUser?.id;
+    if (uid == null) return '';
+    final row = await _db
+        .from('users')
+        .select('clinic_id')
+        .eq('id', uid)
+        .maybeSingle();
+    return row?['clinic_id'] as String? ?? '';
   }
 
   String _todayStr() {
