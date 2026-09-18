@@ -38,8 +38,27 @@ class _RateYourExperiencePageState extends State<RateYourExperiencePage> {
     super.dispose();
   }
 
-  void _handleSubmit() {
-    widget.onSubmit?.call(_rating, _commentCtrl.text.trim());
+  void _handleSubmit() async {
+    setState(() => _isSubmitting = true);
+    try {
+      await ServiceLocator.review.submitReview(
+        rating: _rating,
+        comment: _commentCtrl.text.trim().isEmpty ? null : _commentCtrl.text.trim(),
+      );
+      widget.onSubmit?.call(_rating, _commentCtrl.text.trim());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ขอบคุณสำหรับความคิดเห็นของคุณ')),
+        );
+        Navigator.maybePop(context);
+      }
+    } on AuthException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
