@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../services/supabase_stock_service.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 
 // ============================================================
-// StockPage — หน้านับสต็อก
+// StockPage — หน้านับสต็อก (Supabase)
 // ============================================================
 class StockPage extends StatefulWidget {
   const StockPage({
@@ -13,14 +15,12 @@ class StockPage extends StatefulWidget {
     this.currentNavIndex = 2,
     this.onScanQr,
     this.onAddManual,
-    this.onSave,
   });
 
   final void Function(int)? onNavTap;
   final int currentNavIndex;
   final VoidCallback? onScanQr;
   final VoidCallback? onAddManual;
-  final void Function(List<StockItem>)? onSave;
 
   @override
   State<StockPage> createState() => _StockPageState();
@@ -29,17 +29,63 @@ class StockPage extends StatefulWidget {
 class _StockPageState extends State<StockPage> {
   String _searchQuery = '';
   int _selectedFilterIndex = 0;
+  bool _loading = true;
+  bool _saving = false;
 
-  final List<StockItem> _items = [
-    StockItem(id: 'DN-1042', name: 'น้ำยาเคลือบฟลูออไรด์', qty: 8, status: StockStatus.normal),
-    StockItem(id: 'DN-2201', name: 'ถุงมือยางไนไตรล์ (M)', qty: 4, status: StockStatus.low),
-    StockItem(id: 'DN-3310', name: 'เข็มฉีดยาเข้า', qty: 6, status: StockStatus.normal),
-    StockItem(id: 'DN-4105', name: 'ผ้าคลุมฟันเด็ก', qty: 2, status: StockStatus.low),
-    StockItem(id: 'DN-5062', name: 'วัสดุอุดฟันคอมโพสิต', qty: 9, status: StockStatus.normal),
-    StockItem(id: 'DN-6023', name: 'หัวกรอถอนฟัน', qty: 7, status: StockStatus.normal),
-  ];
+  List<StockItem> _items = [];
 
   static const List<String> _filterLabels = ['รายการทั้งหมด', 'ใกล้หมด', 'นับแล้ว'];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() => _loading = true);
+    try {
+      final rows = await SupabaseStockService.instance.getStock();
+      if (mounted) {
+        setState(() {
+          _items = rows.map((r) {
+            final qty = (r['quantity'] as num?)?.toInt() ?? 0;
+            return StockItem(
+              id: r['sku'] as String? ?? r['id'] as String,
+              dbId: r['id'] as String,
+              name: r['name'] as String? ?? '',
+              qty: qty,
+              status: qty <= 3 ? StockStatus.low : StockStatus.normal,
+            );
+          }).toList();
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _saveAll() async {
+    setState(() => _saving = true);
+    try {
+      // อัปเดตจำนวนทุกรายการที่ isCounted == true
+      final counted = _items.where((i) => i.isCounted && i.dbId != null);
+      await Future.wait(counted.map((i) =>
+          SupabaseStockService.instance.updateQuantity(productId: i.dbId!, quantity: i.qty)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('บันทึกสต็อกเรียบร้อยแล้ว')));
+        _load(); // reload ข้อมูลใหม่
+      }
+    } on AuthException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   int get _totalCount => _items.length;
   int get _lowCount => _items.where((i) => i.status == StockStatus.low).length;
@@ -48,29 +94,24 @@ class _StockPageState extends State<StockPage> {
   List<StockItem> get _filtered {
     List<StockItem> list = _items;
     if (_searchQuery.isNotEmpty) {
-      list = list.where((i) =>
-          i.name.contains(_searchQuery) || i.id.contains(_searchQuery)).toList();
+      list = list.where((i) => i.name.contains(_searchQuery) || i.id.contains(_searchQuery)).toList();
     }
     switch (_selectedFilterIndex) {
-      case 1:
-        list = list.where((i) => i.status == StockStatus.low).toList();
-        break;
-      case 2:
-        list = list.where((i) => i.isCounted).toList();
-        break;
+      case 1: list = list.where((i) => i.status == StockStatus.low).toList(); break;
+      case 2: list = list.where((i) => i.isCounted).toList(); break;
     }
     return list;
   }
 
-  void _increment(int index) {
-    final real = _items.indexOf(_filtered[index]);
+  void _increment(int filteredIndex) {
+    final real = _items.indexOf(_filtered[filteredIndex]);
     setState(() {
       _items[real] = _items[real].copyWith(qty: _items[real].qty + 1, isCounted: true);
     });
   }
 
-  void _decrement(int index) {
-    final real = _items.indexOf(_filtered[index]);
+  void _decrement(int filteredIndex) {
+    final real = _items.indexOf(_filtered[filteredIndex]);
     if (_items[real].qty <= 0) return;
     setState(() {
       _items[real] = _items[real].copyWith(qty: _items[real].qty - 1, isCounted: true);
