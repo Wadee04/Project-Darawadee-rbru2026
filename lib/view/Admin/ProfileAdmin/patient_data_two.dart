@@ -223,7 +223,7 @@ class _PatientDataTwoState extends State<PatientDataTwo> {
                                 context.rs(28),
                               ),
                               itemCount: visiblePatients.length,
-                              separatorBuilder: (_, __) => const Divider(
+                              separatorBuilder: (_, _) => const Divider(
                                 height: 1,
                                 thickness: 0.7,
                                 color: AppColors.inputBorder,
