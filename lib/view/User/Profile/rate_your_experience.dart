@@ -124,6 +124,7 @@ class _RateYourExperiencePageState extends State<RateYourExperiencePage> {
 
               // ---- Bottom buttons ----
               _BottomBar(
+                isSubmitting: _isSubmitting,
                 onSubmit: _handleSubmit,
                 onSkip: widget.onSkip,
               ),
