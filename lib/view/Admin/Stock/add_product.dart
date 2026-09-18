@@ -36,6 +36,7 @@ class _AddProductPageState extends State<AddProductPage> {
   final _noteCtrl = TextEditingController();
 
   String _unit = 'ชิ้น';
+  bool _isSaving = false;
 
   static const List<String> _units = ['ชิ้น', 'กล่อง', 'แผ่น', 'ขวด', 'หลอด', 'ถุง', 'อัน'];
 
