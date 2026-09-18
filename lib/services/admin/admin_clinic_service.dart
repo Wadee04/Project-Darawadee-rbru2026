@@ -49,7 +49,17 @@ class AdminClinicService {
       await _delay();
       return _mock.stats;
     }
-    final clinicId = _mock.currentAdmin.clinicId;
+    // ดึง clinicId จริงจาก Supabase ตาม user ที่ login อยู่
+    final uid = _db.auth.currentUser!.id;
+    final userRow = await _db
+        .from('users')
+        .select('clinic_id')
+        .eq('id', uid)
+        .maybeSingle();
+    final clinicId = userRow?['clinic_id'] as String? ?? '';
+    if (clinicId.isEmpty) {
+      return const DashboardStats(totalToday: 0, waiting: 0, inProgress: 0, completed: 0);
+    }
     final today = DateTime.now();
     final dateStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
