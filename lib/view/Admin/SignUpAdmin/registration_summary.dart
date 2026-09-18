@@ -88,6 +88,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
