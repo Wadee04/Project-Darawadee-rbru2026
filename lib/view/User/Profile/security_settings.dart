@@ -344,10 +344,12 @@ class _PinToggleRow extends StatelessWidget {
   const _PinToggleRow({
     required this.value,
     required this.onChanged,
+    this.isSaving = false,
   });
 
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final Future<void> Function(bool) onChanged;
+  final bool isSaving;
 
   @override
   Widget build(BuildContext context) {
