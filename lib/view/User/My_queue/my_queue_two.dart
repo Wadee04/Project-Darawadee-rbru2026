@@ -12,7 +12,7 @@ import 'my_queue_three.dart';
 // ============================================================
 // MyQueueTwo - หน้ารายละเอียดคิว (Queue Detail)
 // ============================================================
-class MyQueueTwo extends StatelessWidget {
+class MyQueueTwo extends StatefulWidget {
   const MyQueueTwo({
     super.key,
     required this.queue,
@@ -23,7 +23,15 @@ class MyQueueTwo extends StatelessWidget {
   final VoidCallback? onBack;
 
   @override
+  State<MyQueueTwo> createState() => _MyQueueTwoState();
+}
+
+class _MyQueueTwoState extends State<MyQueueTwo> {
+  bool _isCancelling = false;
+
+  @override
   Widget build(BuildContext context) {
+    final queue = widget.queue;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
