@@ -190,44 +190,43 @@ class _MyQueueTwoState extends State<MyQueueTwo> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'ยืนยันการยกเลิก',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('ยืนยันการยกเลิก',
+            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700)),
         content: const Text(
-          'คุณต้องการยกเลิกการนัดหมายนี้ใช่หรือไม่?\nการยกเลิกอาจมีผลต่อค่ามัดจำ',
-          style: TextStyle(fontFamily: 'Inter'),
-        ),
+            'คุณต้องการยกเลิกการนัดหมายนี้ใช่หรือไม่?\nการยกเลิกอาจมีผลต่อค่ามัดจำ',
+            style: TextStyle(fontFamily: 'Inter')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'ย้อนกลับ',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                color: AppColors.textGray,
-              ),
-            ),
+            child: const Text('ย้อนกลับ',
+                style: TextStyle(fontFamily: 'Inter', color: AppColors.textGray)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context); // กลับไปหน้า list
+            onPressed: () async {
+              Navigator.pop(context); // ปิด dialog
+              setState(() => _isCancelling = true);
+              try {
+                await ServiceLocator.booking.cancelBooking(widget.queue.bookingId);
+                if (!mounted) return;
+                Navigator.pop(context); // กลับไปหน้า list
+              } on AuthException catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.message)));
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+                }
+              } finally {
+                if (mounted) setState(() => _isCancelling = false);
+              }
             },
-            child: const Text(
-              'ยืนยันยกเลิก',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                color: AppColors.reddentbook,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text('ยืนยันยกเลิก',
+                style: TextStyle(fontFamily: 'Inter',
+                    color: AppColors.reddentbook, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
