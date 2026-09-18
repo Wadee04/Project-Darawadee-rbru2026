@@ -27,9 +27,10 @@ class RateYourExperiencePage extends StatefulWidget {
 }
 
 class _RateYourExperiencePageState extends State<RateYourExperiencePage> {
-  int _rating = 2; // จำนวนดาวที่เลือก (1-5)
+  int _rating = 2;
   final TextEditingController _commentCtrl = TextEditingController();
   static const int _maxLength = 300;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
