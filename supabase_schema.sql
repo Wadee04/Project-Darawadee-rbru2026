@@ -326,3 +326,28 @@ create policy "slips: read own" on storage.objects
   for select using (
     bucket_id = 'slips' and auth.uid()::text = (storage.foldername(name))[1]
   );
+
+-- ============================================================
+-- stock — สต็อกวัสดุ/สินค้าของคลินิก
+-- ============================================================
+create table if not exists public.stock (
+  id              uuid primary key default gen_random_uuid(),
+  clinic_id       uuid references public.clinics(id) on delete cascade,
+  name            text not null,
+  sku             text not null,
+  quantity        integer not null default 0,
+  unit            text not null default 'ชิ้น',
+  note            text,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+alter table public.stock enable row level security;
+
+-- admin ของคลินิกนั้นๆ เท่านั้นที่แก้ไขได้
+create policy "Admin manage own clinic stock" on public.stock
+  for all using (
+    clinic_id in (
+      select id from public.clinics where admin_id = auth.uid()
+    )
+  );
