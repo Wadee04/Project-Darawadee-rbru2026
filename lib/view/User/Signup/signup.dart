@@ -227,8 +227,8 @@ class _SignUpState extends State<SignUp> {
                               // auth.signUp ส่ง OTP ยืนยันอีเมลแล้ว
                               Navigator.push(
                                 context,
-                                noAnimRoute(EmailOtpPage(
-                                  email: email,
+                                noAnimRoute(OTPPage(
+                                  target: email,
                                   fullName: fullName,
                                 )),
                               );

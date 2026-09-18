@@ -183,17 +183,6 @@ class _SignUpScreen extends StatelessWidget {
     return SignUp(
       onBack: () => Navigator.maybePop(context),
       onSignIn: () => AppRouter.goSignIn(context),
-      onSignUp: (fullName, email, password) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => EmailOtpPage(
-              email: email,
-              fullName: fullName,
-            ),
-          ),
-        );
-      },
     );
   }
 }
