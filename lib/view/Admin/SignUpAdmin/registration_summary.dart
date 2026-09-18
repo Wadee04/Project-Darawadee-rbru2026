@@ -437,7 +437,11 @@ class _ConfirmBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(context.rs(30)),
             ),
           ),
-          child: Text(
+          child: isSaving
+              ? const SizedBox(width: 20, height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white)))
+              : Text(
             'ยืนยันการลงทะเบียน',
             style: TextStyle(
               fontFamily: 'Inter',
