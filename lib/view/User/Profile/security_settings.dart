@@ -141,8 +141,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                             // ตั้งรหัส PIN
                             _PinToggleRow(
                               value: _pinEnabled,
-                              onChanged: (v) =>
-                                  setState(() => _pinEnabled = v),
+                              isSaving: _isSavingPin,
+                              onChanged: _handlePinToggle,
                             ),
                           ],
                         ),
