@@ -27,6 +27,23 @@ class PinPage extends StatefulWidget {
 class _PinPageState extends State<PinPage> {
   static const int _pinLength = 6;
   String _pin = '';
+  bool _isSaving = false;
+
+  Future<void> _savePin(String pin) async {
+    setState(() => _isSaving = true);
+    try {
+      await ServiceLocator.user.togglePin(enabled: true, pinHash: pin);
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } catch (_) {}
+    finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
 
   void _onKeyTap(String key) {
     if (_pin.length >= _pinLength) return;
