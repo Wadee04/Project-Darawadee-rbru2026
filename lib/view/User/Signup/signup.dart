@@ -270,17 +270,28 @@ class _SignUpState extends State<SignUp> {
                                 BorderRadius.circular(context.rs(16)),
                           ),
                         ),
-                        child: Text(
-                          'ลงทะเบียน',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: context.rs(16),
-                            fontWeight: FontWeight.w500,
-                            color: _isFormFilled
-                                ? AppColors.white
-                                : AppColors.black,
-                          ),
-                        ),
+                        child: _isSubmitting
+                            ? SizedBox(
+                                width: context.rs(20),
+                                height: context.rs(20),
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                'ลงทะเบียน',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: context.rs(16),
+                                  fontWeight: FontWeight.w500,
+                                  color: _isFormFilled
+                                      ? AppColors.white
+                                      : AppColors.black,
+                                ),
+                              ),
                       ),
                     ),
 
