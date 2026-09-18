@@ -64,41 +64,8 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
     }
   }
 
-  Future<void> _sendOtp() async {
-    if (_hasSentOtp) return;
-    setState(() => _isSendingOtp = true);
-    try {
-      await supabase.auth.signInWithOtp(
-        email: widget.email,
-        data: {
-          'full_name': widget.fullName,
-        },
-      );
-      RegistrationData.email = widget.email;
-      RegistrationData.password = widget.password;
-      RegistrationData.fullName = widget.fullName;
-      setState(() => _hasSentOtp = true);
-    } catch (e) {
-      if (!mounted) return;
-      String message = 'ไม่สามารถส่งรหัส OTP ได้ กรุณาลองใหม่';
-      final err = e.toString();
-      if (err.contains('over_email_send_rate_limit') || err.contains('rate_limit')) {
-        message = 'ส่งอีเมลบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่';
-      } else if (err.contains('User already registered') || err.contains('already been registered')) {
-        message = 'อีเมลนี้ถูกใช้งานแล้ว';
-      } else if (err.contains('invalid format') || err.contains('validation_failed')) {
-        message = 'รูปแบบอีเมลไม่ถูกต้อง';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    } finally {
-      if (mounted) setState(() => _isSendingOtp = false);
-    }
-  }
-
   Future<void> _verifyOtp() async {
-    if (!_isComplete) return;
+    if (!_isComplete || _isLoading) return;
     setState(() => _isLoading = true);
     try {
       // verify OTP กับ Supabase (type: signup)
