@@ -46,6 +46,7 @@ class _BirthdayPageState extends State<BirthdayPage> {
 
   // ปี พ.ศ. ให้เลือก 2480–ปีปัจจุบัน+543
   late final List<int> _years;
+  bool _isSaving = false;
 
   @override
   void initState() {
