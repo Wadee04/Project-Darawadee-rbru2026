@@ -30,6 +30,7 @@ class _SignUpState extends State<SignUp> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _isFormFilled = false;
+  bool _isSubmitting = false;
 
   bool get _allFieldsFilled =>
       _nameController.text.trim().isNotEmpty &&
