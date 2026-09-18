@@ -39,8 +39,7 @@ class AppRouter {
   // ============================================================
   // HOME
   // ============================================================
-  static void goHome(BuildContext ctx) =>
-      _pushAndRemoveAll(ctx, _HomeScreen());
+  static void goHome(BuildContext ctx) => _pushAndRemoveAll(ctx, _HomeScreen());
 
   // ============================================================
   // BOOK
@@ -51,20 +50,17 @@ class AppRouter {
   // ============================================================
   // MY QUEUE
   // ============================================================
-  static void goMyQueue(BuildContext ctx) =>
-      _push(ctx, _MyQueueScreen());
+  static void goMyQueue(BuildContext ctx) => _push(ctx, _MyQueueScreen());
 
   // ============================================================
   // PROFILE
   // ============================================================
-  static void goProfile(BuildContext ctx) =>
-      _push(ctx, _ProfileScreen());
+  static void goProfile(BuildContext ctx) => _push(ctx, _ProfileScreen());
 
   static void goEditProfile(BuildContext ctx) =>
       _push(ctx, _EditProfileScreen());
 
-  static void goSecurity(BuildContext ctx) =>
-      _push(ctx, _SecurityScreen());
+  static void goSecurity(BuildContext ctx) => _push(ctx, _SecurityScreen());
 
   static void goChangePassword(BuildContext ctx) =>
       _push(ctx, _ChangePasswordScreen());
@@ -75,8 +71,7 @@ class AppRouter {
   static void goNotificationSettings(BuildContext ctx) =>
       _push(ctx, _NotificationSettingsScreen());
 
-  static void goRateApp(BuildContext ctx) =>
-      _push(ctx, _RateAppScreen());
+  static void goRateApp(BuildContext ctx) => _push(ctx, _RateAppScreen());
 
   static void goHelp(BuildContext ctx) =>
       _push(ctx, HelpPage(onBack: () => Navigator.maybePop(ctx)));
@@ -87,8 +82,7 @@ class AppRouter {
   static void goSwitchAccount(BuildContext ctx) =>
       _push(ctx, const SwitchAccountPage());
 
-  static void goCreatePin(BuildContext ctx) =>
-      _push(ctx, _CreatePinScreen());
+  static void goCreatePin(BuildContext ctx) => _push(ctx, _CreatePinScreen());
 
   // ============================================================
   // Helpers
@@ -117,9 +111,15 @@ class _SignInScreenState extends State<_SignInScreen> {
   String? _error;
 
   Future<void> _handleSignIn(String email, String password) async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
-      final user = await ServiceLocator.user.signIn(email: email, password: password);
+      final user = await ServiceLocator.user.signIn(
+        email: email,
+        password: password,
+      );
       if (!mounted) return;
       if (user != null) {
         AppRouter.goHome(context);
@@ -163,7 +163,10 @@ class _SignInScreenState extends State<_SignInScreen> {
                 ),
                 child: Text(
                   _error!,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Inter',
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -196,7 +199,6 @@ class _HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<_HomeScreen> {
-  String _userName = '';
   bool _loading = true;
 
   @override
@@ -207,8 +209,10 @@ class _HomeScreenState extends State<_HomeScreen> {
 
   Future<void> _load() async {
     try {
-      final user = await ServiceLocator.user.getCurrentUser();
-      if (mounted) setState(() { _userName = user.fullName; _loading = false; });
+      await ServiceLocator.user.getCurrentUser();
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -220,7 +224,6 @@ class _HomeScreenState extends State<_HomeScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return HomePageOne(
-      userName: _userName.isNotEmpty ? _userName : 'คุณผู้ใช้',
       onProfile: () => AppRouter.goProfile(context),
       onBooking: () => AppRouter.goBooking(context),
       onMyQueue: () => AppRouter.goMyQueue(context),
@@ -247,7 +250,9 @@ class _MyQueueScreenState extends State<_MyQueueScreen> {
 
   Future<void> _load() async {
     // pre-warm service เพื่อให้ data store โหลดก่อนที่ MyQueueOne จะ render
-    try { await ServiceLocator.booking.getMyBookings(); } catch (_) {}
+    try {
+      await ServiceLocator.booking.getMyBookings();
+    } catch (_) {}
     if (mounted) setState(() => _loading = false);
   }
 
@@ -291,7 +296,8 @@ class _ProfileScreenState extends State<_ProfileScreen> {
       if (!mounted) return;
       setState(() {
         _user = user;
-        _apptCount = (stats[BookingStatus.confirmed] ?? 0) +
+        _apptCount =
+            (stats[BookingStatus.confirmed] ?? 0) +
             (stats[BookingStatus.waitingPayment] ?? 0);
         _historyCount = stats[BookingStatus.completed] ?? 0;
         _loading = false;
@@ -350,7 +356,11 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   Future<void> _load() async {
     try {
       final user = await ServiceLocator.user.getCurrentUser();
-      if (mounted) setState(() { _user = user; _loading = false; });
+      if (mounted)
+        setState(() {
+          _user = user;
+          _loading = false;
+        });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -411,7 +421,11 @@ class _SecurityScreenState extends State<_SecurityScreen> {
   Future<void> _load() async {
     try {
       final u = await ServiceLocator.user.getCurrentUser();
-      if (mounted) setState(() { _user = u; _loading = false; });
+      if (mounted)
+        setState(() {
+          _user = u;
+          _loading = false;
+        });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -440,20 +454,26 @@ class _ChangePasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangePasswordPage(
       onBack: () => Navigator.maybePop(context),
-      onNext: ({required String currentPassword, required String newPassword}) async {
-        final ok = await ServiceLocator.user.changePassword(
-          currentPassword: currentPassword,
-          newPassword: newPassword,
-        );
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(ok ? 'เปลี่ยนรหัสผ่านสำเร็จ' : 'เปลี่ยนรหัสผ่านไม่สำเร็จ'),
-            ),
-          );
-          if (ok) Navigator.maybePop(context);
-        }
-      },
+      onNext:
+          ({
+            required String currentPassword,
+            required String newPassword,
+          }) async {
+            final ok = await ServiceLocator.user.changePassword(
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    ok ? 'เปลี่ยนรหัสผ่านสำเร็จ' : 'เปลี่ยนรหัสผ่านไม่สำเร็จ',
+                  ),
+                ),
+              );
+              if (ok) Navigator.maybePop(context);
+            }
+          },
     );
   }
 }
@@ -471,7 +491,11 @@ class _ChangeEmailScreen extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(ok ? 'เปลี่ยนอีเมลสำเร็จ กรุณายืนยันทางอีเมลใหม่' : 'เปลี่ยนอีเมลไม่สำเร็จ'),
+              content: Text(
+                ok
+                    ? 'เปลี่ยนอีเมลสำเร็จ กรุณายืนยันทางอีเมลใหม่'
+                    : 'เปลี่ยนอีเมลไม่สำเร็จ',
+              ),
             ),
           );
           if (ok) Navigator.maybePop(context);
@@ -504,7 +528,11 @@ class _NotificationSettingsScreenState
   Future<void> _load() async {
     try {
       final s = await ServiceLocator.notification.getSettings();
-      if (mounted) setState(() { _settings = s; _loading = false; });
+      if (mounted)
+        setState(() {
+          _settings = s;
+          _loading = false;
+        });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }

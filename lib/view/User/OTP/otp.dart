@@ -47,8 +47,10 @@ class _OTPPageState extends State<OTPPage> {
   @override
   void initState() {
     super.initState();
-    _controllers =
-        List.generate(widget.otpLength, (_) => TextEditingController());
+    _controllers = List.generate(
+      widget.otpLength,
+      (_) => TextEditingController(),
+    );
     _focusNodes = List.generate(widget.otpLength, (_) => FocusNode());
     _keyListenerNodes = List.generate(widget.otpLength, (_) => FocusNode());
     _secondsLeft = widget.resendCooldown;
@@ -96,10 +98,10 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   // ---- OTP ----
-  String get _otpValue => _controllers.map((controller) => controller.text).join();
+  String get _otpValue =>
+      _controllers.map((controller) => controller.text).join();
   bool get _isFilled => _otpValue.length == widget.otpLength;
-  bool get _canVerify =>
-      (_isFilled || _verifiedUserId != null) && !_isLoading;
+  bool get _canVerify => (_isFilled || _verifiedUserId != null) && !_isLoading;
 
   void _onChanged(int index, String value) {
     if (value.length == 1 && index < widget.otpLength - 1) {
@@ -163,8 +165,7 @@ class _OTPPageState extends State<OTPPage> {
           ),
         );
       } else {
-        final isExpired =
-            error.toString().toLowerCase().contains('expired');
+        final isExpired = error.toString().toLowerCase().contains('expired');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -189,25 +190,18 @@ class _OTPPageState extends State<OTPPage> {
     setState(() => _isResending = true);
 
     try {
-      await supabase.auth.resend(
-        type: OtpType.signup,
-        email: widget.target,
-      );
+      await supabase.auth.resend(type: OtpType.signup, email: widget.target);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ส่งรหัส OTP ใหม่แล้ว กรุณาตรวจสอบอีเมล'),
-        ),
+        const SnackBar(content: Text('ส่งรหัส OTP ใหม่แล้ว กรุณาตรวจสอบอีเมล')),
       );
       setState(() => _secondsLeft = widget.resendCooldown);
       _startTimer();
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ไม่สามารถส่งรหัสใหม่ได้ กรุณารอสักครู่'),
-        ),
+        const SnackBar(content: Text('ไม่สามารถส่งรหัสใหม่ได้ กรุณารอสักครู่')),
       );
     } finally {
       if (mounted) setState(() => _isResending = false);
@@ -225,16 +219,12 @@ class _OTPPageState extends State<OTPPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ---- AppBar ----
-                AppBarBack(
-                  title: 'กรอกรหัสยืนยันตัวตน',
-                  onBack: widget.onBack,
-                ),
+                AppBarBack(title: 'กรอกรหัสยืนยันตัวตน', onBack: widget.onBack),
 
                 // ---- Content ----
                 Expanded(
                   child: SingleChildScrollView(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: context.rs(24)),
+                    padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -279,10 +269,8 @@ class _OTPPageState extends State<OTPPage> {
                               child: _OTPBox(
                                 controller: _controllers[index],
                                 focusNode: _focusNodes[index],
-                                keyListenerFocusNode:
-                                    _keyListenerNodes[index],
-                                onChanged: (value) =>
-                                    _onChanged(index, value),
+                                keyListenerFocusNode: _keyListenerNodes[index],
+                                onChanged: (value) => _onChanged(index, value),
                                 onKeyEvent: (event) =>
                                     _onKeyEvent(index, event),
                               ),
@@ -300,14 +288,14 @@ class _OTPPageState extends State<OTPPage> {
                             onPressed: _canVerify ? _verifyOtp : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.purple,
-                              disabledBackgroundColor:
-                                  AppColors.registerButton,
+                              disabledBackgroundColor: AppColors.registerButton,
                               foregroundColor: AppColors.white,
                               disabledForegroundColor: AppColors.textGray,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(context.rs(30)),
+                                borderRadius: BorderRadius.circular(
+                                  context.rs(30),
+                                ),
                               ),
                             ),
                             child: Text(
@@ -431,10 +419,7 @@ class _OTPBox extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(context.rs(10)),
-              borderSide: const BorderSide(
-                color: AppColors.orange,
-                width: 1.5,
-              ),
+              borderSide: const BorderSide(color: AppColors.orange, width: 1.5),
             ),
           ),
         ),

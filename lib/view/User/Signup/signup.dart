@@ -145,7 +145,8 @@ class _SignUpState extends State<SignUp> {
                       suffixIcon: _EyeToggle(
                         obscured: _obscurePassword,
                         onTap: () => setState(
-                            () => _obscurePassword = !_obscurePassword),
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                       ),
                     ),
 
@@ -160,8 +161,8 @@ class _SignUpState extends State<SignUp> {
                       obscureText: _obscureConfirm,
                       suffixIcon: _EyeToggle(
                         obscured: _obscureConfirm,
-                        onTap: () => setState(
-                            () => _obscureConfirm = !_obscureConfirm),
+                        onTap: () =>
+                            setState(() => _obscureConfirm = !_obscureConfirm),
                       ),
                     ),
 
@@ -175,81 +176,102 @@ class _SignUpState extends State<SignUp> {
                         onPressed: (!_isFormFilled || _isSubmitting)
                             ? null
                             : () async {
-                          // ตรวจสอบรูปแบบอีเมล
-                            final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                            if (!emailRegex.hasMatch(_emailController.text.trim())) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('รูปแบบอีเมลไม่ถูกต้อง')),
-                              );
-                              return;
-                            }
-                            // ตรวจสอบรหัสผ่าน
-                            if (_passwordController.text.length < 6) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร')),
-                              );
-                              return;
-                            }
-                            if (_passwordController.text != _confirmController.text) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('รหัสผ่านไม่ตรงกัน')),
-                              );
-                              return;
-                            }
-
-                            final fullName = _nameController.text.trim();
-                            final email = _emailController.text.trim();
-                            final password = _passwordController.text;
-
-                            // ---- บันทึกข้อมูลผู้ใช้ลง Supabase ----
-                            setState(() => _isSubmitting = true);
-                            try {
-                              final user = await ServiceLocator.user.signUp(
-                                fullName: fullName,
-                                email: email,
-                                password: password,
-                              );
-
-                              if (!context.mounted) return;
-
-                              if (user == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่'),
-                                  ),
+                                // ตรวจสอบรูปแบบอีเมล
+                                final emailRegex = RegExp(
+                                  r'^[^@]+@[^@]+\.[^@]+$',
                                 );
-                                return;
-                              }
+                                if (!emailRegex.hasMatch(
+                                  _emailController.text.trim(),
+                                )) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('รูปแบบอีเมลไม่ถูกต้อง'),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                // ตรวจสอบรหัสผ่าน
+                                if (_passwordController.text.length < 6) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                if (_passwordController.text !=
+                                    _confirmController.text) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('รหัสผ่านไม่ตรงกัน'),
+                                    ),
+                                  );
+                                  return;
+                                }
 
-                              // callback นี้ใช้แจ้งผลเท่านั้น ไม่ควร navigate ซ้ำ
-                              widget.onSignUp?.call(fullName, email, password);
+                                final fullName = _nameController.text.trim();
+                                final email = _emailController.text.trim();
+                                final password = _passwordController.text;
 
-                              // auth.signUp ส่ง OTP ยืนยันอีเมลแล้ว
-                              Navigator.push(
-                                context,
-                                noAnimRoute(OTPPage(
-                                  target: email,
-                                  fullName: fullName,
-                                )),
-                              );
-                            } on AuthException catch (e) {
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.message)),
-                              );
-                            } catch (e) {
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('เกิดข้อผิดพลาด: $e'),
-                                ),
-                              );
-                            } finally {
-                              if (context.mounted) {
-                                setState(() => _isSubmitting = false);
-                              }
-                            }
-                        },
+                                // ---- บันทึกข้อมูลผู้ใช้ลง Supabase ----
+                                setState(() => _isSubmitting = true);
+                                try {
+                                  final user = await ServiceLocator.user.signUp(
+                                    fullName: fullName,
+                                    email: email,
+                                    password: password,
+                                  );
+
+                                  if (!context.mounted) return;
+
+                                  if (user == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่',
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  // callback นี้ใช้แจ้งผลเท่านั้น ไม่ควร navigate ซ้ำ
+                                  widget.onSignUp?.call(
+                                    fullName,
+                                    email,
+                                    password,
+                                  );
+
+                                  // auth.signUp ส่ง OTP ยืนยันอีเมลแล้ว
+                                  Navigator.push(
+                                    context,
+                                    noAnimRoute(
+                                      OTPPage(
+                                        target: email,
+                                        fullName: fullName,
+                                      ),
+                                    ),
+                                  );
+                                } on AuthException catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(e.message)),
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('เกิดข้อผิดพลาด: $e'),
+                                    ),
+                                  );
+                                } finally {
+                                  if (context.mounted) {
+                                    setState(() => _isSubmitting = false);
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isFormFilled
                               ? AppColors.purple
@@ -259,8 +281,7 @@ class _SignUpState extends State<SignUp> {
                               : AppColors.black,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(context.rs(16)),
+                            borderRadius: BorderRadius.circular(context.rs(16)),
                           ),
                         ),
                         child: _isSubmitting
@@ -310,10 +331,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        noAnimRoute(const SignInOne()),
-                      );
+                      Navigator.push(context, noAnimRoute(const SignInOne()));
                     },
                     child: Text(
                       'เข้าสู่ระบบ',
@@ -395,10 +413,10 @@ class _DentBookLogo extends StatelessWidget {
   }
 
   Widget _divLine(BuildContext context) => Container(
-        width: context.rs(22),
-        height: 0.5,
-        color: AppColors.purple.withValues(alpha: 0.7),
-      );
+    width: context.rs(22),
+    height: 0.5,
+    color: AppColors.purple.withValues(alpha: 0.7),
+  );
 }
 
 // ============================================================
@@ -475,8 +493,7 @@ class _InputField extends StatelessWidget {
         filled: false,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.rs(16)),
-          borderSide:
-              const BorderSide(color: AppColors.inputBorder, width: 1),
+          borderSide: const BorderSide(color: AppColors.inputBorder, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.rs(16)),
