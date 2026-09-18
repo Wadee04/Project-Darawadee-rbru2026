@@ -513,7 +513,7 @@ class _HomePageOneState extends State<HomePageOne> {
                               ),
                               SizedBox(height: context.rs(2)),
                               Text(
-                                widget.userName,
+                                _loadingUser ? '...' : (_userName.isNotEmpty ? _userName : 'ผู้ใช้'),
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: context.rs(16),
