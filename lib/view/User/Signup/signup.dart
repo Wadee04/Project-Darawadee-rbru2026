@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../components/shared_widgets.dart';
+import '../../../services/service_locator.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import '../Signin/signin_one.dart';
