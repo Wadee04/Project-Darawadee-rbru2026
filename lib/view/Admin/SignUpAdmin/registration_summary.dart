@@ -189,7 +189,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.markunread_mailbox_outlined,
                             label: 'รหัสไปรษณีย์',
-                            value: zipCode,
+                            value: widget.zipCode,
                             showDivider: false,
                           ),
                         ],
