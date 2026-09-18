@@ -52,28 +52,13 @@ class _SelectClinicSheet extends StatefulWidget {
 }
 
 class _SelectClinicSheetState extends State<_SelectClinicSheet> {
-  // ข้อมูลตัวอย่างคลินิก
-  static const List<ClinicItem> _allClinics = [
-    ClinicItem(
-      name: 'คลินิกทันตกรรมฟันเดย์',
-      province: 'จันทบุรี',
-      logoAsset: 'assets/images/homescreen/dental_funday.png',
-    ),
-    ClinicItem(
-      name: 'คลินิกทันตกรรมมีใจ',
-      province: 'กรุงเทพมหานคร',
-      logoAsset: 'assets/images/homescreen/dental_meejai.png',
-    ),
-    ClinicItem(
-      name: 'คลินิกทันตกรรมโรงพยาบาลกรุงเทพจันทบุรี',
-      province: 'กรุงเทพมหานคร',
-      logoAsset: 'assets/images/homescreen/dental_bangkok.png',
-    ),
-    ClinicItem(name: 'คลินิกทันตกรรมสไมล์', province: 'กรุงเทพมหานคร'),
-    ClinicItem(name: 'คลินิกทันตกรรมสไมล์', province: 'กรุงเทพมหานคร'),
-    ClinicItem(name: 'คลินิกทันตกรรมสไมล์', province: 'กรุงเทพมหานคร'),
-    ClinicItem(name: 'คลินิกทันตกรรมสไมล์', province: 'กรุงเทพมหานคร'),
-    ClinicItem(name: 'คลินิกทันตกรรมสไมล์', province: 'กรุงเทพมหานคร'),
+  // ข้อมูลคลินิกจาก Supabase ผ่าน widget.clinics
+  // เก็บ static fallback ไว้ใช้เมื่อโหลดไม่สำเร็จ
+  static const List<ClinicItem> _fallback = [
+    ClinicItem(id: '', name: 'คลินิกทันตกรรมฟันเดย์', province: 'จันทบุรี',
+        logoAsset: 'assets/images/homescreen/dental_funday.png'),
+    ClinicItem(id: '', name: 'คลินิกทันตกรรมมีใจ', province: 'กรุงเทพมหานคร',
+        logoAsset: 'assets/images/homescreen/dental_meejai.png'),
   ];
 
   static const List<String> _provinces = [
