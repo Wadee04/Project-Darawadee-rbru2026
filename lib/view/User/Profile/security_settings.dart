@@ -403,7 +403,12 @@ class _PinToggleRow extends StatelessWidget {
             ),
           ),
           // ---- Switch ----
-          Transform.scale(
+          isSaving
+              ? SizedBox(
+                  width: context.rs(20), height: context.rs(20),
+                  child: const CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Transform.scale(
             scale: 0.85,
             child: Switch(
               value: value,
