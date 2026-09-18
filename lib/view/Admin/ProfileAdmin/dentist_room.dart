@@ -461,7 +461,7 @@ class _ResourceCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(context.rs(12)),
       child: Container(
-        minHeight: context.rs(72),
+        constraints: BoxConstraints(minHeight: context.rs(72)),
         padding: EdgeInsets.symmetric(
           horizontal: context.rs(16),
           vertical: context.rs(10),
