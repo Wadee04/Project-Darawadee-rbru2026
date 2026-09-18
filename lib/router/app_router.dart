@@ -341,11 +341,12 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   Future<void> _load() async {
     try {
       final user = await ServiceLocator.user.getCurrentUser();
-      if (mounted)
+      if (mounted) {
         setState(() {
           _user = user;
           _loading = false;
         });
+      }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
