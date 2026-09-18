@@ -123,14 +123,73 @@ class _SignInOneState extends State<SignInOne> {
                       width: double.infinity,
                       height: context.rs(46),
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            noAnimRoute(OTPPage(
-                              target: _emailController.text.trim(),
-                            )),
-                          );
-                        },
+                        onPressed: _isSigningIn
+                            ? null
+                            : () async {
+                                final email =
+                                    _emailController.text.trim();
+                                final password = _passwordController.text;
+
+                                if (email.isEmpty || password.isEmpty) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                    const SnackBar(
+                                      content:
+                                          Text('กรุณากรอกอีเมลและรหัสผ่าน'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                setState(() => _isSigningIn = true);
+                                try {
+                                  final user =
+                                      await ServiceLocator.user.signIn(
+                                    email: email,
+                                    password: password,
+                                  );
+
+                                  if (!context.mounted) return;
+
+                                  if (user == null) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'อีเมลหรือรหัสผ่านไม่ถูกต้อง'),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  widget.onSignIn
+                                      ?.call(email, password);
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    noAnimRoute(const HomePageOne()),
+                                    (route) => false,
+                                  );
+                                } on AuthException catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                    SnackBar(content: Text(e.message)),
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'เกิดข้อผิดพลาด: $e')),
+                                  );
+                                } finally {
+                                  if (context.mounted) {
+                                    setState(
+                                        () => _isSigningIn = false);
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.purple,
                           foregroundColor: AppColors.white,
@@ -140,14 +199,24 @@ class _SignInOneState extends State<SignInOne> {
                                 BorderRadius.circular(context.rs(16)),
                           ),
                         ),
-                        child: Text(
-                          'เข้าสู่ระบบ',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: context.rs(15),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: _isSigningIn
+                            ? SizedBox(
+                                width: context.rs(20),
+                                height: context.rs(20),
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.white),
+                                ),
+                              )
+                            : Text(
+                                'เข้าสู่ระบบ',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: context.rs(15),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
 
