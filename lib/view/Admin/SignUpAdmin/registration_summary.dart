@@ -153,7 +153,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.phone_outlined,
                             label: 'เบอร์โทรศัพท์',
-                            value: phone,
+                            value: widget.phone,
                           ),
                           _SummaryRow(
                             icon: Icons.local_hospital_outlined,
