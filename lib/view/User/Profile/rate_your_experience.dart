@@ -429,7 +429,11 @@ class _BottomBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(context.rs(30)),
                 ),
               ),
-              child: Text(
+              child: isSubmitting
+                  ? SizedBox(width: context.rs(18), height: context.rs(18),
+                      child: const CircularProgressIndicator(strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.white)))
+                  : Text(
                 'ส่งคะแนนและความคิดเห็น',
                 style: TextStyle(
                   fontFamily: 'Inter',
