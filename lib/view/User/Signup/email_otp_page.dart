@@ -362,7 +362,7 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
         ),
 
         // loading overlay
-        if (_isLoading || _isSendingOtp) const ToothLoadingOverlay(),
+        if (_isLoading) const ToothLoadingOverlay(),
       ],
     );
   }
