@@ -231,23 +231,19 @@ class _StockPageState extends State<StockPage> {
                         width: double.infinity,
                         height: context.rs(46),
                         child: ElevatedButton.icon(
-                          onPressed: () => widget.onSave?.call(_items),
-                          icon: Icon(Icons.check, size: context.rs(16)),
-                          label: Text(
-                            'บันทึก',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: context.rs(14),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          onPressed: _saving ? null : _saveAll,
+                          icon: _saving
+                              ? SizedBox(width: context.rs(16), height: context.rs(16),
+                                  child: const CircularProgressIndicator(strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white)))
+                              : Icon(Icons.check, size: context.rs(16)),
+                          label: Text(_saving ? '' : 'บันทึก',
+                              style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(14), fontWeight: FontWeight.w600)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.purple,
                             foregroundColor: AppColors.white,
                             elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(context.rs(30)),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.rs(30))),
                           ),
                         ),
                       ),
