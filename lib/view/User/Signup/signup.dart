@@ -221,14 +221,16 @@ class _SignUpState extends State<SignUp> {
                                 return;
                               }
 
-                              // แจ้ง callback ภายนอก (ถ้ามี)
+                              // callback นี้ใช้แจ้งผลเท่านั้น ไม่ควร navigate ซ้ำ
                               widget.onSignUp?.call(fullName, email, password);
 
+                              // auth.signUp ส่ง OTP ยืนยันอีเมลแล้ว
                               Navigator.push(
                                 context,
-                                noAnimRoute(OTPPage(
-                                  target: email,
-                                  fromSignup: true,
+                                noAnimRoute(EmailOtpPage(
+                                  email: email,
+                                  password: password,
+                                  fullName: fullName,
                                 )),
                               );
                             } on AuthException catch (e) {
