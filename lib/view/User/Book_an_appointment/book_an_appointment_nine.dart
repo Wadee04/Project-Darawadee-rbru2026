@@ -130,13 +130,42 @@ class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
 
             // ---- ปุ่มยืนยัน ----
             _BottomConfirmBar(
-              isEnabled: _slipFile != null,
-              onConfirm: () {
-                widget.onConfirm?.call(_slipFile);
-                Navigator.push(
-                  context,
-                  noAnimRoute(const BookAnAppointmentTen()),
-                );
+              isEnabled: _slipFile != null && !_isConfirming,
+              isLoading: _isConfirming,
+              onConfirm: () async {
+                if (_slipFile == null) return;
+                setState(() => _isConfirming = true);
+                try {
+                  // 1. อัปโหลดสลิปขึ้น Supabase Storage bucket 'slips'
+                  final uid = supabase.auth.currentUser?.id ?? 'anonymous';
+                  final ext = _slipFile!.name.split('.').last;
+                  final path = 'slips/${uid}_${widget.bookingId}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+                  final bytes = await _slipFile!.readAsBytes();
+                  await supabase.storage.from('slips').uploadBinary(
+                    path,
+                    bytes,
+                    fileOptions: FileOptions(upsert: true),
+                  );
+                  final slipUrl = supabase.storage.from('slips').getPublicUrl(path);
+
+                  // 2. confirmDeposit — อัปเดต bookings row
+                  await ServiceLocator.booking.confirmDeposit(
+                    bookingId: widget.bookingId,
+                    slipUrl: slipUrl,
+                  );
+
+                  widget.onConfirm?.call(_slipFile);
+                  if (!mounted) return;
+                  Navigator.push(context, noAnimRoute(const BookAnAppointmentTen()));
+                } on AuthException catch (e) {
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+                } on StorageException catch (e) {
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('อัปโหลดสลิปไม่สำเร็จ: ${e.message}')));
+                } catch (e) {
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+                } finally {
+                  if (mounted) setState(() => _isConfirming = false);
+                }
               },
             ),
           ],
