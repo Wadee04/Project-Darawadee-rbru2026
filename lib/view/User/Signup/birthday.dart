@@ -346,10 +346,27 @@ class _BirthdayPageState extends State<BirthdayPage> {
                     width: double.infinity,
                     height: context.rs(40),
                     child: ElevatedButton(
-                      onPressed: _selectedDateText.isNotEmpty
-                          ? () {
+                      onPressed: (_selectedDateText.isNotEmpty && !_isSaving)
+                          ? () async {
+                              final date = _selectedDateTime;
+                              setState(() => _isSaving = true);
+                              try {
+                                await ServiceLocator.user
+                                    .updateProfile(birthDate: date);
+                              } on AuthException catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(e.message)),
+                                  );
+                                }
+                              } catch (_) {}
+                              finally {
+                                if (mounted) setState(() => _isSaving = false);
+                              }
+
+                              if (!mounted) return;
                               if (widget.onNext != null) {
-                                widget.onNext!(_selectedDateTime);
+                                widget.onNext!(date);
                               } else {
                                 Navigator.push(
                                   context,
