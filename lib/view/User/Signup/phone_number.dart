@@ -177,11 +177,11 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _canProceed
+                        backgroundColor: (_canProceed && !_isSaving)
                             ? AppColors.purple
                             : AppColors.registerButton,
                         disabledBackgroundColor: AppColors.registerButton,
-                        foregroundColor: _canProceed
+                        foregroundColor: (_canProceed && !_isSaving)
                             ? AppColors.white
                             : AppColors.black,
                         disabledForegroundColor: AppColors.textGray,
@@ -191,7 +191,17 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                               BorderRadius.circular(context.rs(30)),
                         ),
                       ),
-                      child: Text(
+                      child: _isSaving
+                          ? SizedBox(
+                              width: context.rs(18),
+                              height: context.rs(18),
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.white),
+                              ),
+                            )
+                          : Text(
                         'ถัดไป',
                         style: TextStyle(
                           fontFamily: 'Inter',
