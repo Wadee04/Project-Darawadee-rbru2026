@@ -739,10 +739,12 @@ class _BottomConfirmBar extends StatelessWidget {
   const _BottomConfirmBar({
     required this.isEnabled,
     required this.onConfirm,
+    this.isLoading = false,
   });
 
   final bool isEnabled;
   final VoidCallback onConfirm;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
