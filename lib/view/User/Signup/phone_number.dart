@@ -50,6 +50,7 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
   final _phoneController = TextEditingController();
 
   bool get _canProceed => _phoneController.text.trim().isNotEmpty;
+  bool _isSaving = false;
 
   @override
   void dispose() {
