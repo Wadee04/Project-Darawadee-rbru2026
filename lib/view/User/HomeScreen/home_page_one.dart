@@ -52,6 +52,9 @@ class _SelectClinicSheet extends StatefulWidget {
 }
 
 class _SelectClinicSheetState extends State<_SelectClinicSheet> {
+  String _searchQuery = '';
+  String _selectedProvince = 'ทุกจังหวัด';
+  final TextEditingController _searchCtrl = TextEditingController();
   // ข้อมูลคลินิกจาก Supabase ผ่าน widget.clinics
   // เก็บ static fallback ไว้ใช้เมื่อโหลดไม่สำเร็จ
   static const List<ClinicItem> _fallback = [
