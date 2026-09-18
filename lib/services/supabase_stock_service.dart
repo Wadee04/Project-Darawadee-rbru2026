@@ -36,7 +36,7 @@ class SupabaseStockService {
           'quantity': qty,
           'unit': unit,
           'note': note,
-          if (clinicId != null) 'clinic_id': clinicId,
+          'clinic_id': clinicId,
         })
         .select()
         .single();
