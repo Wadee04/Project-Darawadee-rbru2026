@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'theme/app_theme.dart';
 import 'view/Admin/ProfileAdmin/patient_data.dart';
+import 'view/User/Onboarding/select_account_type.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

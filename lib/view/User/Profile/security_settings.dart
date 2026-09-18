@@ -52,6 +52,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       if (mounted) setState(() => _loadingUser = false);
     }
   }
+
+  Future<void> _handlePinToggle(bool v) async {
     setState(() => _isSavingPin = true);
     try {
       await ServiceLocator.user.togglePin(enabled: v);
