@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../components/shared_widgets.dart';
-import '../../../supabase_client.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import 'phone_number.dart';

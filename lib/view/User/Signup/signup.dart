@@ -229,7 +229,6 @@ class _SignUpState extends State<SignUp> {
                                 context,
                                 noAnimRoute(EmailOtpPage(
                                   email: email,
-                                  password: password,
                                   fullName: fullName,
                                 )),
                               );

@@ -190,7 +190,6 @@ class _SignUpScreen extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) => EmailOtpPage(
               email: email,
-              password: password,
               fullName: fullName,
             ),
           ),
