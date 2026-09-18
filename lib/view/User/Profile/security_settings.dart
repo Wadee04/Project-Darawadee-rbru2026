@@ -173,7 +173,10 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       ),
     );
   }
-} — banner พร้อม mascot
+}
+
+// ============================================================
+// _SecurityHeroBanner — banner พร้อม mascot
 // ============================================================
 class _SecurityHeroBanner extends StatelessWidget {
   @override
