@@ -179,7 +179,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.location_city_outlined,
                             label: 'จังหวัด',
-                            value: province,
+                            value: widget.province,
                           ),
                           _SummaryRow(
                             icon: Icons.apartment_outlined,
