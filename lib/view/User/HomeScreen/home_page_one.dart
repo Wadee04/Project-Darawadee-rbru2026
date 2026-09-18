@@ -13,13 +13,17 @@ import 'home_page_three.dart';
 // ============================================================
 class ClinicItem {
   const ClinicItem({
+    required this.id,
     required this.name,
     required this.province,
     this.logoAsset,
+    this.logoUrl,
   });
+  final String id;
   final String name;
   final String province;
   final String? logoAsset;
+  final String? logoUrl;
 }
 
 // ============================================================
