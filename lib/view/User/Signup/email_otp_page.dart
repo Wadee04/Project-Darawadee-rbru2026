@@ -41,9 +41,8 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _sendOtp();
-    });
+    // auth.signUp ส่ง OTP ยืนยันอีเมลให้แล้ว ไม่ต้องเรียก signInWithOtp ซ้ำ
+    _startCountdown();
     _focusNodes[0].requestFocus();
   }
 
