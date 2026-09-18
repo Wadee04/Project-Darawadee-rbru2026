@@ -33,9 +33,7 @@ class _EmailOtpPageState extends State<EmailOtpPage> {
 
   bool _isLoading = false;
   bool _isResending = false;
-  bool _isSendingOtp = false;
-  bool _hasSentOtp = false;
-  int _resendCooldown = 0;
+  int _resendCooldown = 60;
 
   String get _otp =>
       _controllers.map((c) => c.text).join();
