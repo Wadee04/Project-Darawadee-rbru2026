@@ -58,7 +58,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     super.dispose();
   }
 
-  void _handleNext() {
+  void _handleNext() async {
     if (!_canProceed) return;
 
     if (_newCtrl.text != _confirmCtrl.text) {
@@ -66,10 +66,24 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return;
     }
 
-    widget.onNext?.call(
-      currentPassword: _currentCtrl.text,
-      newPassword: _newCtrl.text,
-    );
+    setState(() => _isSaving = true);
+    try {
+      await ServiceLocator.user.changePassword(
+        currentPassword: _currentCtrl.text,
+        newPassword: _newCtrl.text,
+      );
+      widget.onNext?.call(
+        currentPassword: _currentCtrl.text,
+        newPassword: _newCtrl.text,
+      );
+      if (mounted) Navigator.maybePop(context);
+    } on AuthException catch (e) {
+      if (mounted) _showErrorSnackbar(e.message);
+    } catch (e) {
+      if (mounted) _showErrorSnackbar('เกิดข้อผิดพลาด: $e');
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   void _showErrorSnackbar(String message) {
