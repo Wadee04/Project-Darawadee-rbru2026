@@ -66,12 +66,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _pinEnabled = widget.initialPinEnabled;
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
