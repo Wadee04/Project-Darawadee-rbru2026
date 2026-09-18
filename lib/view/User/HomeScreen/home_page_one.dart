@@ -314,7 +314,13 @@ class _ClinicTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(context.rs(10)),
               ),
               clipBehavior: Clip.antiAlias,
-              child: clinic.logoAsset != null
+              child: clinic.logoUrl != null
+                  ? Image.network(
+                      clinic.logoUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _placeholder(context),
+                    )
+                  : clinic.logoAsset != null
                   ? Image.asset(
                       clinic.logoAsset!,
                       fit: BoxFit.cover,
