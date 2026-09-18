@@ -539,7 +539,9 @@ class _HomePageOneState extends State<HomePageOne> {
                     // ---- Location bar ----
                     GestureDetector(
                       onTap: () {
-                        showSelectClinicSheet(context, onSelect: (clinic) {
+                        showSelectClinicSheet(context,
+                          clinics: _clinics,
+                          onSelect: (clinic) {
                           setState(() => _selectedClinic = clinic);
                           Navigator.push(
                             context,
