@@ -103,7 +103,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
-                  onTap: onBack ?? () => Navigator.maybePop(context),
+                  onTap: widget.onBack ?? () => Navigator.maybePop(context),
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       context.rs(16),
