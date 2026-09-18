@@ -50,7 +50,8 @@ class _PinPageState extends State<PinPage> {
     setState(() => _pin += key);
     if (_pin.length == _pinLength) {
       // หน่วงเล็กน้อยให้เห็น dot เต็มก่อน callback
-      Future.delayed(const Duration(milliseconds: 150), () {
+      Future.delayed(const Duration(milliseconds: 150), () async {
+        await _savePin(_pin);
         widget.onComplete?.call(_pin);
       });
     }
