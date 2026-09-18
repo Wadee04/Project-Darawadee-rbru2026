@@ -18,6 +18,7 @@ class OTPPage extends StatefulWidget {
     required this.target,     // อีเมลที่ส่ง OTP ไป
     this.otpLength = 6,
     this.resendCooldown = 60,
+    this.fromSignup = false,  // มาจากหน้า Signup หรือไม่
     this.onBack,
     this.onNext,              // callback เมื่อกด "ถัดไป" ส่ง OTP string กลับ
     this.onResend,            // callback เมื่อกด "ขอรหัสใหม่"
@@ -26,6 +27,7 @@ class OTPPage extends StatefulWidget {
   final String target;
   final int otpLength;
   final int resendCooldown;
+  final bool fromSignup;
   final VoidCallback? onBack;
   final void Function(String otp)? onNext;
   final VoidCallback? onResend;
