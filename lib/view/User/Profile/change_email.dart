@@ -31,6 +31,8 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
       _newEmailCtrl.text.trim().isNotEmpty &&
       _confirmEmailCtrl.text.trim().isNotEmpty;
 
+  bool _isSaving = false;
+
   @override
   void initState() {
     super.initState();
