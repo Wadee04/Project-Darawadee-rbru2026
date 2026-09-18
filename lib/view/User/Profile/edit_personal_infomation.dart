@@ -72,16 +72,80 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
     super.dispose();
   }
 
-  void _handleSave() {
-    widget.onSave?.call(
-      firstName: _firstNameCtrl.text.trim(),
-      lastName: _lastNameCtrl.text.trim(),
-      gender: _gender,
-      birthDate: _birthDate,
-      phone: _phone,
-      email: _email,
-    );
-    Navigator.maybePop(context);
+  void _handleSave() async {
+    setState(() => _isSaving = true);
+    try {
+      final firstName = _firstNameCtrl.text.trim();
+      final lastName = _lastNameCtrl.text.trim();
+      final fullName =
+          [firstName, lastName].where((s) => s.isNotEmpty).join(' ');
+
+      // แปลง birthDate string dd/mm/yyyy (BE) → DateTime
+      DateTime? birthDate;
+      if (_birthDate.isNotEmpty) {
+        final parts = _birthDate.split('/');
+        if (parts.length == 3) {
+          final day = int.tryParse(parts[0]);
+          final month = int.tryParse(parts[1]);
+          final yearBE = int.tryParse(parts[2]);
+          if (day != null && month != null && yearBE != null) {
+            birthDate = DateTime(yearBE - 543, month, day);
+          }
+        }
+      }
+
+      // แปลงเพศ TH → EN enum
+      String? genderEn;
+      switch (_gender) {
+        case 'ชาย':
+          genderEn = 'male';
+          break;
+        case 'หญิง':
+          genderEn = 'female';
+          break;
+        case 'ไม่ระบุ':
+          genderEn = 'other';
+          break;
+      }
+
+      await ServiceLocator.user.updateProfile(
+        fullName: fullName.isNotEmpty ? fullName : null,
+        phone: _phone.isNotEmpty ? _phone : null,
+        birthDate: birthDate,
+        gender: genderEn,
+      );
+
+      // อัปเดตอีเมลแยก (Supabase auth + users table)
+      if (_email.isNotEmpty) {
+        await ServiceLocator.user.changeEmail(_email);
+      }
+
+      widget.onSave?.call(
+        firstName: firstName,
+        lastName: lastName,
+        gender: _gender,
+        birthDate: _birthDate,
+        phone: _phone,
+        email: _email,
+      );
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+        return;
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+        );
+        return;
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+    if (mounted) Navigator.maybePop(context);
   }
 
   void _handleCancel() {
