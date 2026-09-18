@@ -141,20 +141,39 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                     ),
                   ),
 
-                  SizedBox(height: context.rs(30)),
+                    SizedBox(height: context.rs(30)),
 
                   // ---- ปุ่มถัดไป ----
                   SizedBox(
                     height: context.rs(40),
                     child: ElevatedButton(
-                      onPressed: _canProceed
-                          ? () {
-                              widget.onNext
-                                  ?.call(_phoneController.text.trim());
-                              Navigator.push(
-                                context,
-                                noAnimRoute(const BirthdayPage()),
-                              );
+                      onPressed: (_canProceed && !_isSaving)
+                          ? () async {
+                              final phone = _phoneController.text.trim();
+                              widget.onNext?.call(phone);
+
+                              setState(() => _isSaving = true);
+                              try {
+                                await ServiceLocator.user
+                                    .updateProfile(phone: phone);
+                              } on AuthException catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(e.message)),
+                                  );
+                                }
+                              } catch (_) {
+                                // ไม่บล็อก navigation ถ้า update ไม่สำเร็จ
+                              } finally {
+                                if (mounted) setState(() => _isSaving = false);
+                              }
+
+                              if (mounted) {
+                                Navigator.push(
+                                  context,
+                                  noAnimRoute(const BirthdayPage()),
+                                );
+                              }
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
