@@ -50,7 +50,7 @@ class _MyQueueTwoState extends State<MyQueueTwo> {
               // ---- AppBar ----
               AppBarBack(
                 title: 'รายละเอียดคิว',
-                onBack: onBack,
+                onBack: widget.onBack,
               ),
 
               // ---- Scrollable content ----

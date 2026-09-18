@@ -6,7 +6,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 
 // ============================================================
-// QueueManagementPage — จัดการคิว (Supabase)
+// QueueManagementPage — จัดการคิวและตารางคิว (ปฏิทิน + Supabase)
 // ============================================================
 class QueueManagementPage extends StatefulWidget {
   const QueueManagementPage({super.key, this.onBack});
@@ -16,408 +16,354 @@ class QueueManagementPage extends StatefulWidget {
   State<QueueManagementPage> createState() => _QueueManagementPageState();
 }
 
-class _QueueManagementPageState extends State<QueueManagementPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tab;
+enum _TopTab { overview, waiting, cancelled }
+
+class _QueueManagementPageState extends State<QueueManagementPage> {
   bool _loading = true;
-  List<AdminQueueItem> _queues = [];
+  List<AdminBooking> _all = [];
+
+  _TopTab _tab = _TopTab.overview;
+  late DateTime _visibleMonth; // เดือนที่แสดงในปฏิทิน
+  late DateTime _selectedDay;  // วันที่เลือก
+
+  static const _thMonths = [
+    '', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+  ];
+  static const _thDays = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+  static const _thWeekdayFull = [
+    '', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์', 'วันอาทิตย์'
+  ];
 
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 3, vsync: this);
+    final now = DateTime.now();
+    _visibleMonth = DateTime(now.year, now.month);
+    _selectedDay = DateTime(now.year, now.month, now.day);
     _load();
-  }
-
-  @override
-  void dispose() {
-    _tab.dispose();
-    super.dispose();
   }
 
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
-      final bookings = await AdminBookingService.instance.getTodayBookings();
-      if (mounted) {
-        setState(() {
-          _queues = bookings.map((b) {
-            QueueCardStatus status;
-            switch (b.status) {
-              case AdminQueueStatus.inProgress: status = QueueCardStatus.inProgress; break;
-              case AdminQueueStatus.completed:  status = QueueCardStatus.completed; break;
-              case AdminQueueStatus.cancelled:  status = QueueCardStatus.cancelled; break;
-              default: status = QueueCardStatus.waiting;
-            }
-            return AdminQueueItem(
-              bookingId: b.id,
-              queueNumber: b.queueNumber ?? b.bookingCode,
-              patientName: b.patientName,
-              serviceName: b.serviceName,
-              appointmentTime: b.appointmentTime,
-              roomNumber: b.roomNumber ?? 1,
-              status: status,
-            );
-          }).toList();
-          _loading = false;
-        });
-      }
+      final bookings = await AdminBookingService.instance.getAllBookings();
+      if (mounted) setState(() { _all = bookings; _loading = false; });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  Future<void> _call(String id) async {
-    await AdminBookingService.instance.callQueue(id);
-    _load();
+  // bookings ที่ตรงกับ tab ที่เลือก
+  List<AdminBooking> get _tabFiltered {
+    switch (_tab) {
+      case _TopTab.waiting:
+        return _all.where((b) => b.status == AdminQueueStatus.waiting).toList();
+      case _TopTab.cancelled:
+        return _all.where((b) => b.status == AdminQueueStatus.cancelled).toList();
+      case _TopTab.overview:
+        return _all;
+    }
   }
 
-  Future<void> _complete(String id) async {
-    await AdminBookingService.instance.completeQueue(id);
-    _load();
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  // bookings ของวันที่เลือก (เรียงตามเวลา)
+  List<AdminBooking> get _dayBookings {
+    final list = _tabFiltered.where((b) => _sameDay(b.appointmentDate, _selectedDay)).toList();
+    list.sort((a, b) => a.appointmentTime.compareTo(b.appointmentTime));
+    return list;
   }
 
-  Future<void> _cancel(String id) async {
-    await AdminBookingService.instance.cancelQueue(id);
-    _load();
+  // วันที่มีนัด (ใช้แสดงจุดใต้วันในปฏิทิน)
+  Set<int> get _daysWithBookings {
+    final days = <int>{};
+    for (final b in _tabFiltered) {
+      if (b.appointmentDate.year == _visibleMonth.year &&
+          b.appointmentDate.month == _visibleMonth.month) {
+        days.add(b.appointmentDate.day);
+      }
+    }
+    return days;
   }
 
-  List<AdminQueueItem> _filter(QueueCardStatus s) =>
-      _queues.where((q) => q.status == s).toList();
+  void _prevMonth() => setState(() =>
+      _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month - 1));
+  void _nextMonth() => setState(() =>
+      _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month + 1));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [Color(0xFFFFFFFF), Color(0xFFC5DEE8)],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // ---- AppBar ----
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  context.rs(8),
-                  MediaQuery.of(context).size.height * 0.01,
-                  context.rs(20),
-                  context.rs(8),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: widget.onBack ?? () => Navigator.maybePop(context),
-                        child: Padding(
-                          padding: EdgeInsets.all(context.rs(8)),
-                          child: Icon(Icons.chevron_left, size: context.rs(28), color: AppColors.black),
-                        ),
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ---- AppBar ----
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                context.rs(8),
+                MediaQuery.of(context).size.height * 0.01,
+                context.rs(20),
+                context.rs(8),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: widget.onBack ?? () => Navigator.maybePop(context),
+                      child: Padding(
+                        padding: EdgeInsets.all(context.rs(8)),
+                        child: Icon(Icons.chevron_left,
+                            size: context.rs(28), color: AppColors.black),
                       ),
                     ),
-                    Text('จัดการคิว',
-                        style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(15),
-                            fontWeight: FontWeight.w600, color: AppColors.black)),
-                  ],
-                ),
+                  ),
+                  Text('จัดการคิวและตารางคิว',
+                      style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(15),
+                          fontWeight: FontWeight.w600, color: AppColors.black)),
+                ],
               ),
+            ),
 
-              // ---- Stats row ----
-              _QueueStatsRow(
-                waiting: _filter(QueueCardStatus.waiting).length,
-                inProgress: _filter(QueueCardStatus.inProgress).length,
-                completed: _filter(QueueCardStatus.completed).length,
+            // ---- Top pill tabs ----
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: context.rs(16)),
+              child: Row(
+                children: [
+                  _PillTab(
+                    label: 'ภาพรวม',
+                    selected: _tab == _TopTab.overview,
+                    onTap: () => setState(() => _tab = _TopTab.overview),
+                  ),
+                  SizedBox(width: context.rs(8)),
+                  _PillTab(
+                    label: 'คิวที่รอยืนยัน',
+                    selected: _tab == _TopTab.waiting,
+                    onTap: () => setState(() => _tab = _TopTab.waiting),
+                  ),
+                  SizedBox(width: context.rs(8)),
+                  _PillTab(
+                    label: 'ยกเลิก/เลื่อนนัด',
+                    selected: _tab == _TopTab.cancelled,
+                    onTap: () => setState(() => _tab = _TopTab.cancelled),
+                  ),
+                ],
               ),
+            ),
 
-              // ---- Tab bar ----
-              Container(
-                color: AppColors.homeBackground,
-                child: TabBar(
-                  controller: _tab,
-                  labelColor: AppColors.purple,
-                  unselectedLabelColor: AppColors.textGray,
-                  indicatorColor: AppColors.purple,
-                  indicatorWeight: 2.5,
-                  labelStyle: TextStyle(fontFamily: 'Inter', fontSize: context.rs(12), fontWeight: FontWeight.w600),
-                  unselectedLabelStyle: TextStyle(fontFamily: 'Inter', fontSize: context.rs(12)),
-                  tabs: const [Tab(text: 'รอเรียก'), Tab(text: 'กำลังรักษา'), Tab(text: 'เสร็จแล้ว')],
-                ),
-              ),
+            SizedBox(height: context.rs(12)),
 
-              // ---- Tab content ----
-              Expanded(
-                child: _loading
-                    ? const Center(child: CircularProgressIndicator())
-                    : TabBarView(
-                        controller: _tab,
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: _load,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(
+                            context.rs(16), 0, context.rs(16), context.rs(24)),
                         children: [
-                          _QueueList(
-                            items: _filter(QueueCardStatus.waiting),
-                            emptyMessage: 'ไม่มีคิวรอเรียก',
-                            showCall: true,
-                            onCall: _call,
-                            onSkip: _cancel,
-                            onComplete: _complete,
-                            onCancel: _cancel,
+                          // ---- Calendar ----
+                          _buildMonthNav(context),
+                          SizedBox(height: context.rs(8)),
+                          _buildWeekdayHeader(context),
+                          SizedBox(height: context.rs(4)),
+                          _buildCalendarGrid(context),
+
+                          SizedBox(height: context.rs(20)),
+
+                          // ---- วันที่เลือก ----
+                          Text(
+                            '${_thWeekdayFull[_selectedDay.weekday]} ที่ ${_selectedDay.day} '
+                            '${_thMonths[_selectedDay.month]} ${_selectedDay.year + 543}',
+                            style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13),
+                                fontWeight: FontWeight.w600, color: AppColors.black),
                           ),
-                          _QueueList(
-                            items: _filter(QueueCardStatus.inProgress),
-                            emptyMessage: 'ไม่มีคิวกำลังรักษา',
-                            showCall: false,
-                            onCall: _call,
-                            onSkip: _cancel,
-                            onComplete: _complete,
-                            onCancel: _cancel,
-                          ),
-                          _QueueList(
-                            items: _filter(QueueCardStatus.completed),
-                            emptyMessage: 'ยังไม่มีคิวที่เสร็จแล้ว',
-                            showCall: false,
-                            onCall: null, onSkip: null, onComplete: null, onCancel: null,
-                          ),
+                          SizedBox(height: context.rs(12)),
+
+                          // ---- รายการนัดของวันนั้น ----
+                          if (_dayBookings.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: context.rs(30)),
+                              child: Center(
+                                child: Text('ไม่มีนัดหมายในวันนี้',
+                                    style: TextStyle(fontFamily: 'Inter',
+                                        fontSize: context.rs(13), color: AppColors.textGray)),
+                              ),
+                            )
+                          else
+                            ..._dayBookings.map((b) => _AppointmentRow(
+                                  booking: b,
+                                  onTap: () => _showActions(b),
+                                )),
                         ],
                       ),
-              ),
-            ],
-          ),
+                    ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-// ---- Model ----
-enum QueueCardStatus { waiting, inProgress, completed, cancelled }
-
-class AdminQueueItem {
-  const AdminQueueItem({
-    required this.bookingId,
-    required this.queueNumber,
-    required this.patientName,
-    required this.serviceName,
-    required this.appointmentTime,
-    required this.roomNumber,
-    required this.status,
-  });
-
-  final String bookingId;
-  final String queueNumber;
-  final String patientName;
-  final String serviceName;
-  final String appointmentTime;
-  final int roomNumber;
-  final QueueCardStatus status;
-}
-
-// ---- Stats row ----
-class _QueueStatsRow extends StatelessWidget {
-  const _QueueStatsRow({required this.waiting, required this.inProgress, required this.completed});
-  final int waiting;
-  final int inProgress;
-  final int completed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(context.rs(16), context.rs(8), context.rs(16), context.rs(8)),
-      padding: EdgeInsets.symmetric(vertical: context.rs(10)),
-      decoration: BoxDecoration(
-        color: AppColors.homeBackground,
-        borderRadius: BorderRadius.circular(context.rs(12)),
-      ),
-      child: Row(
-        children: [
-          _Stat(label: 'รอเรียก', value: waiting, color: AppColors.orange),
-          _vDivider(),
-          _Stat(label: 'กำลังรักษา', value: inProgress, color: AppColors.purple),
-          _vDivider(),
-          _Stat(label: 'เสร็จแล้ว', value: completed, color: AppColors.greendentbook),
-        ],
-      ),
+  // ---- Month navigation ----
+  Widget _buildMonthNav(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: _prevMonth,
+          child: Icon(Icons.chevron_left, size: context.rs(24), color: AppColors.black),
+        ),
+        Text(
+          '${_thMonths[_visibleMonth.month]} ${_visibleMonth.year + 543}',
+          style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(15),
+              fontWeight: FontWeight.w600, color: AppColors.black),
+        ),
+        GestureDetector(
+          onTap: _nextMonth,
+          child: Icon(Icons.chevron_right, size: context.rs(24), color: AppColors.black),
+        ),
+      ],
     );
   }
 
-  Widget _vDivider() => Container(width: 1, height: 30, color: AppColors.inputBorder);
-}
-
-class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value, required this.color});
-  final String label;
-  final int value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(children: [
-        Text('$value', style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(18),
-            fontWeight: FontWeight.w700, color: color)),
-        Text(label, style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(10), color: AppColors.textGray)),
-      ]),
+  // ---- Weekday header ----
+  Widget _buildWeekdayHeader(BuildContext context) {
+    return Row(
+      children: _thDays
+          .map((d) => Expanded(
+                child: Center(
+                  child: Text(d,
+                      style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(11),
+                          fontWeight: FontWeight.w500, color: AppColors.textGray)),
+                ),
+              ))
+          .toList(),
     );
   }
-}
 
-// ---- Queue list ----
-class _QueueList extends StatelessWidget {
-  const _QueueList({
-    required this.items,
-    required this.emptyMessage,
-    required this.showCall,
-    required this.onCall,
-    required this.onSkip,
-    required this.onComplete,
-    required this.onCancel,
-  });
+  // ---- Calendar grid ----
+  Widget _buildCalendarGrid(BuildContext context) {
+    final firstDay = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
+    final daysInMonth = DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0).day;
+    // weekday: Mon=1..Sun=7 → column index (Sun first): Sun=0
+    final leadingBlanks = firstDay.weekday % 7;
+    final withBookings = _daysWithBookings;
 
-  final List<AdminQueueItem> items;
-  final String emptyMessage;
-  final bool showCall;
-  final void Function(String)? onCall;
-  final void Function(String)? onSkip;
-  final void Function(String)? onComplete;
-  final void Function(String)? onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Center(
-        child: Text(emptyMessage,
-            style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13), color: AppColors.textGray)),
-      );
+    final cells = <Widget>[];
+    for (int i = 0; i < leadingBlanks; i++) {
+      cells.add(const SizedBox.shrink());
     }
-    return ListView.separated(
-      padding: EdgeInsets.all(context.rs(16)),
-      itemCount: items.length,
-      separatorBuilder: (_ , _) => SizedBox(height: context.rs(8)),
-      itemBuilder: (_, i) => _QueueCard(
-        item: items[i],
-        showCall: showCall,
-        onCall: onCall,
-        onSkip: onSkip,
-        onComplete: onComplete,
-        onCancel: onCancel,
-      ),
-    );
+    for (int day = 1; day <= daysInMonth; day++) {
+      final date = DateTime(_visibleMonth.year, _visibleMonth.month, day);
+      final isSelected = _sameDay(date, _selectedDay);
+      final hasBooking = withBookings.contains(day);
+      cells.add(_DayCell(
+        day: day,
+        selected: isSelected,
+        hasBooking: hasBooking,
+        onTap: () => setState(() => _selectedDay = date),
+      ));
+    }
+    // เติมช่องท้ายให้ครบแถว
+    while (cells.length % 7 != 0) {
+      cells.add(const SizedBox.shrink());
+    }
+
+    final rows = <Widget>[];
+    for (int i = 0; i < cells.length; i += 7) {
+      rows.add(Row(
+        children: cells
+            .sublist(i, i + 7)
+            .map((c) => Expanded(child: AspectRatio(aspectRatio: 1, child: c)))
+            .toList(),
+      ));
+    }
+    return Column(children: rows);
   }
-}
 
-// ---- Queue card ----
-class _QueueCard extends StatelessWidget {
-  const _QueueCard({
-    required this.item,
-    required this.showCall,
-    this.onCall,
-    this.onSkip,
-    this.onComplete,
-    this.onCancel,
-  });
-
-  final AdminQueueItem item;
-  final bool showCall;
-  final void Function(String)? onCall;
-  final void Function(String)? onSkip;
-  final void Function(String)? onComplete;
-  final void Function(String)? onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(context.rs(14)),
-      decoration: BoxDecoration(
-        color: AppColors.homeBackground,
-        borderRadius: BorderRadius.circular(context.rs(12)),
+  // ---- Action bottom sheet ----
+  void _showActions(AdminBooking b) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(context.rs(16))),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // queue number
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(10), vertical: context.rs(4)),
+      builder: (_) => Padding(
+        padding: EdgeInsets.fromLTRB(
+            context.rs(24), context.rs(16), context.rs(24), context.rs(28)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: context.rs(36), height: context.rs(4),
+                margin: EdgeInsets.only(bottom: context.rs(16)),
                 decoration: BoxDecoration(
-                  color: AppColors.purple,
-                  borderRadius: BorderRadius.circular(context.rs(8)),
-                ),
-                child: Text(item.queueNumber,
-                    style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(14),
-                        fontWeight: FontWeight.w800, color: AppColors.white)),
+                    color: AppColors.inputBorder,
+                    borderRadius: BorderRadius.circular(99)),
               ),
-              SizedBox(width: context.rs(10)),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.patientName,
-                        style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13),
-                            fontWeight: FontWeight.w600, color: AppColors.black)),
-                    Text('${item.serviceName} • ${item.appointmentTime}',
-                        style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(11), color: AppColors.textGray)),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(8), vertical: context.rs(3)),
-                decoration: BoxDecoration(
-                  color: AppColors.purpleLight,
-                  borderRadius: BorderRadius.circular(context.rs(20)),
-                ),
-                child: Text('ห้อง ${item.roomNumber}',
-                    style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(10), color: AppColors.purple)),
-              ),
-            ],
-          ),
-
-          if (item.status != QueueCardStatus.completed) ...[
-            SizedBox(height: context.rs(10)),
-            Row(
-              children: [
-                if (showCall)
-                  _ActionChip(
-                    label: 'เรียกคิว',
-                    color: AppColors.purple,
-                    onTap: () => onCall?.call(item.bookingId),
-                  ),
-                if (showCall) SizedBox(width: context.rs(6)),
-                if (onComplete != null && !showCall)
-                  _ActionChip(
-                    label: 'เสร็จสิ้น',
-                    color: AppColors.greendentbook,
-                    onTap: () => onComplete?.call(item.bookingId),
-                  ),
-                if (onComplete != null && !showCall) SizedBox(width: context.rs(6)),
-                if (onSkip != null && showCall)
-                  _ActionChip(
-                    label: 'ข้ามคิว',
-                    color: AppColors.orange,
-                    onTap: () => onSkip?.call(item.bookingId),
-                  ),
-                if (onSkip != null && showCall) SizedBox(width: context.rs(6)),
-                if (onCancel != null)
-                  _ActionChip(
-                    label: 'ยกเลิก',
-                    color: AppColors.reddentbook,
-                    onTap: () => onCancel?.call(item.bookingId),
-                  ),
-              ],
+            ),
+            Text(b.patientName,
+                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(15),
+                    fontWeight: FontWeight.w700, color: AppColors.black)),
+            SizedBox(height: context.rs(2)),
+            Text('${b.serviceName} • ${b.appointmentTime} น.',
+                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(12),
+                    color: AppColors.textGray)),
+            SizedBox(height: context.rs(16)),
+            _SheetAction(
+              label: 'ยืนยันคิว',
+              color: AppColors.greendentbook,
+              icon: Icons.check_circle_outline,
+              onTap: () => _doAction(b, AdminBookingService.instance.callQueue(b.id)),
+            ),
+            _SheetAction(
+              label: 'เสร็จสิ้นการรักษา',
+              color: AppColors.purple,
+              icon: Icons.task_alt,
+              onTap: () => _doAction(b, AdminBookingService.instance.completeQueue(b.id)),
+            ),
+            _SheetAction(
+              label: 'ยกเลิกนัด',
+              color: AppColors.reddentbook,
+              icon: Icons.cancel_outlined,
+              onTap: () => _doAction(b, AdminBookingService.instance.cancelQueue(b.id)),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
+
+  Future<void> _doAction(AdminBooking b, Future<bool> action) async {
+    Navigator.pop(context);
+    try {
+      await action;
+      await _load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      }
+    }
+  }
 }
 
-class _ActionChip extends StatelessWidget {
-  const _ActionChip({required this.label, required this.color, required this.onTap});
+// ============================================================
+// _PillTab — แท็บทรงแคปซูลด้านบน
+// ============================================================
+class _PillTab extends StatelessWidget {
+  const _PillTab({required this.label, required this.selected, required this.onTap});
   final String label;
-  final Color color;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -425,14 +371,192 @@ class _ActionChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: context.rs(12), vertical: context.rs(6)),
+        padding: EdgeInsets.symmetric(
+            horizontal: context.rs(14), vertical: context.rs(8)),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: selected ? AppColors.orange : AppColors.homeBackground,
           borderRadius: BorderRadius.circular(context.rs(20)),
         ),
-        child: Text(label,
-            style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(11),
-                fontWeight: FontWeight.w500, color: color)),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: context.rs(11),
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? AppColors.white : AppColors.textGray,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _DayCell — ช่องวันในปฏิทิน
+// ============================================================
+class _DayCell extends StatelessWidget {
+  const _DayCell({
+    required this.day,
+    required this.selected,
+    required this.hasBooking,
+    required this.onTap,
+  });
+  final int day;
+  final bool selected;
+  final bool hasBooking;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: context.rs(30),
+            height: context.rs(30),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: selected ? AppColors.inputBorder : Colors.transparent,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '$day',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(13),
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                color: AppColors.black,
+              ),
+            ),
+          ),
+          SizedBox(height: context.rs(2)),
+          Container(
+            width: context.rs(5),
+            height: context.rs(5),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: hasBooking ? AppColors.purple : Colors.transparent,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _AppointmentRow — แถวเวลา + ชื่อ + สถานะ
+// ============================================================
+class _AppointmentRow extends StatelessWidget {
+  const _AppointmentRow({required this.booking, required this.onTap});
+  final AdminBooking booking;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final badge = _badgeFor(booking.status);
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: context.rs(10)),
+        child: Row(
+          children: [
+            // เวลา
+            SizedBox(
+              width: context.rs(46),
+              child: Text(
+                booking.appointmentTime,
+                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13),
+                    fontWeight: FontWeight.w500, color: AppColors.textGray),
+              ),
+            ),
+            SizedBox(width: context.rs(8)),
+            // ชื่อ
+            Expanded(
+              child: Text(
+                booking.patientName,
+                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13),
+                    fontWeight: FontWeight.w500, color: AppColors.black),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // สถานะ
+            Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: context.rs(12), vertical: context.rs(5)),
+              decoration: BoxDecoration(
+                color: badge.color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(context.rs(20)),
+              ),
+              child: Text(
+                badge.label,
+                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(11),
+                    fontWeight: FontWeight.w500, color: badge.color),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _Badge _badgeFor(AdminQueueStatus s) {
+    switch (s) {
+      case AdminQueueStatus.confirmed:
+      case AdminQueueStatus.inProgress:
+        return _Badge('ยืนยันแล้ว', AppColors.greendentbook);
+      case AdminQueueStatus.completed:
+        return _Badge('เสร็จแล้ว', AppColors.purple);
+      case AdminQueueStatus.cancelled:
+        return _Badge('ยกเลิก', AppColors.reddentbook);
+      case AdminQueueStatus.waiting:
+        return _Badge('รอยืนยัน', AppColors.orange);
+    }
+  }
+}
+
+class _Badge {
+  const _Badge(this.label, this.color);
+  final String label;
+  final Color color;
+}
+
+// ============================================================
+// _SheetAction — ปุ่มใน bottom sheet
+// ============================================================
+class _SheetAction extends StatelessWidget {
+  const _SheetAction({
+    required this.label,
+    required this.color,
+    required this.icon,
+    required this.onTap,
+  });
+  final String label;
+  final Color color;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(context.rs(12)),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: context.rs(12)),
+        child: Row(
+          children: [
+            Icon(icon, size: context.rs(20), color: color),
+            SizedBox(width: context.rs(12)),
+            Text(label,
+                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500, color: AppColors.black)),
+          ],
+        ),
       ),
     );
   }
