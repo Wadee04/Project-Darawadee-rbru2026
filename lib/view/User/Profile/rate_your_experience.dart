@@ -420,7 +420,7 @@ class _BottomBar extends StatelessWidget {
             width: double.infinity,
             height: context.rs(46),
             child: ElevatedButton(
-              onPressed: onSubmit,
+              onPressed: isSubmitting ? null : onSubmit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.purple,
                 foregroundColor: AppColors.white,
