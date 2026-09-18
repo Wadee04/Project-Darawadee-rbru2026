@@ -186,7 +186,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         width: double.infinity,
                         height: context.rs(46),
                         child: ElevatedButton(
-                          onPressed: _canProceed ? _handleNext : null,
+                          onPressed: (_canProceed && !_isSaving) ? _handleNext : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.purple,
                             foregroundColor: AppColors.white,
