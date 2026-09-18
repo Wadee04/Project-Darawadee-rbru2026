@@ -184,7 +184,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.apartment_outlined,
                             label: 'เขต / อำเภอ',
-                            value: district,
+                            value: widget.district,
                           ),
                           _SummaryRow(
                             icon: Icons.markunread_mailbox_outlined,
