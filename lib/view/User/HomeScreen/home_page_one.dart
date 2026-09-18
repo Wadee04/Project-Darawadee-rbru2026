@@ -43,7 +43,8 @@ void showSelectClinicSheet(
 }
 
 class _SelectClinicSheet extends StatefulWidget {
-  const _SelectClinicSheet({this.onSelect});
+  const _SelectClinicSheet({this.clinics = const [], this.onSelect});
+  final List<ClinicItem> clinics;
   final void Function(ClinicItem)? onSelect;
 
   @override
