@@ -1,28 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../../services/admin/admin_booking_service.dart';
+import '../../../services/admin/admin_models.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 
 // ============================================================
-// QueueManagementPage — จัดการคิวทั้งหมดของคลินิก (Admin)
+// QueueManagementPage — จัดการคิว (Supabase)
 // ============================================================
 class QueueManagementPage extends StatefulWidget {
-  const QueueManagementPage({
-    super.key,
-    this.onBack,
-    this.queues = const [],
-    this.onCallQueue,
-    this.onSkipQueue,
-    this.onCompleteQueue,
-    this.onCancelQueue,
-  });
-
+  const QueueManagementPage({super.key, this.onBack});
   final VoidCallback? onBack;
-  final List<AdminQueueItem> queues;
-  final void Function(String bookingId)? onCallQueue;
-  final void Function(String bookingId)? onSkipQueue;
-  final void Function(String bookingId)? onCompleteQueue;
-  final void Function(String bookingId)? onCancelQueue;
 
   @override
   State<QueueManagementPage> createState() => _QueueManagementPageState();
@@ -31,11 +19,14 @@ class QueueManagementPage extends StatefulWidget {
 class _QueueManagementPageState extends State<QueueManagementPage>
     with SingleTickerProviderStateMixin {
   late TabController _tab;
+  bool _loading = true;
+  List<AdminQueueItem> _queues = [];
 
   @override
   void initState() {
     super.initState();
     _tab = TabController(length: 3, vsync: this);
+    _load();
   }
 
   @override
@@ -44,8 +35,55 @@ class _QueueManagementPageState extends State<QueueManagementPage>
     super.dispose();
   }
 
-  List<AdminQueueItem> _filter(QueueCardStatus status) =>
-      widget.queues.where((q) => q.status == status).toList();
+  Future<void> _load() async {
+    setState(() => _loading = true);
+    try {
+      final bookings = await AdminBookingService.instance.getTodayBookings();
+      if (mounted) {
+        setState(() {
+          _queues = bookings.map((b) {
+            QueueCardStatus status;
+            switch (b.status) {
+              case AdminQueueStatus.inProgress: status = QueueCardStatus.inProgress; break;
+              case AdminQueueStatus.completed:  status = QueueCardStatus.completed; break;
+              case AdminQueueStatus.cancelled:  status = QueueCardStatus.cancelled; break;
+              default: status = QueueCardStatus.waiting;
+            }
+            return AdminQueueItem(
+              bookingId: b.id,
+              queueNumber: b.queueNumber ?? b.bookingCode,
+              patientName: b.patientName,
+              serviceName: b.serviceName,
+              appointmentTime: b.appointmentTime,
+              roomNumber: b.roomNumber ?? 1,
+              status: status,
+            );
+          }).toList();
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _call(String id) async {
+    await AdminBookingService.instance.callQueue(id);
+    _load();
+  }
+
+  Future<void> _complete(String id) async {
+    await AdminBookingService.instance.completeQueue(id);
+    _load();
+  }
+
+  Future<void> _cancel(String id) async {
+    await AdminBookingService.instance.cancelQueue(id);
+    _load();
+  }
+
+  List<AdminQueueItem> _filter(QueueCardStatus s) =>
+      _queues.where((q) => q.status == s).toList();
 
   @override
   Widget build(BuildContext context) {
