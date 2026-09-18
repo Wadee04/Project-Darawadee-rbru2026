@@ -221,7 +221,7 @@ class _StockPageState extends State<StockPage> {
                           ),
                         )
                       else
-                        ...filtered.asMap().entries.map(
+                        ...(_filtered).asMap().entries.map(
                           (e) => _StockRow(
                             item: e.value,
                             onIncrement: () => _increment(e.key),
