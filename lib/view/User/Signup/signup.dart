@@ -172,11 +172,10 @@ class _SignUpState extends State<SignUp> {
                       width: double.infinity,
                       height: context.rs(46),
                       child: ElevatedButton(
-                         onPressed: _isSubmitting
+                        onPressed: (!_isFormFilled || _isSubmitting)
                             ? null
                             : () async {
-                          if (_isFormFilled) {
-                            // ตรวจสอบรูปแบบอีเมล
+                          // ตรวจสอบรูปแบบอีเมล
                             final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
                             if (!emailRegex.hasMatch(_emailController.text.trim())) {
                               ScaffoldMessenger.of(context).showSnackBar(
