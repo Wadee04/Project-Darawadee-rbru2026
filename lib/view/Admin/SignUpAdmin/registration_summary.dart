@@ -168,7 +168,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.map_outlined,
                             label: 'ลิงก์แผนที่คลินิก',
-                            value: clinicMapLink,
+                            value: widget.clinicMapLink,
                             isLink: true,
                           ),
                           _SummaryRow(
