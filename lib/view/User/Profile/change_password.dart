@@ -198,7 +198,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                                   BorderRadius.circular(context.rs(30)),
                             ),
                           ),
-                          child: Text(
+                          child: _isSaving
+                              ? SizedBox(
+                                  width: context.rs(18),
+                                  height: context.rs(18),
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppColors.white),
+                                  ),
+                                )
+                              : Text(
                             'ถัดไป',
                             style: TextStyle(
                               fontFamily: 'Inter',
