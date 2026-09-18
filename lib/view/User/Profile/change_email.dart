@@ -164,14 +164,15 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                                   BorderRadius.circular(context.rs(30)),
                             ),
                           ),
-                          child: Text(
-                            'ถัดไป',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: context.rs(14),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          child: _isSaving
+                              ? SizedBox(
+                                  width: context.rs(18), height: context.rs(18),
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                                  ),
+                                )
+                              : Text('ถัดไป', style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(14), fontWeight: FontWeight.w600)),
                         ),
                       ),
                     ],
