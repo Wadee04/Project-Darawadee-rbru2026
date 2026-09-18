@@ -250,13 +250,6 @@ class _SignUpState extends State<SignUp> {
                                 setState(() => _isSubmitting = false);
                               }
                             }
-                          } else {
-                            widget.onSignUp?.call(
-                              _nameController.text.trim(),
-                              _emailController.text.trim(),
-                              _passwordController.text,
-                            );
-                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isFormFilled
