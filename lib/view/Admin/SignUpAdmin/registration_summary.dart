@@ -200,7 +200,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
               ),
 
               // ---- Bottom confirm button ----
-              _ConfirmBar(onConfirm: onConfirm),
+              _ConfirmBar(onConfirm: _handleConfirm, isSaving: _isSaving),
             ],
           ),
         ),
