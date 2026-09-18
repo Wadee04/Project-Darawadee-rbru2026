@@ -109,6 +109,23 @@ class AdminBookingService {
   Future<bool> cancelQueue(String id) =>
       updateBookingStatus(id, AdminQueueStatus.cancelled);
 
+  /// เลื่อนวันและเวลานัด พร้อมคืนสถานะเป็น confirmed
+  Future<bool> rescheduleBooking({
+    required String bookingId,
+    required DateTime appointmentDate,
+    required String appointmentTime,
+  }) async {
+    final date =
+        '${appointmentDate.year}-${appointmentDate.month.toString().padLeft(2, '0')}'
+        '-${appointmentDate.day.toString().padLeft(2, '0')}';
+    await _db.from('bookings').update({
+      'appointment_date': date,
+      'appointment_time': appointmentTime,
+      'status': 'confirmed',
+    }).eq('id', bookingId);
+    return true;
+  }
+
   // ---- Approve deposit slip -----------------------------
 
   Future<bool> approveSlip(String bookingId) async {
