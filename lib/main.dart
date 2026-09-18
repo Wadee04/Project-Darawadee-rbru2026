@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'theme/app_theme.dart';
 import 'view/User/Onboarding/select_account_type.dart';
-import ''
+import 'view/Admin/ProfileAdmin/queue_management.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.light,
       // เริ่มที่หน้า SelectAccountType เสมอ
       // AppRouter จะ navigate ไป Home ถ้า login อยู่แล้ว
-      home: const SelectAccountType(),
+      home: const QueueManagementPage(),
     );
   }
 }

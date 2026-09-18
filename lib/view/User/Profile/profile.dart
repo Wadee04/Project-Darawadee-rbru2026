@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../components/shared_widgets.dart';
+import '../../../services/service_locator.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 
 // ============================================================
-// ProfilePage — หน้าโปรไฟล์ผู้ใช้
+// ProfilePage — หน้าโปรไฟล์ผู้ใช้ (ดึงข้อมูลจาก Supabase)
 // ============================================================
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({
     super.key,
-    this.userName = 'ดาราวดี อาลัย',
-    this.userEmail = '6014837101@rbru.ac.th',
-    this.userImagePath,
-    this.appointmentCount = 5,
-    this.treatmentHistoryCount = 12,
     this.currentNavIndex = 3,
     this.onNavTap,
     this.onPersonalInfo,
@@ -28,15 +25,8 @@ class ProfilePage extends StatelessWidget {
     this.onLogout,
   });
 
-  final String userName;
-  final String userEmail;
-  final String? userImagePath;
-  final int appointmentCount;
-  final int treatmentHistoryCount;
   final int currentNavIndex;
   final void Function(int)? onNavTap;
-
-  // callbacks เมนู
   final VoidCallback? onPersonalInfo;
   final VoidCallback? onPrivacy;
   final VoidCallback? onNotification;
@@ -47,6 +37,66 @@ class ProfilePage extends StatelessWidget {
   final VoidCallback? onLogout;
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  bool _loading = true;
+  String _userName = '';
+  String _userEmail = '';
+  String? _userImageUrl;
+  int _appointmentCount = 0;
+  int _treatmentHistoryCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      // ดึงข้อมูล user + สถิติการจองพร้อมกัน
+      final results = await Future.wait([
+        ServiceLocator.user.getCurrentUser(),
+        ServiceLocator.booking.getBookingStats(),
+      ]);
+      final user = results[0] as UserModel;
+      final stats = results[1] as Map<BookingStatus, int>;
+
+      final upcoming = (stats[BookingStatus.confirmed] ?? 0) +
+          (stats[BookingStatus.waitingPayment] ?? 0) +
+          (stats[BookingStatus.inProgress] ?? 0);
+      final history = stats[BookingStatus.completed] ?? 0;
+
+      if (mounted) {
+        setState(() {
+          _userName = user.fullName;
+          _userEmail = user.email;
+          _userImageUrl = user.profileImageUrl;
+          _appointmentCount = upcoming;
+          _treatmentHistoryCount = history;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await ServiceLocator.user.signOut();
+      widget.onLogout?.call();
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -54,10 +104,7 @@ class ProfilePage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
-            colors: [
-              Color(0xFFFFFFFF),
-              Color(0xFFC5DEE8),
-            ],
+            colors: [Color(0xFFFFFFFF), Color(0xFFC5DEE8)],
           ),
         ),
         child: SafeArea(
@@ -87,83 +134,78 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
 
-              // ---- Scrollable body ----
+              // ---- Body ----
               Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    context.rs(16),
-                    context.rs(8),
-                    context.rs(16),
-                    context.rs(16),
-                  ),
-                  child: Column(
-                    children: [
-                      // ---- Profile Header Card ----
-                      _ProfileHeaderCard(
-                        userName: userName,
-                        userEmail: userEmail,
-                        userImagePath: userImagePath,
-                        appointmentCount: appointmentCount,
-                        treatmentHistoryCount: treatmentHistoryCount,
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        padding: EdgeInsets.fromLTRB(
+                          context.rs(16),
+                          context.rs(8),
+                          context.rs(16),
+                          context.rs(16),
+                        ),
+                        child: Column(
+                          children: [
+                            _ProfileHeaderCard(
+                              userName: _userName,
+                              userEmail: _userEmail,
+                              userImageUrl: _userImageUrl,
+                              appointmentCount: _appointmentCount,
+                              treatmentHistoryCount: _treatmentHistoryCount,
+                            ),
+                            SizedBox(height: context.rs(12)),
+                            _MenuCard(
+                              items: [
+                                _MenuItem(
+                                  icon: Icons.person_outline,
+                                  label: 'ข้อมูลส่วนตัว',
+                                  onTap: widget.onPersonalInfo,
+                                ),
+                                _MenuItem(
+                                  icon: Icons.shield_outlined,
+                                  label: 'ความปลอดภัยและรหัสผ่าน',
+                                  onTap: widget.onPrivacy,
+                                ),
+                                _MenuItem(
+                                  icon: Icons.notifications_none_outlined,
+                                  label: 'การแจ้งเตือน',
+                                  onTap: widget.onNotification,
+                                ),
+                                _MenuItem(
+                                  icon: Icons.help_outline,
+                                  label: 'ช่วยเหลือและคำถามพบบ่อย',
+                                  onTap: widget.onHelp,
+                                ),
+                                _MenuItem(
+                                  icon: Icons.headset_mic_outlined,
+                                  label: 'ติดต่อเรา',
+                                  onTap: widget.onContact,
+                                ),
+                                _MenuItem(
+                                  icon: Icons.people_outline,
+                                  label: 'เปลี่ยนบัญชี',
+                                  onTap: widget.onSwitchAccount,
+                                ),
+                                _MenuItem(
+                                  icon: Icons.star_border_outlined,
+                                  label: 'ให้คะแนนแอป',
+                                  onTap: widget.onRateApp,
+                                  showDivider: false,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: context.rs(12)),
+                            _LogoutButton(onLogout: _handleLogout),
+                          ],
+                        ),
                       ),
-
-                      SizedBox(height: context.rs(12)),
-
-                      // ---- เมนูหลัก ----
-                      _MenuCard(
-                        items: [
-                          _MenuItem(
-                            icon: Icons.person_outline,
-                            label: 'ข้อมูลส่วนตัว',
-                            onTap: onPersonalInfo,
-                          ),
-                          _MenuItem(
-                            icon: Icons.shield_outlined,
-                            label: 'ความปลอดภัยและรหัสผ่าน',
-                            onTap: onPrivacy,
-                          ),
-                          _MenuItem(
-                            icon: Icons.notifications_none_outlined,
-                            label: 'การแจ้งเตือน',
-                            onTap: onNotification,
-                          ),
-                          _MenuItem(
-                            icon: Icons.help_outline,
-                            label: 'ช่วยเหลือและคำถามพบบ่อย',
-                            onTap: onHelp,
-                          ),
-                          _MenuItem(
-                            icon: Icons.headset_mic_outlined,
-                            label: 'ติดต่อเรา',
-                            onTap: onContact,
-                          ),
-                          _MenuItem(
-                            icon: Icons.people_outline,
-                            label: 'เปลี่ยนบัญชี',
-                            onTap: onSwitchAccount,
-                          ),
-                          _MenuItem(
-                            icon: Icons.star_border_outlined,
-                            label: 'ให้คะแนนแอป',
-                            onTap: onRateApp,
-                            showDivider: false,
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: context.rs(12)),
-
-                      // ---- ปุ่มออกจากระบบ ----
-                      _LogoutButton(onLogout: onLogout),
-                    ],
-                  ),
-                ),
               ),
 
               // ---- Bottom Nav ----
               AppBottomNav(
-                currentIndex: currentNavIndex,
-                onTap: onNavTap ?? (_) {},
+                currentIndex: widget.currentNavIndex,
+                onTap: widget.onNavTap ?? (_) {},
               ),
             ],
           ),
@@ -174,20 +216,20 @@ class ProfilePage extends StatelessWidget {
 }
 
 // ============================================================
-// _ProfileHeaderCard — รูปโปรไฟล์ + ชื่อ + email + สถิติ
+// _ProfileHeaderCard
 // ============================================================
 class _ProfileHeaderCard extends StatelessWidget {
   const _ProfileHeaderCard({
     required this.userName,
     required this.userEmail,
-    this.userImagePath,
+    this.userImageUrl,
     required this.appointmentCount,
     required this.treatmentHistoryCount,
   });
 
   final String userName;
   final String userEmail;
-  final String? userImagePath;
+  final String? userImageUrl;
   final int appointmentCount;
   final int treatmentHistoryCount;
 
@@ -205,7 +247,7 @@ class _ProfileHeaderCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // ---- Avatar ----
+          // Avatar
           Container(
             width: context.rs(72),
             height: context.rs(72),
@@ -218,11 +260,11 @@ class _ProfileHeaderCard extends StatelessWidget {
               ),
             ),
             child: ClipOval(
-              child: userImagePath != null
-                  ? Image.asset(
-                      userImagePath!,
+              child: userImageUrl != null
+                  ? Image.network(
+                      userImageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, e, s) => _defaultAvatar(context),
+                      errorBuilder: (_, __, ___) => _defaultAvatar(context),
                     )
                   : _defaultAvatar(context),
             ),
@@ -230,9 +272,8 @@ class _ProfileHeaderCard extends StatelessWidget {
 
           SizedBox(height: context.rs(10)),
 
-          // ---- ชื่อ ----
           Text(
-            userName,
+            userName.isNotEmpty ? userName : '-',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: context.rs(15),
@@ -243,46 +284,35 @@ class _ProfileHeaderCard extends StatelessWidget {
 
           SizedBox(height: context.rs(3)),
 
-          // ---- email ----
           Text(
-            userEmail,
+            userEmail.isNotEmpty ? userEmail : '-',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: context.rs(12),
-              fontWeight: FontWeight.w400,
               color: AppColors.textGray,
             ),
           ),
 
           SizedBox(height: context.rs(16)),
-
-          // ---- Divider ----
-          Divider(
-            color: AppColors.inputBorder,
-            height: 1,
-            thickness: 0.5,
-          ),
-
+          Divider(color: AppColors.inputBorder, height: 1, thickness: 0.5),
           SizedBox(height: context.rs(14)),
 
-          // ---- สถิติ ----
           Row(
             children: [
               Expanded(
                 child: _StatItem(
-                  svgAsset: 'assets/images/homescreen/book_an_appointment_active.svg',
+                  svgAsset:
+                      'assets/images/homescreen/book_an_appointment_active.svg',
                   count: appointmentCount,
                   label: 'การนัดหมาย',
                 ),
               ),
               Container(
-                width: 1,
-                height: context.rs(36),
-                color: AppColors.inputBorder,
-              ),
+                  width: 1, height: context.rs(36), color: AppColors.inputBorder),
               Expanded(
                 child: _StatItem(
-                  svgAsset: 'assets/images/Book_an_appointment/icons/checkup.svg',
+                  svgAsset:
+                      'assets/images/Book_an_appointment/icons/checkup.svg',
                   count: treatmentHistoryCount,
                   label: 'ประวัติการรักษา',
                 ),
@@ -294,18 +324,10 @@ class _ProfileHeaderCard extends StatelessWidget {
     );
   }
 
-  Widget _defaultAvatar(BuildContext context) {
-    return Icon(
-      Icons.person,
-      size: context.rs(40),
-      color: AppColors.purple,
-    );
-  }
+  Widget _defaultAvatar(BuildContext context) =>
+      Icon(Icons.person, size: context.rs(40), color: AppColors.purple);
 }
 
-// ============================================================
-// _StatItem — ตัวเลขสถิติ + label
-// ============================================================
 class _StatItem extends StatelessWidget {
   const _StatItem({
     required this.svgAsset,
@@ -325,10 +347,8 @@ class _StatItem extends StatelessWidget {
           svgAsset,
           width: context.rs(20),
           height: context.rs(20),
-          colorFilter: const ColorFilter.mode(
-            AppColors.purple,
-            BlendMode.srcIn,
-          ),
+          colorFilter:
+              const ColorFilter.mode(AppColors.purple, BlendMode.srcIn),
         ),
         SizedBox(height: context.rs(4)),
         Text(
@@ -343,21 +363,18 @@ class _StatItem extends StatelessWidget {
         Text(
           'รายการ',
           style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: context.rs(11),
-            fontWeight: FontWeight.w400,
-            color: AppColors.textGray,
-          ),
+              fontFamily: 'Inter',
+              fontSize: context.rs(11),
+              color: AppColors.textGray),
         ),
         SizedBox(height: context.rs(2)),
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: context.rs(11),
-            fontWeight: FontWeight.w500,
-            color: AppColors.black,
-          ),
+              fontFamily: 'Inter',
+              fontSize: context.rs(11),
+              fontWeight: FontWeight.w500,
+              color: AppColors.black),
         ),
       ],
     );
@@ -365,7 +382,7 @@ class _StatItem extends StatelessWidget {
 }
 
 // ============================================================
-// _MenuCard — กล่องเมนูรายการ
+// _MenuCard
 // ============================================================
 class _MenuCard extends StatelessWidget {
   const _MenuCard({required this.items});
@@ -379,9 +396,7 @@ class _MenuCard extends StatelessWidget {
         color: AppColors.homeBackground,
         borderRadius: BorderRadius.circular(context.rs(16)),
       ),
-      child: Column(
-        children: items.map((item) => _MenuRow(item: item)).toList(),
-      ),
+      child: Column(children: items.map((i) => _MenuRow(item: i)).toList()),
     );
   }
 }
@@ -417,28 +432,17 @@ class _MenuRow extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  item.icon,
-                  size: context.rs(20),
-                  color: AppColors.black,
-                ),
+                Icon(item.icon, size: context.rs(20), color: AppColors.black),
                 SizedBox(width: context.rs(14)),
                 Expanded(
-                  child: Text(
-                    item.label,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(13),
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.black,
-                    ),
-                  ),
+                  child: Text(item.label,
+                      style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(13),
+                          color: AppColors.black)),
                 ),
-                Icon(
-                  Icons.chevron_right,
-                  size: context.rs(18),
-                  color: AppColors.textGray,
-                ),
+                Icon(Icons.chevron_right,
+                    size: context.rs(18), color: AppColors.textGray),
               ],
             ),
           ),
@@ -447,10 +451,7 @@ class _MenuRow extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: context.rs(16)),
             child: Divider(
-              color: AppColors.inputBorder,
-              height: 1,
-              thickness: 0.5,
-            ),
+                color: AppColors.inputBorder, height: 1, thickness: 0.5),
           ),
       ],
     );
@@ -458,7 +459,7 @@ class _MenuRow extends StatelessWidget {
 }
 
 // ============================================================
-// _LogoutButton — ปุ่มออกจากระบบ
+// _LogoutButton
 // ============================================================
 class _LogoutButton extends StatelessWidget {
   const _LogoutButton({this.onLogout});
@@ -477,17 +478,12 @@ class _LogoutButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.rs(16)),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            vertical: context.rs(14),
-            horizontal: context.rs(16),
-          ),
+              vertical: context.rs(14), horizontal: context.rs(16)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.logout,
-                size: context.rs(18),
-                color: AppColors.reddentbook,
-              ),
+              Icon(Icons.logout,
+                  size: context.rs(18), color: AppColors.reddentbook),
               SizedBox(width: context.rs(8)),
               Text(
                 'ออกจากระบบ',
