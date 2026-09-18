@@ -642,7 +642,9 @@ class _HomePageOneState extends State<HomePageOne> {
                     SizedBox(height: context.rs(10)),
 
                     // ---- Appointment card ----
-                    _AppointmentCard(),
+                    _upcomingBooking != null
+                        ? _UpcomingCard(booking: _upcomingBooking!)
+                        : const _AppointmentCard(),
 
                     SizedBox(height: context.rs(20)),
 
