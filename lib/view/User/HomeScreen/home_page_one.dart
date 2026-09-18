@@ -753,7 +753,52 @@ class _IconBtn extends StatelessWidget {
 }
 
 // ============================================================
-// _AppointmentCard — card นัดหมาย (gradient ม่วง)
+// _UpcomingCard — card นัดหมายที่กำลังจะมาถึง
+// ============================================================
+class _UpcomingCard extends StatelessWidget {
+  const _UpcomingCard({required this.booking});
+  final BookingModel booking;
+
+  @override
+  Widget build(BuildContext context) {
+    final months = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.',
+        'ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    final d = booking.appointmentDate;
+    final dateStr = '${d.day} ${months[d.month]} ${d.year + 543}';
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(context.rs(16)),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.cardAppointment1, AppColors.cardAppointment2],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.circular(context.rs(16)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('การนัดหมายถัดไป',
+              style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(11),
+                  color: AppColors.white.withValues(alpha: 0.8))),
+          SizedBox(height: context.rs(6)),
+          Text(booking.clinicName,
+              style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(15),
+                  fontWeight: FontWeight.w700, color: AppColors.white)),
+          SizedBox(height: context.rs(4)),
+          Text('${booking.serviceName}  •  $dateStr  ${booking.appointmentTime} น.',
+              style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(12),
+                  color: AppColors.white.withValues(alpha: 0.9))),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _AppointmentCard — card นัดหมาย (ไม่มีการนัด)
 // ============================================================
 class _AppointmentCard extends StatelessWidget {
   const _AppointmentCard();
