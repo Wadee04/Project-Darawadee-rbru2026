@@ -4,7 +4,6 @@ import '../services/service_locator.dart';
 import '../view/User/Onboarding/select_account_type.dart';
 import '../view/User/Signin/signin_one.dart';
 import '../view/User/Signup/signup.dart';
-import '../view/User/Signup/email_otp_page.dart';
 import '../view/User/HomeScreen/home_page_one.dart';
 import '../view/User/Book_an_appointment/book_an_appointment_one.dart';
 import '../view/User/My_queue/my_queue_one.dart';

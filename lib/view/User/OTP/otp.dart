@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../components/shared_widgets.dart';
+import '../../../supabase_client.dart' show supabase;
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
-import '../HomeScreen/home_page_one.dart';
 import '../Signup/phone_number.dart';
 
 // ============================================================
@@ -15,22 +16,18 @@ import '../Signup/phone_number.dart';
 class OTPPage extends StatefulWidget {
   const OTPPage({
     super.key,
-    required this.target,     // อีเมลที่ส่ง OTP ไป
+    required this.target,
+    required this.fullName,
     this.otpLength = 6,
     this.resendCooldown = 60,
-    this.fromSignup = false,  // มาจากหน้า Signup หรือไม่
     this.onBack,
-    this.onNext,              // callback เมื่อกด "ถัดไป" ส่ง OTP string กลับ
-    this.onResend,            // callback เมื่อกด "ขอรหัสใหม่"
   });
 
   final String target;
+  final String fullName;
   final int otpLength;
   final int resendCooldown;
-  final bool fromSignup;
   final VoidCallback? onBack;
-  final void Function(String otp)? onNext;
-  final VoidCallback? onResend;
 
   @override
   State<OTPPage> createState() => _OTPPageState();
@@ -43,6 +40,9 @@ class _OTPPageState extends State<OTPPage> {
 
   Timer? _timer;
   late int _secondsLeft;
+  bool _isLoading = false;
+  bool _isResending = false;
+  String? _verifiedUserId;
 
   @override
   void initState() {
@@ -50,23 +50,28 @@ class _OTPPageState extends State<OTPPage> {
     _controllers =
         List.generate(widget.otpLength, (_) => TextEditingController());
     _focusNodes = List.generate(widget.otpLength, (_) => FocusNode());
-    _keyListenerNodes =
-        List.generate(widget.otpLength, (_) => FocusNode());
+    _keyListenerNodes = List.generate(widget.otpLength, (_) => FocusNode());
     _secondsLeft = widget.resendCooldown;
     _startTimer();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _focusNodes.isNotEmpty) {
+        _focusNodes.first.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    for (final c in _controllers) {
-      c.dispose();
+    for (final controller in _controllers) {
+      controller.dispose();
     }
-    for (final f in _focusNodes) {
-      f.dispose();
+    for (final focusNode in _focusNodes) {
+      focusNode.dispose();
     }
-    for (final f in _keyListenerNodes) {
-      f.dispose();
+    for (final focusNode in _keyListenerNodes) {
+      focusNode.dispose();
     }
     super.dispose();
   }
@@ -74,10 +79,15 @@ class _OTPPageState extends State<OTPPage> {
   // ---- Timer ----
   void _startTimer() {
     _timer?.cancel();
-    setState(() => _secondsLeft = widget.resendCooldown);
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+    if (_secondsLeft <= 0) return;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_secondsLeft <= 1) {
-        t.cancel();
+        timer.cancel();
         setState(() => _secondsLeft = 0);
       } else {
         setState(() => _secondsLeft--);
@@ -86,8 +96,10 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   // ---- OTP ----
-  String get _otpValue => _controllers.map((c) => c.text).join();
+  String get _otpValue => _controllers.map((controller) => controller.text).join();
   bool get _isFilled => _otpValue.length == widget.otpLength;
+  bool get _canVerify =>
+      (_isFilled || _verifiedUserId != null) && !_isLoading;
 
   void _onChanged(int index, String value) {
     if (value.length == 1 && index < widget.otpLength - 1) {
@@ -107,153 +119,213 @@ class _OTPPageState extends State<OTPPage> {
     }
   }
 
-  void _handleResend() {
-    if (_secondsLeft > 0) return;
-    widget.onResend?.call();
-    _startTimer();
+  Future<void> _verifyOtp() async {
+    if (!_canVerify) return;
+    setState(() => _isLoading = true);
+
+    try {
+      var userId = _verifiedUserId;
+      if (userId == null) {
+        final response = await supabase.auth.verifyOTP(
+          email: widget.target,
+          token: _otpValue,
+          type: OtpType.signup,
+        );
+
+        userId = response.user?.id;
+        if (userId == null) {
+          throw StateError('Signup OTP verification returned no user');
+        }
+        _verifiedUserId = userId;
+      }
+
+      await supabase.from('users').upsert({
+        'id': userId,
+        'email': widget.target,
+        'full_name': widget.fullName,
+      });
+
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        noAnimRoute(const PhoneNumberPage()),
+        (route) => false,
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      if (_verifiedUserId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'ยืนยันอีเมลแล้ว แต่บันทึกข้อมูลผู้ใช้ไม่สำเร็จ กรุณากดถัดไปอีกครั้ง',
+            ),
+          ),
+        );
+      } else {
+        final isExpired =
+            error.toString().toLowerCase().contains('expired');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isExpired
+                  ? 'รหัส OTP หมดอายุแล้ว กรุณาขอรหัสใหม่'
+                  : 'รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่',
+            ),
+          ),
+        );
+        for (final controller in _controllers) {
+          controller.clear();
+        }
+        _focusNodes.first.requestFocus();
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleResend() async {
+    if (_secondsLeft > 0 || _isResending || _verifiedUserId != null) return;
+    setState(() => _isResending = true);
+
+    try {
+      await supabase.auth.resend(
+        type: OtpType.signup,
+        email: widget.target,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ส่งรหัส OTP ใหม่แล้ว กรุณาตรวจสอบอีเมล'),
+        ),
+      );
+      setState(() => _secondsLeft = widget.resendCooldown);
+      _startTimer();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ไม่สามารถส่งรหัสใหม่ได้ กรุณารอสักครู่'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isResending = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ---- AppBar ----
-            const AppBarBack(title: 'กรอกรหัสยืนยันตัวตน'),
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: AppColors.white,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ---- AppBar ----
+                AppBarBack(
+                  title: 'กรอกรหัสยืนยันตัวตน',
+                  onBack: widget.onBack,
+                ),
 
-            // ---- Content ----
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: context.rs(30)),
+                // ---- Content ----
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: context.rs(24)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(height: context.rs(30)),
 
-                    // Subtitle
-                    Text(
-                      'คุณจะได้รับรหัสยืนยันตัวตนผ่านทางอีเมล',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: context.rs(14),
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.black,
-                        height: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: context.rs(2)),
-                    RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        text: '6614631011@rbru.ac.th ',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: context.rs(13),
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.black,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: widget.target,
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: context.rs(13),
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textGray,
-                            ),
-                          ),
-                        ],
-                      ),
-                     ),
- 
-                    SizedBox(height: context.rs(30)),
-
-                    // ---- OTP boxes ----
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(widget.otpLength, (i) {
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            right: i < widget.otpLength - 1
-                                ? context.rs(10)
-                                : 0,
-                          ),
-                          child: _OTPBox(
-                            controller: _controllers[i],
-                            focusNode: _focusNodes[i],
-                            keyListenerFocusNode: _keyListenerNodes[i],
-                            onChanged: (v) => _onChanged(i, v),
-                            onKeyEvent: (e) => _onKeyEvent(i, e),
-                          ),
-                        );
-                      }),
-                    ),
-
-                    SizedBox(height: context.rs(28)),
-
-                    // ---- ปุ่มถัดไป ----
-                    SizedBox(
-                      width: double.infinity,
-                      height: context.rs(40),
-                      child: ElevatedButton(
-                        onPressed: _isFilled
-                            ? () {
-                                const _mockOtp = '123456';
-                                if (_otpValue != _mockOtp) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('รหัส OTP ไม่ถูกต้อง'),
-                                    ),
-                                  );
-                                  return;
-                                }
-                                widget.onNext?.call(_otpValue);
-                                Navigator.pushReplacement(
-                                  context,
-                                  noAnimRoute(
-                                    widget.fromSignup
-                                        ? const PhoneNumberPage()
-                                        : const HomePageOne(),
-                                  ),
-                                );
-                              }
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isFilled
-                              ? AppColors.purple
-                              : AppColors.registerButton,
-                          disabledBackgroundColor: AppColors.registerButton,
-                          foregroundColor: _isFilled
-                              ? AppColors.white
-                              : AppColors.textGray,
-                          disabledForegroundColor: AppColors.textGray,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(context.rs(30)),
-                          ),
-                        ),
-                        child: Text(
-                          'ถัดไป',
+                        // Subtitle
+                        Text(
+                          'คุณจะได้รับรหัสยืนยันตัวตนผ่านทางอีเมล',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: context.rs(15),
-                            fontWeight: FontWeight.w500,
-                            color: _isFilled ? AppColors.white : AppColors.black,
+                            fontSize: context.rs(14),
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.black,
+                            height: 1.5,
                           ),
                         ),
-                      ),
-                    ),
+                        SizedBox(height: context.rs(2)),
+                        Text(
+                          widget.target,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(13),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.black,
+                          ),
+                        ),
 
-                    SizedBox(height: context.rs(30)),
+                        SizedBox(height: context.rs(30)),
 
-                    // ---- Resend timer ----
-                    _secondsLeft > 0
-                        ? RichText(
+                        // ---- OTP boxes ----
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(widget.otpLength, (index) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                right: index < widget.otpLength - 1
+                                    ? context.rs(10)
+                                    : 0,
+                              ),
+                              child: _OTPBox(
+                                controller: _controllers[index],
+                                focusNode: _focusNodes[index],
+                                keyListenerFocusNode:
+                                    _keyListenerNodes[index],
+                                onChanged: (value) =>
+                                    _onChanged(index, value),
+                                onKeyEvent: (event) =>
+                                    _onKeyEvent(index, event),
+                              ),
+                            );
+                          }),
+                        ),
+
+                        SizedBox(height: context.rs(28)),
+
+                        // ---- ปุ่มถัดไป ----
+                        SizedBox(
+                          width: double.infinity,
+                          height: context.rs(40),
+                          child: ElevatedButton(
+                            onPressed: _canVerify ? _verifyOtp : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.purple,
+                              disabledBackgroundColor:
+                                  AppColors.registerButton,
+                              foregroundColor: AppColors.white,
+                              disabledForegroundColor: AppColors.textGray,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(context.rs(30)),
+                              ),
+                            ),
+                            child: Text(
+                              'ถัดไป',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: context.rs(15),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: context.rs(30)),
+
+                        // ---- Resend timer ----
+                        if (_secondsLeft > 0)
+                          RichText(
                             text: TextSpan(
                               style: TextStyle(
                                 fontFamily: 'Inter',
@@ -273,26 +345,36 @@ class _OTPPageState extends State<OTPPage> {
                               ],
                             ),
                           )
-                        : GestureDetector(
-                            onTap: _handleResend,
+                        else
+                          GestureDetector(
+                            onTap: _isResending || _verifiedUserId != null
+                                ? null
+                                : _handleResend,
                             child: Text(
-                              'รับรหัสผ่านใหม่อีกครั้ง',
+                              _isResending
+                                  ? 'กำลังส่งรหัสใหม่...'
+                                  : 'รับรหัสผ่านใหม่อีกครั้ง',
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: context.rs(12),
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.purple,
+                                color: _isResending || _verifiedUserId != null
+                                    ? AppColors.textGray
+                                    : AppColors.purple,
                                 decorationColor: AppColors.purple,
                               ),
                             ),
                           ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        if (_isLoading) const ToothLoadingOverlay(),
+      ],
     );
   }
 }
