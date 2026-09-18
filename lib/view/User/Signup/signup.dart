@@ -196,6 +196,7 @@ class _SignUpState extends State<SignUp> {
                               context,
                               noAnimRoute(OTPPage(
                                 target: _emailController.text.trim(),
+                                fromSignup: true,
                               )),
                             );
                           } else {
