@@ -584,8 +584,9 @@ class _BookingIdCard extends StatelessWidget {
 // _CancelButton — ปุ่มยกเลิกการนัด
 // ============================================================
 class _CancelButton extends StatelessWidget {
-  const _CancelButton({required this.onCancel});
+  const _CancelButton({required this.onCancel, this.isCancelling = false});
   final VoidCallback onCancel;
+  final bool isCancelling;
 
   @override
   Widget build(BuildContext context) {
@@ -593,22 +594,18 @@ class _CancelButton extends StatelessWidget {
       width: double.infinity,
       height: context.rs(42),
       child: OutlinedButton(
-        onPressed: onCancel,
+        onPressed: isCancelling ? null : onCancel,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppColors.reddentbook, width: 1.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(context.rs(30)),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.rs(30))),
         ),
-        child: Text(
-          'ยกเลิกการนัดหมาย',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: context.rs(14),
-            fontWeight: FontWeight.w500,
-            color: AppColors.reddentbook,
-          ),
-        ),
+        child: isCancelling
+            ? const SizedBox(width: 18, height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.reddentbook)))
+            : Text('ยกเลิกการนัดหมาย',
+                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500, color: AppColors.reddentbook)),
       ),
     );
   }
