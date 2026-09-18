@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'theme/app_theme.dart';
-import 'view/Admin/ProfileAdmin/patient_data.dart';
 import 'view/Admin/ProfileAdmin/profile_admin.dart';
 import 'view/Admin/ProfileAdmin/queue_management.dart';
-import 'view/User/Onboarding/select_account_type.dart';
+import 'view/Admin/ProfileAdmin/patient_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.light,
       // เริ่มที่หน้า SelectAccountType เสมอ
       // AppRouter จะ navigate ไป Home ถ้า login อยู่แล้ว
-      home: const ProfileAdmin(),
+      home: const QueueManagementPage(),
     );
   }
 }
