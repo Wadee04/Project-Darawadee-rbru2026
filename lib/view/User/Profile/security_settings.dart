@@ -153,7 +153,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                               icon: Icons.email_outlined,
                               iconColor: AppColors.purple,
                               title: 'อีเมลที่ใช้ในการเข้าสู่ระบบ',
-                              subtitle: widget.userEmail,
+                              subtitle: _userEmail.isNotEmpty ? _userEmail : '-',
                               onTap: widget.onChangeEmail,
                               showDivider: true,
                             ),
