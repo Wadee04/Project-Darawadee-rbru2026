@@ -271,7 +271,7 @@ class _StockPageState extends State<StockPage> {
 }
 
 // ============================================================
-// _StockItem — data model
+// StockItem — data model
 // ============================================================
 enum StockStatus { normal, low }
 
@@ -282,9 +282,11 @@ class StockItem {
     required this.qty,
     required this.status,
     this.isCounted = false,
+    this.dbId,
   });
 
-  final String id;
+  final String id;   // sku
+  final String? dbId; // uuid จาก Supabase
   final String name;
   final int qty;
   final StockStatus status;
@@ -294,9 +296,10 @@ class StockItem {
 
   StockItem copyWith({int? qty, bool? isCounted}) => StockItem(
         id: id,
+        dbId: dbId,
         name: name,
         qty: qty ?? this.qty,
-        status: status,
+        status: (qty ?? this.qty) <= 3 ? StockStatus.low : StockStatus.normal,
         isCounted: isCounted ?? this.isCounted,
       );
 }

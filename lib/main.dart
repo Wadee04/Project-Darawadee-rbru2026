@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.light,
       // เริ่มที่หน้า SelectAccountType เสมอ
       // AppRouter จะ navigate ไป Home ถ้า login อยู่แล้ว
-      home: const PatientDataPage(),
+      home: const SelectAccountType(),
     );
   }
 }
