@@ -151,35 +151,37 @@ class _QueueManagementPageState extends State<QueueManagementPage>
 
               // ---- Tab content ----
               Expanded(
-                child: TabBarView(
-                  controller: _tab,
-                  children: [
-                    _QueueList(
-                      items: _filter(QueueCardStatus.waiting),
-                      emptyMessage: 'ไม่มีคิวรอเรียก',
-                      showCall: true,
-                      onCall: widget.onCallQueue,
-                      onSkip: widget.onSkipQueue,
-                      onComplete: widget.onCompleteQueue,
-                      onCancel: widget.onCancelQueue,
-                    ),
-                    _QueueList(
-                      items: _filter(QueueCardStatus.inProgress),
-                      emptyMessage: 'ไม่มีคิวกำลังรักษา',
-                      showCall: false,
-                      onCall: widget.onCallQueue,
-                      onSkip: widget.onSkipQueue,
-                      onComplete: widget.onCompleteQueue,
-                      onCancel: widget.onCancelQueue,
-                    ),
-                    _QueueList(
-                      items: _filter(QueueCardStatus.completed),
-                      emptyMessage: 'ยังไม่มีคิวที่เสร็จแล้ว',
-                      showCall: false,
-                      onCall: null, onSkip: null, onComplete: null, onCancel: null,
-                    ),
-                  ],
-                ),
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : TabBarView(
+                        controller: _tab,
+                        children: [
+                          _QueueList(
+                            items: _filter(QueueCardStatus.waiting),
+                            emptyMessage: 'ไม่มีคิวรอเรียก',
+                            showCall: true,
+                            onCall: _call,
+                            onSkip: _cancel,
+                            onComplete: _complete,
+                            onCancel: _cancel,
+                          ),
+                          _QueueList(
+                            items: _filter(QueueCardStatus.inProgress),
+                            emptyMessage: 'ไม่มีคิวกำลังรักษา',
+                            showCall: false,
+                            onCall: _call,
+                            onSkip: _cancel,
+                            onComplete: _complete,
+                            onCancel: _cancel,
+                          ),
+                          _QueueList(
+                            items: _filter(QueueCardStatus.completed),
+                            emptyMessage: 'ยังไม่มีคิวที่เสร็จแล้ว',
+                            showCall: false,
+                            onCall: null, onSkip: null, onComplete: null, onCancel: null,
+                          ),
+                        ],
+                      ),
               ),
             ],
           ),
