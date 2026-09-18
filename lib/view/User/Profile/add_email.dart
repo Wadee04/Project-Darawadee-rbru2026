@@ -40,9 +40,21 @@ class _AddEmailPageState extends State<AddEmailPage> {
     super.dispose();
   }
 
-  void _handleNext() {
+  void _handleNext() async {
     if (!_canProceed) return;
-    widget.onNext?.call(_emailCtrl.text.trim());
+    final email = _emailCtrl.text.trim();
+    setState(() => _isSaving = true);
+    try {
+      await ServiceLocator.user.changeEmail(email);
+      widget.onNext?.call(email);
+      if (mounted) Navigator.maybePop(context);
+    } on AuthException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
