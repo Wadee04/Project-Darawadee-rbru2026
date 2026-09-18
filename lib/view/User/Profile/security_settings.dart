@@ -31,6 +31,21 @@ class SecuritySettingsPage extends StatefulWidget {
 
 class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   late bool _pinEnabled;
+  bool _isSavingPin = false;
+
+  Future<void> _handlePinToggle(bool v) async {
+    setState(() => _isSavingPin = true);
+    try {
+      await ServiceLocator.user.togglePin(enabled: v);
+      setState(() => _pinEnabled = v);
+    } on AuthException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+    } finally {
+      if (mounted) setState(() => _isSavingPin = false);
+    }
+  }
 
   @override
   void initState() {
