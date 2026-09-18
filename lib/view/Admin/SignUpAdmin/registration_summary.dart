@@ -163,7 +163,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.email_outlined,
                             label: 'อีเมลคลินิก',
-                            value: clinicEmail,
+                            value: widget.clinicEmail,
                           ),
                           _SummaryRow(
                             icon: Icons.map_outlined,
