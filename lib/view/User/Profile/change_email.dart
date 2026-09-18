@@ -47,7 +47,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
     super.dispose();
   }
 
-  void _handleNext() {
+  void _handleNext() async {
     if (!_canProceed) return;
 
     final newEmail = _newEmailCtrl.text.trim();
@@ -70,7 +70,26 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
       return;
     }
 
-    widget.onNext?.call(newEmail);
+    setState(() => _isSaving = true);
+    try {
+      await ServiceLocator.user.changeEmail(newEmail);
+      widget.onNext?.call(newEmail);
+      if (mounted) Navigator.maybePop(context);
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
