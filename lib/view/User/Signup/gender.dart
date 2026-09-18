@@ -179,10 +179,28 @@ class _GenderPageState extends State<GenderPage> {
                     width: double.infinity,
                     height: context.rs(40),
                     child: ElevatedButton(
-                      onPressed: _selected != null
-                          ? () {
+                      onPressed: (_selected != null && !_isSaving)
+                          ? () async {
+                              final gender = _selected!;
+                              setState(() => _isSaving = true);
+                              try {
+                                await ServiceLocator.user.updateProfile(
+                                  gender: _genderToString(gender),
+                                );
+                              } on AuthException catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(e.message)),
+                                  );
+                                }
+                              } catch (_) {}
+                              finally {
+                                if (mounted) setState(() => _isSaving = false);
+                              }
+
+                              if (!mounted) return;
                               if (widget.onNext != null) {
-                                widget.onNext!(_selected!);
+                                widget.onNext!(gender);
                               } else {
                                 Navigator.pushAndRemoveUntil(
                                   context,
