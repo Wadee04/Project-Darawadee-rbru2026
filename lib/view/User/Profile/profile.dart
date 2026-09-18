@@ -57,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _load() async {
     try {
       // ดึงข้อมูล user + สถิติการจองพร้อมกัน
-      final results = await Future.wait([
+      final results = await Future.wait<dynamic>([
         ServiceLocator.user.getCurrentUser(),
         ServiceLocator.booking.getBookingStats(),
       ]);
