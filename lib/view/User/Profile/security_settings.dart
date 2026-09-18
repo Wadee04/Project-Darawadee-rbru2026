@@ -439,3 +439,6 @@ class _PinToggleRow extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// _SecurityHeroBanner
