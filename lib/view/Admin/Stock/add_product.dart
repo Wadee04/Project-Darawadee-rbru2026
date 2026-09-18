@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../services/supabase_stock_service.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 
