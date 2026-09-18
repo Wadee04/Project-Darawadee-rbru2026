@@ -428,7 +428,7 @@ class _ConfirmBar extends StatelessWidget {
         width: double.infinity,
         height: context.rs(46),
         child: ElevatedButton(
-          onPressed: onConfirm,
+          onPressed: isSaving ? null : onConfirm,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.purple,
             foregroundColor: AppColors.white,
