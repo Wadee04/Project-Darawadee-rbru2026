@@ -143,7 +143,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.person_outline,
                             label: 'ชื่อ - นามสกุล',
-                            value: fullName,
+                            value: widget.fullName,
                           ),
                           _SummaryRow(
                             icon: Icons.email_outlined,
