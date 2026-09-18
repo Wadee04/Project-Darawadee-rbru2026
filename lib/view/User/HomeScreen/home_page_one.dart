@@ -31,13 +31,14 @@ class ClinicItem {
 // ============================================================
 void showSelectClinicSheet(
   BuildContext context, {
+  List<ClinicItem>? clinics,
   void Function(ClinicItem)? onSelect,
 }) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => _SelectClinicSheet(onSelect: onSelect),
+    builder: (_) => _SelectClinicSheet(clinics: clinics ?? [], onSelect: onSelect),
   );
 }
 
