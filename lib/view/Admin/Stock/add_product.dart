@@ -59,16 +59,32 @@ class _AddProductPageState extends State<AddProductPage> {
     super.dispose();
   }
 
-  void _handleSave() {
+  void _handleSave() async {
     if (!_canSave) return;
-    widget.onSave?.call(
-      name: _nameCtrl.text.trim(),
-      sku: _skuCtrl.text.trim(),
-      qty: int.tryParse(_qtyCtrl.text) ?? 0,
-      unit: _unit,
-      note: _noteCtrl.text.trim(),
-    );
-    Navigator.maybePop(context);
+    setState(() => _isSaving = true);
+    try {
+      await SupabaseStockService.instance.addProduct(
+        name: _nameCtrl.text.trim(),
+        sku: _skuCtrl.text.trim(),
+        qty: int.tryParse(_qtyCtrl.text) ?? 0,
+        unit: _unit,
+        note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
+      );
+      widget.onSave?.call(
+        name: _nameCtrl.text.trim(),
+        sku: _skuCtrl.text.trim(),
+        qty: int.tryParse(_qtyCtrl.text) ?? 0,
+        unit: _unit,
+        note: _noteCtrl.text.trim(),
+      );
+      if (mounted) Navigator.maybePop(context);
+    } on AuthException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
