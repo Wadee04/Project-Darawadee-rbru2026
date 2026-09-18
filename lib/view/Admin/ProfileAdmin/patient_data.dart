@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../../../services/admin/admin_clinic_service.dart';
+import '../../../services/admin/admin_models.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 
 // ============================================================
-// PatientDataPage — ข้อมูลผู้ป่วยของคลินิก (Admin)
+// PatientDataPage — ข้อมูลผู้ป่วยของคลินิก (Admin) — Supabase
 // ============================================================
 class PatientDataPage extends StatefulWidget {
   const PatientDataPage({
     super.key,
     this.onBack,
-    this.patients = const [],
     this.onPatientTap,
   });
 
   final VoidCallback? onBack;
-  final List<PatientItem> patients;
   final void Function(PatientItem patient)? onPatientTap;
 
   @override
@@ -24,15 +24,37 @@ class PatientDataPage extends StatefulWidget {
 
 class _PatientDataPageState extends State<PatientDataPage> {
   String _search = '';
+  bool _loading = true;
+  List<PatientItem> _patients = [];
 
-  List<PatientItem> get _filtered {
-    if (_search.isEmpty) return widget.patients;
-    return widget.patients
-        .where((p) =>
-            p.name.contains(_search) ||
-            p.phone.contains(_search) ||
-            p.email.contains(_search))
-        .toList();
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load({String? search}) async {
+    setState(() => _loading = true);
+    try {
+      final result = await AdminClinicService.instance.getPatients(search: search);
+      if (mounted) {
+        setState(() {
+          _patients = result.map((p) => PatientItem(
+            id: p.id,
+            name: p.fullName,
+            phone: p.phone,
+            email: p.email,
+            lastVisit: p.lastVisit ?? DateTime.now(),
+            totalVisits: p.totalBookings,
+            gender: p.gender,
+            birthDate: p.birthDate,
+          )).toList();
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
