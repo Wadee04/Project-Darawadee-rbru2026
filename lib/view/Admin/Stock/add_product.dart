@@ -198,9 +198,13 @@ class _AddProductPageState extends State<AddProductPage> {
                         width: double.infinity,
                         height: context.rs(46),
                         child: ElevatedButton.icon(
-                          onPressed: _canSave ? _handleSave : null,
-                          icon: Icon(Icons.check, size: context.rs(16)),
-                          label: Text(
+                          onPressed: (_canSave && !_isSaving) ? _handleSave : null,
+                          icon: _isSaving
+                              ? SizedBox(width: context.rs(16), height: context.rs(16),
+                                  child: const CircularProgressIndicator(strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white)))
+                              : Icon(Icons.check, size: context.rs(16)),
+                          label: _isSaving ? const SizedBox() : Text(
                             'บันทึก',
                             style: TextStyle(
                               fontFamily: 'Inter',
