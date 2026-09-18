@@ -51,7 +51,43 @@ class RegistrationSummaryPage extends StatefulWidget {
   State<RegistrationSummaryPage> createState() =>
       _RegistrationSummaryPageState();
 }
-    return Scaffold(
+
+class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
+  bool _isSaving = false;
+
+  Future<void> _handleConfirm() async {
+    setState(() => _isSaving = true);
+    try {
+      await SupabaseAdminService.instance.registerAdmin(
+        fullName: widget.fullName,
+        email: widget.email,
+        phone: widget.phone,
+        password: widget.password,
+        clinicName: widget.clinicName,
+        registrationNumber: widget.registrationNumber.isNotEmpty ? widget.registrationNumber : null,
+        operatingHours: widget.operatingHours.isNotEmpty ? widget.operatingHours : null,
+        address: widget.clinicAddress.isNotEmpty ? widget.clinicAddress : null,
+        province: widget.province.isNotEmpty ? widget.province : null,
+        district: widget.district.isNotEmpty ? widget.district : null,
+        zipCode: widget.zipCode.isNotEmpty ? widget.zipCode : null,
+      );
+      widget.onConfirm?.call();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ลงทะเบียนสำเร็จ กรุณารอการอนุมัติ')),
+        );
+      }
+    } on AuthException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
