@@ -395,7 +395,6 @@ class _SecurityScreen extends StatefulWidget {
 }
 
 class _SecurityScreenState extends State<_SecurityScreen> {
-  UserModel? _user;
   bool _loading = true;
 
   @override
@@ -406,12 +405,10 @@ class _SecurityScreenState extends State<_SecurityScreen> {
 
   Future<void> _load() async {
     try {
-      final u = await ServiceLocator.user.getCurrentUser();
-      if (mounted)
-        setState(() {
-          _user = u;
-          _loading = false;
-        });
+      await ServiceLocator.user.getCurrentUser();
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -426,8 +423,6 @@ class _SecurityScreenState extends State<_SecurityScreen> {
       onBack: () => Navigator.maybePop(context),
       onChangePassword: () => AppRouter.goChangePassword(context),
       onChangeEmail: () => AppRouter.goChangeEmail(context),
-      userEmail: _user?.email ?? '',
-      initialPinEnabled: _user?.pinEnabled ?? false,
     );
   }
 }
