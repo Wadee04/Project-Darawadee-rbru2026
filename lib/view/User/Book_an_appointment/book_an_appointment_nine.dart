@@ -771,7 +771,11 @@ class _BottomConfirmBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(context.rs(30)),
             ),
           ),
-          child: Text(
+          child: isLoading
+              ? SizedBox(width: context.rs(18), height: context.rs(18),
+                  child: const CircularProgressIndicator(strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white)))
+              : Text(
             'ยืนยัน',
             style: TextStyle(
               fontFamily: 'Inter',
