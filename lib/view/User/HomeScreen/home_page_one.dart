@@ -400,7 +400,6 @@ class _ClinicTile extends StatelessWidget {
 class HomePageOne extends StatefulWidget {
   const HomePageOne({
     super.key,
-    this.userName = 'คุณดาราวดี อาลัย',
     this.onNotification,
     this.onProfile,
     this.onSelectClinic,
@@ -408,7 +407,6 @@ class HomePageOne extends StatefulWidget {
     this.onMyQueue,
   });
 
-  final String userName;
   final VoidCallback? onNotification;
   final VoidCallback? onProfile;
   final VoidCallback? onSelectClinic;
@@ -422,6 +420,60 @@ class HomePageOne extends StatefulWidget {
 class _HomePageOneState extends State<HomePageOne> {
   int _navIndex = 0;
   ClinicItem? _selectedClinic;
+
+  // ---- ข้อมูลจาก Supabase ----
+  String _userName = '';
+  BookingModel? _upcomingBooking;
+  List<ClinicItem> _clinics = [];
+  bool _loadingUser = true;
+  bool _loadingClinics = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+    _loadClinics();
+    _loadUpcoming();
+  }
+
+  Future<void> _loadUser() async {
+    try {
+      final user = await ServiceLocator.user.getCurrentUser();
+      if (mounted) setState(() { _userName = user.fullName; _loadingUser = false; });
+    } catch (_) {
+      if (mounted) setState(() => _loadingUser = false);
+    }
+  }
+
+  Future<void> _loadUpcoming() async {
+    try {
+      final bookings = await ServiceLocator.booking.getUpcomingBookings() as List<BookingModel>;
+      if (mounted && bookings.isNotEmpty) {
+        setState(() => _upcomingBooking = bookings.first);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loadClinics() async {
+    try {
+      final clinics = await ServiceLocator.clinic.getClinics() as List;
+      if (mounted) {
+        setState(() {
+          _clinics = clinics
+              .map((c) => ClinicItem(
+                    id: c.id as String,
+                    name: c.name as String,
+                    province: c.province as String? ?? '',
+                    logoUrl: c.logoUrl as String?,
+                  ))
+              .toList();
+          _loadingClinics = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingClinics = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
