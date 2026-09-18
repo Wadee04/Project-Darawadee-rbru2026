@@ -61,26 +61,20 @@ class _SelectClinicSheetState extends State<_SelectClinicSheet> {
         logoAsset: 'assets/images/homescreen/dental_meejai.png'),
   ];
 
-  static const List<String> _provinces = [
-    'ทุกจังหวัด',
-    'กรุงเทพมหานคร',
-    'จันทบุรี',
-    'เชียงใหม่',
-    'ภูเก็ต',
-  ];
-
-  String _searchQuery = '';
-  String _selectedProvince = 'ทุกจังหวัด';
-  final TextEditingController _searchCtrl = TextEditingController();
-
   List<ClinicItem> get _filtered {
-    return _allClinics.where((c) {
-      final matchName =
-          _searchQuery.isEmpty || c.name.contains(_searchQuery);
-      final matchProv = _selectedProvince == 'ทุกจังหวัด' ||
-          c.province == _selectedProvince;
+    final source = widget.clinics.isNotEmpty ? widget.clinics : _fallback;
+    return source.where((c) {
+      final matchName = _searchQuery.isEmpty || c.name.contains(_searchQuery);
+      final matchProv = _selectedProvince == 'ทุกจังหวัด' || c.province == _selectedProvince;
       return matchName && matchProv;
     }).toList();
+  }
+
+  List<String> get _provinces {
+    final all = {'ทุกจังหวัด'};
+    for (final c in widget.clinics) { if (c.province.isNotEmpty) all.add(c.province); }
+    if (all.length == 1) all.addAll(['กรุงเทพมหานคร', 'จันทบุรี', 'เชียงใหม่', 'ภูเก็ต']);
+    return all.toList();
   }
 
   @override
