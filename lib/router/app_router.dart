@@ -278,10 +278,7 @@ class _ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<_ProfileScreen> {
-  UserModel? _user;
   bool _loading = true;
-  int _apptCount = 0;
-  int _historyCount = 0;
 
   @override
   void initState() {
@@ -291,24 +288,16 @@ class _ProfileScreenState extends State<_ProfileScreen> {
 
   Future<void> _load() async {
     try {
-      final user = await ServiceLocator.user.getCurrentUser();
-      final stats = await ServiceLocator.booking.getBookingStats();
+      await ServiceLocator.user.getCurrentUser();
+      await ServiceLocator.booking.getBookingStats();
       if (!mounted) return;
-      setState(() {
-        _user = user;
-        _apptCount =
-            (stats[BookingStatus.confirmed] ?? 0) +
-            (stats[BookingStatus.waitingPayment] ?? 0);
-        _historyCount = stats[BookingStatus.completed] ?? 0;
-        _loading = false;
-      });
+      setState(() => _loading = false);
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  Future<void> _handleLogout() async {
-    await ServiceLocator.user.signOut();
+  void _handleLogout() {
     if (!mounted) return;
     AppRouter._pushAndRemoveAll(context, _SignInScreen());
   }
@@ -319,10 +308,6 @@ class _ProfileScreenState extends State<_ProfileScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return ProfilePage(
-      userName: _user?.fullName ?? 'ผู้ใช้',
-      userEmail: _user?.email ?? '',
-      appointmentCount: _apptCount,
-      treatmentHistoryCount: _historyCount,
       onPersonalInfo: () => AppRouter.goEditProfile(context),
       onPrivacy: () => AppRouter.goSecurity(context),
       onNotification: () => AppRouter.goNotificationSettings(context),
