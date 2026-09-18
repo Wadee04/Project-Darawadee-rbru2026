@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../services/admin/admin_clinic_service.dart';
+import '../../../services/admin/admin_models.dart';
+import '../../../services/supabase_user_service.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 
 // ============================================================
-// ProfileAdminPage — โปรไฟล์แอดมิน / ข้อมูลคลินิก
+// ProfileAdminPage — โปรไฟล์แอดมิน / ข้อมูลคลินิก (Supabase)
 // ============================================================
-class ProfileAdminPage extends StatelessWidget {
+class ProfileAdminPage extends StatefulWidget {
   const ProfileAdminPage({
     super.key,
     this.onBack,
@@ -15,14 +19,6 @@ class ProfileAdminPage extends StatelessWidget {
     this.onChangePassword,
     this.onLogout,
     this.currentNavIndex = 3,
-    this.adminName = 'ดาราวดี อาลัย',
-    this.adminEmail = 'admin@dental.com',
-    this.clinicName = 'คลินิกทันตกรรมใจ๋',
-    this.clinicPhone = '039-200-789',
-    this.clinicAddress = '56/7 ถนนเทศบาล 1 ตำบลท่าช้าง จันทบุรี',
-    this.clinicStatus = ClinicStatus.approved,
-    this.totalDoctors = 2,
-    this.totalServices = 5,
   });
 
   final VoidCallback? onBack;
@@ -32,127 +28,132 @@ class ProfileAdminPage extends StatelessWidget {
   final VoidCallback? onLogout;
   final int currentNavIndex;
 
-  final String adminName;
-  final String adminEmail;
-  final String clinicName;
-  final String clinicPhone;
-  final String clinicAddress;
-  final ClinicStatus clinicStatus;
-  final int totalDoctors;
-  final int totalServices;
+  @override
+  State<ProfileAdminPage> createState() => _ProfileAdminPageState();
+}
+
+class _ProfileAdminPageState extends State<ProfileAdminPage> {
+  bool _loading = true;
+  AdminUser? _admin;
+  int _totalDoctors = 0;
+  int _totalServices = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final admin = await AdminClinicService.instance.getAdminUser();
+
+      // ดึงจำนวนหมอและบริการของคลินิก
+      int doctors = 0;
+      int services = 0;
+      if (admin.clinicId.isNotEmpty) {
+        final db = Supabase.instance.client;
+        final dRes = await db.from('doctors').select('id').eq('clinic_id', admin.clinicId);
+        final sRes = await db.from('services').select('id').eq('clinic_id', admin.clinicId);
+        doctors = (dRes as List).length;
+        services = (sRes as List).length;
+      }
+
+      if (mounted) {
+        setState(() {
+          _admin = admin;
+          _totalDoctors = doctors;
+          _totalServices = services;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await SupabaseUserService.instance.signOut();
+      widget.onLogout?.call();
+    } on AuthException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final admin = _admin;
+
+    // map AdminClinicStatus → ClinicStatus (local enum)
+    ClinicStatus clinicStatus = ClinicStatus.pending;
+    if (admin != null) {
+      switch (admin.clinicStatus) {
+        case AdminClinicStatus.approved: clinicStatus = ClinicStatus.approved; break;
+        case AdminClinicStatus.rejected: clinicStatus = ClinicStatus.rejected; break;
+        default: clinicStatus = ClinicStatus.pending;
+      }
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [Color(0xFFFFFFFF), Color(0xFFC5DEE8)],
-          ),
+          gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight,
+              colors: [Color(0xFFFFFFFF), Color(0xFFC5DEE8)]),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              // ---- Title ----
               Padding(
-                padding: EdgeInsets.fromLTRB(
-                  context.rs(20),
-                  context.rs(14),
-                  context.rs(20),
-                  context.rs(8),
-                ),
+                padding: EdgeInsets.fromLTRB(context.rs(20), context.rs(14), context.rs(20), context.rs(8)),
                 child: Center(
-                  child: Text(
-                    'โปรไฟล์',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(15),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
-                  ),
+                  child: Text('โปรไฟล์', style: TextStyle(fontFamily: 'Inter',
+                      fontSize: context.rs(15), fontWeight: FontWeight.w600, color: AppColors.black)),
                 ),
               ),
-
               Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    context.rs(16),
-                    0,
-                    context.rs(16),
-                    context.rs(24),
-                  ),
-                  child: Column(
-                    children: [
-                      // ---- Admin header card ----
-                      _AdminHeaderCard(
-                        adminName: adminName,
-                        adminEmail: adminEmail,
-                        clinicName: clinicName,
-                        clinicStatus: clinicStatus,
-                        totalDoctors: totalDoctors,
-                        totalServices: totalServices,
-                      ),
-
-                      SizedBox(height: context.rs(12)),
-
-                      // ---- คลินิก info ----
-                      _InfoCard(
-                        title: 'ข้อมูลคลินิก',
-                        items: [
-                          _InfoRow(icon: Icons.local_hospital_outlined, label: clinicName),
-                          _InfoRow(icon: Icons.phone_outlined, label: clinicPhone),
-                          _InfoRow(icon: Icons.location_on_outlined, label: clinicAddress),
-                        ],
-                        trailing: GestureDetector(
-                          onTap: onEditClinic,
-                          child: Text(
-                            'แก้ไข',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: context.rs(12),
-                              color: AppColors.purple,
-                              fontWeight: FontWeight.w500,
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        padding: EdgeInsets.fromLTRB(context.rs(16), 0, context.rs(16), context.rs(24)),
+                        child: Column(
+                          children: [
+                            _AdminHeaderCard(
+                              adminName: admin?.fullName ?? '-',
+                              adminEmail: admin?.email ?? '-',
+                              clinicName: admin?.clinicName ?? '-',
+                              clinicStatus: clinicStatus,
+                              totalDoctors: _totalDoctors,
+                              totalServices: _totalServices,
                             ),
-                          ),
+                            SizedBox(height: context.rs(12)),
+                            _InfoCard(
+                              title: 'ข้อมูลคลินิก',
+                              items: [
+                                _InfoRow(icon: Icons.local_hospital_outlined, label: admin?.clinicName ?? '-'),
+                                _InfoRow(icon: Icons.phone_outlined, label: admin?.phone ?? '-'),
+                              ],
+                              trailing: GestureDetector(
+                                onTap: widget.onEditClinic,
+                                child: Text('แก้ไข', style: TextStyle(fontFamily: 'Inter',
+                                    fontSize: context.rs(12), color: AppColors.purple,
+                                    fontWeight: FontWeight.w500)),
+                              ),
+                            ),
+                            SizedBox(height: context.rs(12)),
+                            _MenuCard(items: [
+                              _MenuItem(icon: Icons.lock_outline, label: 'เปลี่ยนรหัสผ่าน',
+                                  onTap: widget.onChangePassword),
+                              _MenuItem(icon: Icons.help_outline, label: 'ช่วยเหลือ',
+                                  onTap: () {}, showDivider: false),
+                            ]),
+                            SizedBox(height: context.rs(12)),
+                            _LogoutButton(onLogout: _handleLogout),
+                          ],
                         ),
                       ),
-
-                      SizedBox(height: context.rs(12)),
-
-                      // ---- เมนู ----
-                      _MenuCard(
-                        items: [
-                          _MenuItem(
-                            icon: Icons.lock_outline,
-                            label: 'เปลี่ยนรหัสผ่าน',
-                            onTap: onChangePassword,
-                          ),
-                          _MenuItem(
-                            icon: Icons.help_outline,
-                            label: 'ช่วยเหลือ',
-                            onTap: () {},
-                            showDivider: false,
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: context.rs(12)),
-
-                      // ---- ปุ่มออก ----
-                      _LogoutButton(onLogout: onLogout),
-                    ],
-                  ),
-                ),
               ),
-
-              // ---- Bottom Nav ----
-              _AdminBottomNav(
-                currentIndex: currentNavIndex,
-                onTap: onNavTap ?? (_) {},
-              ),
+              _AdminBottomNav(currentIndex: widget.currentNavIndex, onTap: widget.onNavTap ?? (_) {}),
             ],
           ),
         ),
