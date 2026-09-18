@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../components/shared_widgets.dart';
+import '../../../services/service_locator.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import 'my_queue_one.dart';
