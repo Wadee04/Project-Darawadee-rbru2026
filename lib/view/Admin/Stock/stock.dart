@@ -202,8 +202,13 @@ class _StockPageState extends State<StockPage> {
 
                       SizedBox(height: context.rs(12)),
 
-                      // ---- Stock list ----
-                      if (filtered.isEmpty)
+                    // ---- Stock list ----
+                      if (_loading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (_filtered.isEmpty)
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: context.rs(40)),
                           child: Text(
