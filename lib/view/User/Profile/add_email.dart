@@ -26,6 +26,7 @@ class AddEmailPage extends StatefulWidget {
 class _AddEmailPageState extends State<AddEmailPage> {
   final TextEditingController _emailCtrl = TextEditingController();
   bool get _canProceed => _emailCtrl.text.trim().isNotEmpty;
+  bool _isSaving = false;
 
   @override
   void initState() {
