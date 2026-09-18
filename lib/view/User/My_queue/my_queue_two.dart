@@ -144,11 +144,12 @@ class _MyQueueTwoState extends State<MyQueueTwo> {
 
                       SizedBox(height: context.rs(12)),
 
-                      // ---- ปุ่มยกเลิก (เฉพาะคิวที่ยังไม่เสร็จ/ยกเลิก) ----
+                      // ---- ปุ่มยกเลิก ----
                       if (queue.status == QueueStatus.waitingPayment ||
                           queue.status == QueueStatus.confirmed ||
                           queue.status == QueueStatus.inProgress)
                         _CancelButton(
+                          isCancelling: _isCancelling,
                           onCancel: () => _showCancelDialog(context),
                         ),
                     ],
