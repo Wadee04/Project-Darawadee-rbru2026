@@ -15,15 +15,11 @@ class SecuritySettingsPage extends StatefulWidget {
     this.onBack,
     this.onChangePassword,
     this.onChangeEmail,
-    this.userEmail = 'darawadee@gmail.com',
-    this.initialPinEnabled = true,
   });
 
   final VoidCallback? onBack;
   final VoidCallback? onChangePassword;
   final VoidCallback? onChangeEmail;
-  final String userEmail;
-  final bool initialPinEnabled;
 
   @override
   State<SecuritySettingsPage> createState() => _SecuritySettingsPageState();
