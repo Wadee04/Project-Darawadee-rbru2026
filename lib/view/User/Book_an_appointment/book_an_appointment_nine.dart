@@ -43,6 +43,7 @@ class BookAnAppointmentNine extends StatefulWidget {
 class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
   XFile? _slipFile;
   final ImagePicker _picker = ImagePicker();
+  bool _isConfirming = false;
 
   // ---- เลือกรูปจาก Gallery ----
   Future<void> _pickFile() async {
