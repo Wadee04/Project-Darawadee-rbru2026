@@ -214,7 +214,11 @@ class _OTPPageState extends State<OTPPage> {
                                 widget.onNext?.call(_otpValue);
                                 Navigator.pushReplacement(
                                   context,
-                                  noAnimRoute(const HomePageOne()),
+                                  noAnimRoute(
+                                    widget.fromSignup
+                                        ? const PhoneNumberPage()
+                                        : const HomePageOne(),
+                                  ),
                                 );
                               }
                             : null,
