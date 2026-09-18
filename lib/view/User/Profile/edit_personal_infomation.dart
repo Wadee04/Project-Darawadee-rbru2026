@@ -50,6 +50,7 @@ class _EditPersonalInformationState extends State<EditPersonalInformation> {
   late String _birthDate;
   late String _phone;
   late String _email;
+  bool _isSaving = false;
 
   @override
   void initState() {
