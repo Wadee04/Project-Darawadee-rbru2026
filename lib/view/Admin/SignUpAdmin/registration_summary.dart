@@ -174,7 +174,7 @@ class _RegistrationSummaryPageState extends State<RegistrationSummaryPage> {
                           _SummaryRow(
                             icon: Icons.home_outlined,
                             label: 'ที่อยู่คลินิก',
-                            value: clinicAddress,
+                            value: widget.clinicAddress,
                           ),
                           _SummaryRow(
                             icon: Icons.location_city_outlined,
