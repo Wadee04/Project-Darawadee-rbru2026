@@ -96,7 +96,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
               // ---- Body ----
               Expanded(
-                child: SingleChildScrollView(
+                child: _loadingUser
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(
                     context.rs(16),
                     context.rs(16),
