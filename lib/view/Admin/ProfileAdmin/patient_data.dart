@@ -114,13 +114,15 @@ class _PatientDataPageState extends State<PatientDataPage> {
                       SizedBox(width: context.rs(8)),
                       Expanded(
                         child: TextField(
-                          onChanged: (v) => setState(() => _search = v),
+                          onChanged: (v) {
+                            setState(() => _search = v);
+                            _load(search: v.isEmpty ? null : v);
+                          },
                           style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13), color: AppColors.black),
                           decoration: InputDecoration(
                             hintText: 'ค้นหาชื่อ / เบอร์โทร / อีเมล',
                             hintStyle: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13), color: AppColors.inputHint),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
+                            border: InputBorder.none, enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(vertical: context.rs(12)),
                           ),
@@ -138,10 +140,8 @@ class _PatientDataPageState extends State<PatientDataPage> {
                 padding: EdgeInsets.symmetric(horizontal: context.rs(20)),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'ทั้งหมด ${_filtered.length} คน',
-                    style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(12), color: AppColors.textGray),
-                  ),
+                  child: Text('ทั้งหมด ${_patients.length} คน',
+                      style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(12), color: AppColors.textGray)),
                 ),
               ),
 
@@ -149,20 +149,22 @@ class _PatientDataPageState extends State<PatientDataPage> {
 
               // ---- List ----
               Expanded(
-                child: _filtered.isEmpty
-                    ? Center(
-                        child: Text('ไม่พบข้อมูลผู้ป่วย',
-                            style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13), color: AppColors.textGray)),
-                      )
-                    : ListView.separated(
-                        padding: EdgeInsets.fromLTRB(context.rs(16), 0, context.rs(16), context.rs(24)),
-                        itemCount: _filtered.length,
-                        separatorBuilder: (context, index) => SizedBox(height: context.rs(8)),
-                        itemBuilder: (_, i) => _PatientCard(
-                          patient: _filtered[i],
-                          onTap: () => widget.onPatientTap?.call(_filtered[i]),
-                        ),
-                      ),
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _patients.isEmpty
+                        ? Center(
+                            child: Text('ไม่พบข้อมูลผู้ป่วย',
+                                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13), color: AppColors.textGray)),
+                          )
+                        : ListView.separated(
+                            padding: EdgeInsets.fromLTRB(context.rs(16), 0, context.rs(16), context.rs(24)),
+                            itemCount: _patients.length,
+                            separatorBuilder: (_, __) => SizedBox(height: context.rs(8)),
+                            itemBuilder: (_, i) => _PatientCard(
+                              patient: _patients[i],
+                              onTap: () => widget.onPatientTap?.call(_patients[i]),
+                            ),
+                          ),
               ),
             ],
           ),
