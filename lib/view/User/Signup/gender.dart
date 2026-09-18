@@ -30,6 +30,18 @@ class GenderPage extends StatefulWidget {
 
 class _GenderPageState extends State<GenderPage> {
   Gender? _selected;
+  bool _isSaving = false;
+
+  String _genderToString(Gender g) {
+    switch (g) {
+      case Gender.male:
+        return 'male';
+      case Gender.female:
+        return 'female';
+      case Gender.other:
+        return 'other';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
