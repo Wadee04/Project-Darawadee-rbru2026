@@ -8,7 +8,7 @@ import '../../../theme/responsive.dart';
 // ============================================================
 // RegistrationSummaryPage — หน้าสรุปข้อมูลการลงทะเบียน
 // ============================================================
-class RegistrationSummaryPage extends StatelessWidget {
+class RegistrationSummaryPage extends StatefulWidget {
   const RegistrationSummaryPage({
     super.key,
     this.onBack,
@@ -17,6 +17,7 @@ class RegistrationSummaryPage extends StatelessWidget {
     this.fullName = 'นางสาวดาราวดี อาลัย',
     this.email = '6614631011@rbru.ac.th',
     this.phone = '091-0156190',
+    this.password = '',
     // ข้อมูลคลินิก
     this.clinicName = 'คลินิกทันตกรรมใจ๋',
     this.clinicEmail = 'admin@dental.com',
@@ -25,6 +26,8 @@ class RegistrationSummaryPage extends StatelessWidget {
     this.province = 'จันทบุรี',
     this.district = 'เมือง',
     this.zipCode = '22000',
+    this.registrationNumber = '',
+    this.operatingHours = '',
   });
 
   final VoidCallback? onBack;
@@ -33,6 +36,7 @@ class RegistrationSummaryPage extends StatelessWidget {
   final String fullName;
   final String email;
   final String phone;
+  final String password;
   final String clinicName;
   final String clinicEmail;
   final String clinicMapLink;
@@ -40,9 +44,13 @@ class RegistrationSummaryPage extends StatelessWidget {
   final String province;
   final String district;
   final String zipCode;
+  final String registrationNumber;
+  final String operatingHours;
 
   @override
-  Widget build(BuildContext context) {
+  State<RegistrationSummaryPage> createState() =>
+      _RegistrationSummaryPageState();
+}
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
