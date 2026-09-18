@@ -28,8 +28,30 @@ class SecuritySettingsPage extends StatefulWidget {
 class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   late bool _pinEnabled;
   bool _isSavingPin = false;
+  String _userEmail = '';
+  bool _loadingUser = true;
 
-  Future<void> _handlePinToggle(bool v) async {
+  @override
+  void initState() {
+    super.initState();
+    _pinEnabled = false;
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    try {
+      final user = await ServiceLocator.user.getCurrentUser();
+      if (mounted) {
+        setState(() {
+          _userEmail = user.email;
+          _pinEnabled = user.pinEnabled;
+          _loadingUser = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingUser = false);
+    }
+  }
     setState(() => _isSavingPin = true);
     try {
       await ServiceLocator.user.togglePin(enabled: v);
