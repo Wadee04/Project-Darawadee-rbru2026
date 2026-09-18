@@ -40,6 +40,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       _newCtrl.text.isNotEmpty &&
       _confirmCtrl.text.isNotEmpty;
 
+  bool _isSaving = false;
+
   @override
   void initState() {
     super.initState();
