@@ -27,7 +27,8 @@ class AdminBookingService {
               b.appointmentDate.day == today.day)
           .toList();
     }
-    final clinicId = _mock.currentAdmin.clinicId;
+    final clinicId = await _getClinicId();
+    if (clinicId.isEmpty) return [];
     final res = await _db
         .from('bookings')
         .select('''
@@ -53,7 +54,8 @@ class AdminBookingService {
               b.appointmentDate.day == date.day)
           .toList();
     }
-    final clinicId = _mock.currentAdmin.clinicId;
+    final clinicId = await _getClinicId();
+    if (clinicId.isEmpty) return [];
     final res = await _db
         .from('bookings')
         .select('''
