@@ -171,7 +171,9 @@ class _SignUpState extends State<SignUp> {
                       width: double.infinity,
                       height: context.rs(46),
                       child: ElevatedButton(
-                         onPressed: () async {
+                         onPressed: _isSubmitting
+                            ? null
+                            : () async {
                           if (_isFormFilled) {
                             // ตรวจสอบรูปแบบอีเมล
                             final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
@@ -194,13 +196,58 @@ class _SignUpState extends State<SignUp> {
                               );
                               return;
                             }
-                            Navigator.push(
-                              context,
-                              noAnimRoute(OTPPage(
-                                target: _emailController.text.trim(),
-                                fromSignup: true,
-                              )),
-                            );
+
+                            final fullName = _nameController.text.trim();
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text;
+
+                            // ---- บันทึกข้อมูลผู้ใช้ลง Supabase ----
+                            setState(() => _isSubmitting = true);
+                            try {
+                              final user = await ServiceLocator.user.signUp(
+                                fullName: fullName,
+                                email: email,
+                                password: password,
+                              );
+
+                              if (!context.mounted) return;
+
+                              if (user == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่'),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              // แจ้ง callback ภายนอก (ถ้ามี)
+                              widget.onSignUp?.call(fullName, email, password);
+
+                              Navigator.push(
+                                context,
+                                noAnimRoute(OTPPage(
+                                  target: email,
+                                  fromSignup: true,
+                                )),
+                              );
+                            } on AuthException catch (e) {
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.message)),
+                              );
+                            } catch (e) {
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('เกิดข้อผิดพลาด: $e'),
+                                ),
+                              );
+                            } finally {
+                              if (context.mounted) {
+                                setState(() => _isSubmitting = false);
+                              }
+                            }
                           } else {
                             widget.onSignUp?.call(
                               _nameController.text.trim(),
