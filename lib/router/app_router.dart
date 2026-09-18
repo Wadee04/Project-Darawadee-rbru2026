@@ -509,11 +509,12 @@ class _NotificationSettingsScreenState
   Future<void> _load() async {
     try {
       final s = await ServiceLocator.notification.getSettings();
-      if (mounted)
+      if (mounted) {
         setState(() {
           _settings = s;
           _loading = false;
         });
+      }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
