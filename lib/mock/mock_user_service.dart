@@ -9,7 +9,7 @@ class MockUserService {
   static final MockUserService instance = MockUserService._();
 
   final _store = MockDataStore.instance;
-  bool _isLoggedIn = true;
+  bool _isLoggedIn = false;
 
   // ---- Auth ----------------------------------------------
 

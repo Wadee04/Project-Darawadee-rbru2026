@@ -34,7 +34,11 @@ class _StockPageState extends State<StockPage> {
 
   List<StockItem> _items = [];
 
-  static const List<String> _filterLabels = ['รายการทั้งหมด', 'ใกล้หมด', 'นับแล้ว'];
+  static const List<String> _filterLabels = [
+    'รายการทั้งหมด',
+    'ใกล้หมด',
+    'นับแล้ว',
+  ];
 
   @override
   void initState() {
@@ -71,17 +75,30 @@ class _StockPageState extends State<StockPage> {
     try {
       // อัปเดตจำนวนทุกรายการที่ isCounted == true
       final counted = _items.where((i) => i.isCounted && i.dbId != null);
-      await Future.wait(counted.map((i) =>
-          SupabaseStockService.instance.updateQuantity(productId: i.dbId!, quantity: i.qty)));
+      await Future.wait(
+        counted.map(
+          (i) => SupabaseStockService.instance.updateQuantity(
+            productId: i.dbId!,
+            quantity: i.qty,
+          ),
+        ),
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('บันทึกสต็อกเรียบร้อยแล้ว')));
+          const SnackBar(content: Text('บันทึกสต็อกเรียบร้อยแล้ว')),
+        );
         _load(); // reload ข้อมูลใหม่
       }
     } on AuthException catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -94,11 +111,19 @@ class _StockPageState extends State<StockPage> {
   List<StockItem> get _filtered {
     List<StockItem> list = _items;
     if (_searchQuery.isNotEmpty) {
-      list = list.where((i) => i.name.contains(_searchQuery) || i.id.contains(_searchQuery)).toList();
+      list = list
+          .where(
+            (i) => i.name.contains(_searchQuery) || i.id.contains(_searchQuery),
+          )
+          .toList();
     }
     switch (_selectedFilterIndex) {
-      case 1: list = list.where((i) => i.status == StockStatus.low).toList(); break;
-      case 2: list = list.where((i) => i.isCounted).toList(); break;
+      case 1:
+        list = list.where((i) => i.status == StockStatus.low).toList();
+        break;
+      case 2:
+        list = list.where((i) => i.isCounted).toList();
+        break;
     }
     return list;
   }
@@ -106,7 +131,10 @@ class _StockPageState extends State<StockPage> {
   void _increment(int filteredIndex) {
     final real = _items.indexOf(_filtered[filteredIndex]);
     setState(() {
-      _items[real] = _items[real].copyWith(qty: _items[real].qty + 1, isCounted: true);
+      _items[real] = _items[real].copyWith(
+        qty: _items[real].qty + 1,
+        isCounted: true,
+      );
     });
   }
 
@@ -114,14 +142,15 @@ class _StockPageState extends State<StockPage> {
     final real = _items.indexOf(_filtered[filteredIndex]);
     if (_items[real].qty <= 0) return;
     setState(() {
-      _items[real] = _items[real].copyWith(qty: _items[real].qty - 1, isCounted: true);
+      _items[real] = _items[real].copyWith(
+        qty: _items[real].qty - 1,
+        isCounted: true,
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filtered;
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -196,13 +225,14 @@ class _StockPageState extends State<StockPage> {
                         labels: _filterLabels,
                         counts: [_totalCount, _lowCount, _countedCount],
                         selectedIndex: _selectedFilterIndex,
-                        onSelect: (i) => setState(() => _selectedFilterIndex = i),
+                        onSelect: (i) =>
+                            setState(() => _selectedFilterIndex = i),
                         total: _totalCount,
                       ),
 
                       SizedBox(height: context.rs(12)),
 
-                    // ---- Stock list ----
+                      // ---- Stock list ----
                       if (_loading)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 40),
@@ -210,7 +240,9 @@ class _StockPageState extends State<StockPage> {
                         )
                       else if (_filtered.isEmpty)
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: context.rs(40)),
+                          padding: EdgeInsets.symmetric(
+                            vertical: context.rs(40),
+                          ),
                           child: Text(
                             'ไม่พบรายการ',
                             style: TextStyle(
@@ -238,17 +270,34 @@ class _StockPageState extends State<StockPage> {
                         child: ElevatedButton.icon(
                           onPressed: _saving ? null : _saveAll,
                           icon: _saving
-                              ? SizedBox(width: context.rs(16), height: context.rs(16),
-                                  child: const CircularProgressIndicator(strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white)))
+                              ? SizedBox(
+                                  width: context.rs(16),
+                                  height: context.rs(16),
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.white,
+                                    ),
+                                  ),
+                                )
                               : Icon(Icons.check, size: context.rs(16)),
-                          label: Text(_saving ? '' : 'บันทึก',
-                              style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(14), fontWeight: FontWeight.w600)),
+                          label: Text(
+                            _saving ? '' : 'บันทึก',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: context.rs(14),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.purple,
                             foregroundColor: AppColors.white,
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.rs(30))),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                context.rs(30),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -285,23 +334,25 @@ class StockItem {
     this.dbId,
   });
 
-  final String id;   // sku
+  final String id; // sku
   final String? dbId; // uuid จาก Supabase
   final String name;
   final int qty;
   final StockStatus status;
   final bool isCounted;
 
-  String get statusLabel => isCounted ? 'นับแล้ว' : (status == StockStatus.low ? 'ใกล้หมด' : 'ยังไม่นับ');
+  String get statusLabel => isCounted
+      ? 'นับแล้ว'
+      : (status == StockStatus.low ? 'ใกล้หมด' : 'ยังไม่นับ');
 
   StockItem copyWith({int? qty, bool? isCounted}) => StockItem(
-        id: id,
-        dbId: dbId,
-        name: name,
-        qty: qty ?? this.qty,
-        status: (qty ?? this.qty) <= 3 ? StockStatus.low : StockStatus.normal,
-        isCounted: isCounted ?? this.isCounted,
-      );
+    id: id,
+    dbId: dbId,
+    name: name,
+    qty: qty ?? this.qty,
+    status: (qty ?? this.qty) <= 3 ? StockStatus.low : StockStatus.normal,
+    isCounted: isCounted ?? this.isCounted,
+  );
 }
 
 // ============================================================
@@ -364,12 +415,20 @@ class _SearchBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: context.rs(14)),
         child: Row(
           children: [
-            Icon(Icons.search, size: context.rs(18), color: AppColors.inputHint),
+            Icon(
+              Icons.search,
+              size: context.rs(18),
+              color: AppColors.inputHint,
+            ),
             SizedBox(width: context.rs(8)),
             Expanded(
               child: TextField(
                 onChanged: onChanged,
-                style: TextStyle(fontFamily: 'Inter', fontSize: context.rs(13), color: AppColors.black),
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: context.rs(13),
+                  color: AppColors.black,
+                ),
                 decoration: InputDecoration(
                   hintText: 'ค้นหาสินค้า หรือ รหัส',
                   hintStyle: TextStyle(
@@ -380,7 +439,9 @@ class _SearchBar extends StatelessWidget {
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: context.rs(12)),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: context.rs(12),
+                  ),
                 ),
               ),
             ),
@@ -434,7 +495,9 @@ class _FilterTabs extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    labels[i] == 'นับแล้ว' ? '${counts[i]}/$total' : '${counts[i]}',
+                    labels[i] == 'นับแล้ว'
+                        ? '${counts[i]}/$total'
+                        : '${counts[i]}',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: context.rs(16),
@@ -490,7 +553,9 @@ class _StockRow extends StatelessWidget {
     }
     final bool showBadge = item.status == StockStatus.low && !item.isCounted;
     final String badgeLabel = item.isCounted ? 'นับแล้ว' : 'ใกล้หมด';
-    final Color badgeColor = item.isCounted ? AppColors.greendentbook : AppColors.orange;
+    final Color badgeColor = item.isCounted
+        ? AppColors.greendentbook
+        : AppColors.orange;
 
     return Container(
       margin: EdgeInsets.only(bottom: context.rs(8)),
@@ -574,7 +639,11 @@ class _StockRow extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.inputBorder, width: 1),
                   ),
-                  child: Icon(Icons.remove, size: context.rs(14), color: AppColors.textGray),
+                  child: Icon(
+                    Icons.remove,
+                    size: context.rs(14),
+                    color: AppColors.textGray,
+                  ),
                 ),
               ),
 
@@ -602,7 +671,11 @@ class _StockRow extends StatelessWidget {
                     color: AppColors.purple,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.add, size: context.rs(14), color: AppColors.white),
+                  child: Icon(
+                    Icons.add,
+                    size: context.rs(14),
+                    color: AppColors.white,
+                  ),
                 ),
               ),
             ],
@@ -622,10 +695,26 @@ class _AdminBottomNav extends StatelessWidget {
   final ValueChanged<int> onTap;
 
   static const List<_NavItem> _items = [
-    _NavItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, label: 'ภาพรวม'),
-    _NavItem(icon: Icons.qr_code_scanner, activeIcon: Icons.qr_code_scanner, label: 'สแกนคิว'),
-    _NavItem(icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2, label: 'สต็อก'),
-    _NavItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'โปรไฟล์'),
+    _NavItem(
+      icon: Icons.dashboard_outlined,
+      activeIcon: Icons.dashboard,
+      label: 'ภาพรวม',
+    ),
+    _NavItem(
+      icon: Icons.qr_code_scanner,
+      activeIcon: Icons.qr_code_scanner,
+      label: 'สแกนคิว',
+    ),
+    _NavItem(
+      icon: Icons.inventory_2_outlined,
+      activeIcon: Icons.inventory_2,
+      label: 'สต็อก',
+    ),
+    _NavItem(
+      icon: Icons.person_outline,
+      activeIcon: Icons.person,
+      label: 'โปรไฟล์',
+    ),
   ];
 
   @override
@@ -658,7 +747,9 @@ class _AdminBottomNav extends StatelessWidget {
                       Icon(
                         isSelected ? e.value.activeIcon : e.value.icon,
                         size: context.rs(22),
-                        color: isSelected ? AppColors.purple : AppColors.textGray,
+                        color: isSelected
+                            ? AppColors.purple
+                            : AppColors.textGray,
                       ),
                       SizedBox(height: context.rs(2)),
                       Text(
@@ -666,8 +757,12 @@ class _AdminBottomNav extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: context.rs(10),
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected ? AppColors.purple : AppColors.textGray,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: isSelected
+                              ? AppColors.purple
+                              : AppColors.textGray,
                         ),
                       ),
                     ],
@@ -683,7 +778,11 @@ class _AdminBottomNav extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem({required this.icon, required this.activeIcon, required this.label});
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
   final IconData icon;
   final IconData activeIcon;
   final String label;

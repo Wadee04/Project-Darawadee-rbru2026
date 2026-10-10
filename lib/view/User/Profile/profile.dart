@@ -6,6 +6,8 @@ import '../../../components/shared_widgets.dart';
 import '../../../services/service_locator.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
+import '../My_queue/my_queue_one.dart';
+import '../HomeScreen/home_page_one.dart';
 
 // ============================================================
 // ProfilePage — หน้าโปรไฟล์ผู้ใช้ (ดึงข้อมูลจาก Supabase)
@@ -205,7 +207,22 @@ class _ProfilePageState extends State<ProfilePage> {
               // ---- Bottom Nav ----
               AppBottomNav(
                 currentIndex: widget.currentNavIndex,
-                onTap: widget.onNavTap ?? (_) {},
+                onTap: (i) {
+                  if (i == 0) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HomePageOne()),
+                      (route) => false,
+                    );
+                  } else if (i == 2) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MyQueueOne()),
+                    );
+                  } else {
+                    widget.onNavTap?.call(i);
+                  }
+                },
               ),
             ],
           ),

@@ -5,6 +5,8 @@ import '../../../components/shared_widgets.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import '../Book_an_appointment/book_an_appointment_one.dart';
+import '../My_queue/my_queue_one.dart';
+import '../Profile/profile.dart';
 import 'home_page_one.dart';
 import 'home_page_two.dart';
 
@@ -340,8 +342,20 @@ class _HomePageThreeState extends State<HomePageThree> {
                     MaterialPageRoute(builder: (_) => const BookAnAppointmentOne()),
                   );
                 }
-                if (i == 2) widget.onMyQueue?.call();
-                if (i == 3) widget.onProfile?.call();
+                if (i == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyQueueOne()),
+                  );
+                }
+                if (i == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfilePage(),
+                    ),
+                  );
+                }
               },
             ),
           ],

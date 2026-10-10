@@ -11,10 +11,18 @@ import 'book_an_appointment_six.dart';
 // ============================================================
 
 class BookAnAppointmentFive extends StatefulWidget {
-  const BookAnAppointmentFive({super.key, this.onBack, this.onNext});
+  const BookAnAppointmentFive({
+    super.key,
+    this.onBack,
+    this.onNext,
+    this.symptoms = const [],
+    this.services = const [],
+  });
 
   final VoidCallback? onBack;
   final VoidCallback? onNext;
+  final List<String> symptoms;
+  final List<String> services;
 
   @override
   State<BookAnAppointmentFive> createState() => _BookAnAppointmentFiveState();
@@ -164,6 +172,8 @@ class _BookAnAppointmentFiveState extends State<BookAnAppointmentFive> {
                             builder: (_) => BookAnAppointmentSix(
                               doctorName: selected.name,
                               doctorSpecialty: selected.specialty,
+                              symptoms: widget.symptoms,
+                              services: widget.services,
                             ),
                           ),
                         );

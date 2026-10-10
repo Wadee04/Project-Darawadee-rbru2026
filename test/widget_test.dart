@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:wadee/main.dart';
-import 'package:wadee/view/Onboarding/Onboarding1.dart';
+import 'package:wadee/view/User/Onboarding/onboarding1.dart';
 
 void main() {
   // ทดสอบว่าแอปเปิดขึ้นมาที่หน้า Intro1 (หน้า Splash) ได้ปกติ

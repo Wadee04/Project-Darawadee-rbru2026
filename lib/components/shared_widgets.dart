@@ -9,10 +9,10 @@ import '../theme/responsive.dart';
 // noAnimRoute — เปลี่ยนหน้าแบบไม่มี animation
 // ============================================================
 Route<T> noAnimRoute<T>(Widget page) => PageRouteBuilder<T>(
-      pageBuilder: (_, __, ___) => page,
-      transitionDuration: Duration.zero,
-      reverseTransitionDuration: Duration.zero,
-    );
+  pageBuilder: (_, _, _) => page,
+  transitionDuration: Duration.zero,
+  reverseTransitionDuration: Duration.zero,
+);
 
 class BrandLogo extends StatelessWidget {
   const BrandLogo({
@@ -140,10 +140,8 @@ class OnboardingPage extends StatelessWidget {
                   imageAsset,
                   width: imageWidth,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => SizedBox(
-                    width: imageWidth,
-                    height: imageHeight,
-                  ),
+                  errorBuilder: (context, error, stackTrace) =>
+                      SizedBox(width: imageWidth, height: imageHeight),
                 ),
               ),
               Positioned(
@@ -154,9 +152,13 @@ class OnboardingPage extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                      constraints: const BoxConstraints(
+                        maxWidth: _maxContentWidth,
+                      ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.rs(24),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -169,12 +171,16 @@ class OnboardingPage extends StatelessWidget {
                             ),
                             Text(
                               titleBottom,
-                              style: AppText.title.copyWith(fontSize: titleFontSize),
+                              style: AppText.title.copyWith(
+                                fontSize: titleFontSize,
+                              ),
                             ),
                             SizedBox(height: height * 0.022),
                             Text(
                               body,
-                              style: AppText.body.copyWith(fontSize: bodyFontSize),
+                              style: AppText.body.copyWith(
+                                fontSize: bodyFontSize,
+                              ),
                             ),
                           ],
                         ),
@@ -232,7 +238,9 @@ class PageDots extends StatelessWidget {
         final isActive = index == activeIndex;
         final dot = _buildDot(context, isActive);
         return Padding(
-          padding: EdgeInsets.only(right: index == count - 1 ? 0 : context.rs(6)),
+          padding: EdgeInsets.only(
+            right: index == count - 1 ? 0 : context.rs(6),
+          ),
           child: onDotTap == null
               ? dot
               : GestureDetector(
@@ -265,10 +273,7 @@ class PageDots extends StatelessWidget {
 // PillButton - ปุ่มทรงแคปซูล
 // ============================================================
 
-enum PillButtonVariant {
-  primary,
-  secondary,
-}
+enum PillButtonVariant { primary, secondary }
 
 class PillButton extends StatelessWidget {
   const PillButton({
@@ -289,10 +294,8 @@ class PillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isPrimary = variant == PillButtonVariant.primary;
-    final Color bg =
-        isPrimary ? AppColors.purple : AppColors.buttonSecondary;
-    final Color fg =
-        isPrimary ? AppColors.white : AppColors.purple;
+    final Color bg = isPrimary ? AppColors.purple : AppColors.buttonSecondary;
+    final Color fg = isPrimary ? AppColors.white : AppColors.purple;
 
     // ปรับขนาดปุ่มตามหน้าจอ
     final double h = context.rs(height);
@@ -430,10 +433,7 @@ class AppBottomNav extends StatelessWidget {
           ),
         ],
       ),
-      padding: EdgeInsets.only(
-        top: context.rs(12),
-        bottom: context.rs(15),
-      ),
+      padding: EdgeInsets.only(top: context.rs(12), bottom: context.rs(15)),
       child: Row(
         children: List.generate(_items.length, (i) {
           final bool active = i == currentIndex;

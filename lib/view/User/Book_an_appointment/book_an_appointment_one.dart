@@ -7,6 +7,8 @@ import '../../../components/shared_widgets.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import '../HomeScreen/home_page_one.dart';
+import '../My_queue/my_queue_one.dart';
+import '../Profile/profile.dart';
 import 'book_an_appointment_two.dart';
 import 'book_an_appointment_three.dart';
 // ============================================================
@@ -100,7 +102,7 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                       description:
                           'บอกอาการหรือความต้องการของคุณ\nเพื่อให้เราแนะนำบริการที่เหมาะสม',
                       gradientColors: const [
-                        AppColors.blue50,
+                        AppColors.bluebookone,
                         AppColors.white,
                       ],
                       gradientBegin: Alignment.topCenter,
@@ -114,7 +116,7 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                         _Feature(svgAsset: 'assets/images/Book_an_appointment/make-an-appointment.svg', label: 'นัดหมาย\nได้ทันที'),
                       ],
                       mascotWidget: Transform.translate(
-                        offset: const Offset(0, -35),
+                        offset: const Offset(-7, -23),
                         child: SvgPicture.asset(
                           'assets/images/Book_an_appointment/tooth6.svg',
                           height: 110,
@@ -161,7 +163,7 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                       gradientOpacity: 0.20,
                       badgeColor: AppColors.orange,
                       accentColor: AppColors.orange,
-                      borderColor: AppColors.orange,
+                      borderColor: AppColors.orangestroke,
                       features: const [
                         _Feature(svgAsset: 'assets/images/Book_an_appointment/tlktodentist.svg', label: 'พูดคุย\nกับทันตแพทย์'),
                         _Feature(svgAsset: 'assets/images/Book_an_appointment/recommend.svg', label: 'แนะนำบริการ\nที่เหมาะสม'),
@@ -235,8 +237,20 @@ class _BookAnAppointmentOneState extends State<BookAnAppointmentOne> {
                     (route) => false,
                   );
                 }
-                if (i == 2) widget.onMyQueue?.call();
-                if (i == 3) widget.onProfile?.call();
+                if (i == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyQueueOne()),
+                  );
+                }
+                if (i == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfilePage(),
+                    ),
+                  );
+                }
               },
             ),
           ],

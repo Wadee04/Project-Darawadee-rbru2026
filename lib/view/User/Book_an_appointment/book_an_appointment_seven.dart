@@ -20,6 +20,8 @@ class BookAnAppointmentSeven extends StatefulWidget {
     this.doctorSpecialty = 'กันตแพทย์ทั่วไป',
     this.doctorImageAsset,
     this.selectedDate,
+    this.symptoms = const [],
+    this.services = const [],
   });
 
   final VoidCallback? onBack;
@@ -29,6 +31,8 @@ class BookAnAppointmentSeven extends StatefulWidget {
   final String doctorSpecialty;
   final String? doctorImageAsset;
   final DateTime? selectedDate;
+  final List<String> symptoms;
+  final List<String> services;
 
   @override
   State<BookAnAppointmentSeven> createState() => _BookAnAppointmentSevenState();
@@ -38,17 +42,30 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
   String? _selectedTime;
   bool _isLoading = false;
 
-  Future<void> _handleConfirm() async {
+Future<void> _handleConfirm() async {
     if (_selectedTime == null) return;
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
     setState(() => _isLoading = false);
+    final displayDate = widget.selectedDate ?? DateTime(2026, 8, 20);
+    final formattedDate = _formatDate(displayDate);
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BookAnAppointmentEight(
           onBack: () => Navigator.pop(context),
+          doctorName: widget.doctorName,
+          doctorSpecialty: widget.doctorSpecialty,
+          doctorImageAsset: widget.doctorImageAsset,
+          appointmentDate: formattedDate,
+          appointmentTime: _selectedTime!,
+          serviceName: 'ตรวจสุขภาพช่องปากและฟัน',
+          clinicName: 'Denbook Clinic สาขาจันทบุรี',
+          bookingNumber: 'SC680516-001',
+          depositAmount: 200,
+          symptoms: widget.symptoms,
+          services: widget.services,
         ),
       ),
     );
@@ -83,7 +100,7 @@ class _BookAnAppointmentSevenState extends State<BookAnAppointmentSeven> {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime displayDate = widget.selectedDate ?? DateTime(2026, 8, 12);
+    final DateTime displayDate = widget.selectedDate ?? DateTime(2026, 8, 20);
     final String formattedDate = _formatDate(displayDate);
 
     return Scaffold(

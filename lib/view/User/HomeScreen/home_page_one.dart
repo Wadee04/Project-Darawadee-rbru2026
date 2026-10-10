@@ -6,6 +6,8 @@ import '../../../services/service_locator.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import '../Book_an_appointment/book_an_appointment_one.dart';
+import '../My_queue/my_queue_one.dart';
+import '../Profile/profile.dart';
 import 'home_page_three.dart';
 
 // ============================================================
@@ -427,7 +429,6 @@ class _HomePageOneState extends State<HomePageOne> {
     super.initState();
     _loadUser();
     _loadClinics();
-    _loadUpcoming();
   }
 
   Future<void> _loadUser() async {
@@ -482,9 +483,10 @@ class _HomePageOneState extends State<HomePageOne> {
                   context.rs(20),
                   MediaQuery.of(context).size.height * 0.05,
                   context.rs(20),
-                  0,
+                  context.rs(70),
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ---- Header row ----
@@ -715,8 +717,22 @@ class _HomePageOneState extends State<HomePageOne> {
                     ),
                   );
                 }
-                if (i == 2) widget.onMyQueue?.call();
-                if (i == 3) widget.onProfile?.call();
+                if (i == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MyQueueOne(),
+                    ),
+                  );
+                }
+                if (i == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfilePage(),
+                    ),
+                  );
+                }
               },
             ),
           ],

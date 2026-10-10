@@ -17,6 +17,8 @@ class BookAnAppointmentSix extends StatefulWidget {
     this.doctorName = 'ทพญ. อรุณี ป.',
     this.doctorSpecialty = 'ทันตแพทย์ทั่วไป',
     this.doctorImageAsset,
+    this.symptoms = const [],
+    this.services = const [],
   });
 
   final VoidCallback? onBack;
@@ -24,6 +26,8 @@ class BookAnAppointmentSix extends StatefulWidget {
   final String doctorName;
   final String doctorSpecialty;
   final String? doctorImageAsset;
+  final List<String> symptoms;
+  final List<String> services;
 
   @override
   State<BookAnAppointmentSix> createState() => _BookAnAppointmentSixState();
@@ -165,6 +169,11 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
               child: GestureDetector(
                 onTap: _selectedDay != null
                     ? () {
+                        final selectedDate = DateTime(
+                          _displayMonth.year,
+                          _displayMonth.month,
+                          _selectedDay!,
+                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -172,6 +181,9 @@ class _BookAnAppointmentSixState extends State<BookAnAppointmentSix> {
                               doctorName: widget.doctorName,
                               doctorSpecialty: widget.doctorSpecialty,
                               doctorImageAsset: widget.doctorImageAsset,
+                              selectedDate: selectedDate,
+                              symptoms: widget.symptoms,
+                              services: widget.services,
                             ),
                           ),
                         );

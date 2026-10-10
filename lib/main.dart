@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'services/service_locator.dart';
 import 'theme/app_theme.dart';
-import 'view/Admin/ProfileAdmin/profile_admin.dart';
-import 'view/Admin/ProfileAdmin/queue_management.dart';
-import 'view/User/Onboarding/select_account_type.dart';
+import 'view/User/HomeScreen/home_page_one.dart';
+import 'view/User/Book_an_appointment/book_an_appointment_ten.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,9 +26,47 @@ class MyApp extends StatelessWidget {
       title: 'Wadee',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      // เริ่มที่หน้า SelectAccountType เสมอ
-      // AppRouter จะ navigate ไป Home ถ้า login อยู่แล้ว
-      home: const SelectAccountType(),
+      home: const _StartupGate(),
     );
+  }
+}
+
+class _StartupGate extends StatefulWidget {
+  const _StartupGate();
+
+  @override
+  State<_StartupGate> createState() => _StartupGateState();
+}
+
+class _StartupGateState extends State<_StartupGate> {
+  @override
+  void initState() {
+    super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    bool loggedIn = false;
+    try {
+      loggedIn = await ServiceLocator.user.isLoggedIn();
+    } catch (_) {}
+
+    if (!mounted) return;
+    if (loggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePageOne()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePageOne()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

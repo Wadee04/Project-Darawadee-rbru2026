@@ -39,8 +39,10 @@ class SelectAccountType extends StatelessWidget {
           final bool isTablet = width >= _tabletBreakpoint;
 
           // สัดส่วนแถบหัวสีม่วง (จอเตี้ยลดสัดส่วนลงเล็กน้อยกันล้น)
-          final double headerHeight =
-              (height * (isTablet ? 0.30 : 0.28)).clamp(180.0, 320.0);
+          final double headerHeight = (height * (isTablet ? 0.30 : 0.28)).clamp(
+            180.0,
+            320.0,
+          );
 
           return Stack(
             children: [
@@ -53,9 +55,7 @@ class SelectAccountType extends StatelessWidget {
                 child: const SafeArea(
                   bottom: false,
                   // ค่าดีไซน์ 32 — BrandLogo จะปรับสเกลตามหน้าจอให้เอง
-                  child: Center(
-                    child: BrandLogo(fontSize: 32),
-                  ),
+                  child: Center(child: BrandLogo(fontSize: 32)),
                 ),
               ),
 
@@ -77,8 +77,9 @@ class SelectAccountType extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.topCenter,
                       child: ConstrainedBox(
-                        constraints:
-                            const BoxConstraints(maxWidth: _maxContentWidth),
+                        constraints: const BoxConstraints(
+                          maxWidth: _maxContentWidth,
+                        ),
                         child: LayoutBuilder(
                           builder: (context, sheetConstraints) {
                             return SingleChildScrollView(
@@ -90,10 +91,11 @@ class SelectAccountType extends StatelessWidget {
                               ),
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  minHeight: (sheetConstraints.maxHeight -
-                                          context.rs(28) -
-                                          context.rs(48))
-                                      .clamp(0.0, double.infinity),
+                                  minHeight:
+                                      (sheetConstraints.maxHeight -
+                                              context.rs(28) -
+                                              context.rs(48))
+                                          .clamp(0.0, double.infinity),
                                 ),
                                 child: IntrinsicHeight(
                                   child: const _SheetContent(),
@@ -171,10 +173,7 @@ class _SheetContent extends StatelessWidget {
           arrowColor: AppColors.purpleLight,
           iconColor: AppColors.purple,
           onTap: () {
-            Navigator.push(
-              context,
-              noAnimRoute(const GettingStartedUser()),
-            );
+            Navigator.push(context, noAnimRoute(const GettingStartedUser()));
           },
         ),
         SizedBox(height: context.rs(30)),
@@ -211,7 +210,7 @@ class _SheetContent extends StatelessWidget {
         // ---- ข้อความความปลอดภัยด้านล่าง ----
         Center(
           child: Container(
-            width: context.rs(327),
+            width: double.infinity,
             height: context.rs(40),
             padding: EdgeInsets.symmetric(
               horizontal: context.rs(16),
@@ -222,7 +221,7 @@ class _SheetContent extends StatelessWidget {
               borderRadius: BorderRadius.circular(context.rs(45)),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
@@ -231,13 +230,16 @@ class _SheetContent extends StatelessWidget {
                   color: AppColors.textGray,
                 ),
                 SizedBox(width: context.rs(6)),
-                Text(
-                  'ปลอดภัย มั่นใจ ใช้งานได้กับทุกคลินิกทันตกรรม',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(10),
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textGray,
+                Expanded(
+                  child: Text(
+                    'ปลอดภัย มั่นใจ ใช้งานได้กับทุกคลินิกทันตกรรม',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(10),
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textGray,
+                    ),
                   ),
                 ),
               ],

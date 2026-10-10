@@ -26,6 +26,16 @@ class BookAnAppointmentNine extends StatefulWidget {
     this.accountNumber = '067-1349768',
     this.clinicName = 'DentBook Clinic',
     this.qrImageAsset,
+    this.doctorName,
+    this.doctorSpecialty,
+    this.doctorImageAsset,
+    this.serviceName,
+    this.appointmentDate,
+    this.appointmentTime,
+    this.bookingNumber,
+    this.depositAmount,
+    this.symptoms = const [],
+    this.services = const [],
   });
 
   final VoidCallback? onBack;
@@ -35,6 +45,16 @@ class BookAnAppointmentNine extends StatefulWidget {
   final String accountNumber;
   final String clinicName;
   final String? qrImageAsset;
+  final String? doctorName;
+  final String? doctorSpecialty;
+  final String? doctorImageAsset;
+  final String? serviceName;
+  final String? appointmentDate;
+  final String? appointmentTime;
+  final String? bookingNumber;
+  final int? depositAmount;
+  final List<String> symptoms;
+  final List<String> services;
 
   @override
   State<BookAnAppointmentNine> createState() => _BookAnAppointmentNineState();
@@ -136,17 +156,27 @@ class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
                 if (_slipFile == null) return;
                 setState(() => _isConfirming = true);
                 try {
-                  // 1. อัปโหลดสลิปขึ้น Supabase Storage bucket 'slips'
-                  final uid = supabase.auth.currentUser?.id ?? 'anonymous';
-                  final ext = _slipFile!.name.split('.').last;
-                  final path = 'slips/${uid}_${widget.bookingId}_${DateTime.now().millisecondsSinceEpoch}.$ext';
-                  final bytes = await _slipFile!.readAsBytes();
-                  await supabase.storage.from('slips').uploadBinary(
-                    path,
-                    bytes,
-                    fileOptions: FileOptions(upsert: true),
-                  );
-                  final slipUrl = supabase.storage.from('slips').getPublicUrl(path);
+                  String slipUrl;
+                  if (useMock) {
+                    // Mock mode — ข้ามอัปโหลด Supabase
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    slipUrl = 'https://example.com/mock_slip.png';
+                    print('✅ Mock mode - slipUrl: $slipUrl');
+                  } else {
+                    // 1. อัปโหลดสลิปขึ้น Supabase Storage bucket 'slips'
+                    final uid = supabase.auth.currentUser?.id ?? 'anonymous';
+                    final ext = _slipFile!.name.split('.').last;
+                    final path = '${uid}_${widget.bookingId}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+                    final bytes = await _slipFile!.readAsBytes();
+                    final uploadResult = await supabase.storage.from('slips').uploadBinary(
+                      path,
+                      bytes,
+                      fileOptions: FileOptions(upsert: true),
+                    );
+                    print('✅ Upload result: $uploadResult');
+                    slipUrl = supabase.storage.from('slips').getPublicUrl(path);
+                    print('🔗 Public URL: $slipUrl');
+                  }
 
                   // 2. confirmDeposit — อัปเดต bookings row
                   await ServiceLocator.booking.confirmDeposit(
@@ -156,7 +186,23 @@ class _BookAnAppointmentNineState extends State<BookAnAppointmentNine> {
 
                   widget.onConfirm?.call(_slipFile);
                   if (!mounted) return;
-                  Navigator.push(context, noAnimRoute(const BookAnAppointmentTen()));
+                  Navigator.push(
+                    context,
+                    noAnimRoute(BookAnAppointmentTen(
+                      doctorName: widget.doctorName ?? 'ทพญ. อรุณี ปรานอัศนี',
+                      doctorTitle: widget.doctorSpecialty ?? 'ทันตแพทย์ทั่วไป',
+                      serviceLabel: widget.serviceName ?? 'ตรวจสุขภาพช่องปากและฟัน',
+                      serviceSubLabel: 'Dental Check-up',
+                      clinicName: widget.clinicName,
+                      bookingDate: widget.appointmentDate ?? 'วันพุธที่ 12 สิงหาคม 2569',
+                      bookingTime: widget.appointmentTime ?? '10:00 น.',
+                      clinicAddress:
+                          '123/45 ถนนท่าแฉลบ ตำบลวัดใหม่ อำเภอเมืองจันทบุรี จังหวัด จันทบุรี',
+                      bookingId: widget.bookingNumber ?? widget.bookingId,
+                      symptoms: widget.symptoms,
+                      services: widget.services,
+                    )),
+                  );
                 } on AuthException catch (e) {
                   if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
                 } on StorageException catch (e) {

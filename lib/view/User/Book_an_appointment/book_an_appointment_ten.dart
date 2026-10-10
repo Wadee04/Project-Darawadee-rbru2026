@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../components/shared_widgets.dart';
+import '../HomeScreen/home_page_two.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
-import '../HomeScreen/home_page_two.dart';
 
 // ============================================================
 // BookAnAppointmentTen - หน้าการจองเสร็จสมบูรณ์ (Booking Summary)
@@ -15,15 +14,18 @@ class BookAnAppointmentTen extends StatelessWidget {
     super.key,
     this.onClose,
     this.onContact,
-    this.clinicName = 'SmileCare Dental Clinic',
-    this.bookingDate = 'วันพุธ 12 สิงหาคม 2569',
+    this.clinicName = 'Denbook Clinic สาขาจันทบุรี',
+    this.bookingDate = 'วันพุธที่ 12 สิงหาคม 2569',
     this.bookingTime = '10:00 น.',
-    this.doctorName = 'ทพญ. อรุณี ปธานนท์',
-    this.serviceLabel = 'ตรวจสุขภาพฟันทั่วไปเพิ่มเติม',
-    this.serviceSubLabel = 'Dental Check-up',
+    this.doctorName = 'ทพญ. อรุณี ปรานอัศนี',
+    this.doctorTitle = 'ทันตแพทย์ทั่วไป',
+    this.serviceLabel = 'ตรวจสุขภาพช่องปากและฟัน',
+    this.serviceSubLabel = '(Dental Check-up)',
     this.clinicAddress =
-        '123/45 ถนนราชดำเนิน ตำบลหน้าเมือง อำเภอเมืองจันทบุรี จังหวัด จันทบุรี',
+        '123/45 ถนนท่าแฉลบ ตำบลวัดใหม่ อำเภอเมืองจันทบุรี จังหวัด จันทบุรี',
     this.bookingId = 'SC680516-001',
+    this.symptoms = const [],
+    this.services = const [],
   });
 
   final VoidCallback? onClose;
@@ -33,10 +35,13 @@ class BookAnAppointmentTen extends StatelessWidget {
   final String bookingDate;
   final String bookingTime;
   final String doctorName;
+  final String doctorTitle;
   final String serviceLabel;
   final String serviceSubLabel;
   final String clinicAddress;
   final String bookingId;
+  final List<String> symptoms;
+  final List<String> services;
 
   @override
   Widget build(BuildContext context) {
@@ -44,120 +49,213 @@ class BookAnAppointmentTen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [
-              Color(0xFFFFFFFF),
-              Color(0xFFC5DEE8),
-            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [Color(0xFFFFFFFF), Color(0xFFC5DEE8)],
           ),
         ),
         child: SafeArea(
           child: Column(
-          children: [
-            // ---- AppBar ----
-            _SummaryAppBar(
-              title: 'การจองเสร็จสมบูรณ์',
-              onClose: onClose,
-            ),
-
-            // ---- Scrollable Body ----
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  context.rs(16),
-                  0,
-                  context.rs(16),
-                  context.rs(24),
-                ),
-                child: Column(
-                  children: [
-                    // ---- Success Banner ----
-                    _SuccessBanner(clinicName: clinicName),
-
-                    SizedBox(height: context.rs(16)),
-
-                    // ---- ข้อมูลการจอง ----
-                    _SectionCard(
-                      title: 'ข้อมูลการจอง',
-                      child: Column(
-                        children: [
-                          _InfoRow(
-                            icon: Icons.calendar_today_outlined,
-                            iconColor: AppColors.purple,
-                            label: 'วันที่นัดหมาย',
-                            value: bookingDate,
-                          ),
-                          _divider(context),
-                          _InfoRow(
-                            icon: Icons.access_time_outlined,
-                            iconColor: AppColors.purple,
-                            label: 'เวลานัดหมาย',
-                            value: bookingTime,
-                          ),
-                          _divider(context),
-                          _InfoRow(
-                            icon: Icons.person_outline,
-                            iconColor: AppColors.purple,
-                            label: 'ทพญ. อรุณี ปธานนท์',
-                            value: '',
-                            isDoctor: true,
-                            doctorName: doctorName,
-                          ),
-                          _divider(context),
-                          _ServiceRow(
-                            label: serviceLabel,
-                            subLabel: serviceSubLabel,
-                          ),
-                          _divider(context),
-                          _LocationRow(
-                            clinicName: clinicName,
-                            address: clinicAddress,
-                          ),
-                        ],
+            children: [
+              // ---- AppBar ----
+              _SummaryAppBar(
+                title: 'การจองเสร็จสมบูรณ์',
+                onClose:
+                    onClose ??
+                    () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HomePageTwo(
+                          appointmentService: serviceLabel,
+                          appointmentDoctor: doctorName,
+                          appointmentTime: bookingTime,
+                          clinicName: clinicName,
+                          symptoms: symptoms,
+                          services: services,
+                          bookingId: 'A-001',
+                        ),
                       ),
                     ),
+              ),
 
-                    SizedBox(height: context.rs(12)),
+              SizedBox(height: context.rs(16)),
 
-                    // ---- Booking ID ----
-                    _BookingIdCard(bookingId: bookingId),
+              // ---- Scrollable Body ----
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    context.rs(16),
+                    0,
+                    context.rs(16),
+                    context.rs(24),
+                  ),
+                  child: Column(
+                    children: [
+                      // ---- Success Banner ----
+                      _SuccessBanner(clinicName: clinicName),
 
-                    SizedBox(height: context.rs(12)),
+                      SizedBox(height: context.rs(16)),
 
-                    // ---- ข้อมูลทั่วไป ----
-                    _SectionCard(
-                      title: 'ข้อมูลทั่วไป',
-                      child: _GeneralInfoContent(),
-                    ),
+                      // ---- ข้อมูลการจอง ----
+                      _SectionCard(
+                        title: 'ข้อมูลการจอง',
+                        child: Column(
+                          children: [
+                            _InfoRow(
+                              assetIcon: 'assets/images/Book_an_appointment/uim_calender.svg',
+                              iconColor: AppColors.purple,
+                              label: 'วันที่นัดหมาย',
+                              value: bookingDate,
+                            ),
+                            _InfoRow(
+                              assetIcon: 'assets/images/Book_an_appointment/schedule.svg',
+                              iconColor: AppColors.purple,
+                              label: 'เวลาที่นัดหมาย',
+                              value: bookingTime,
+                            ),
+                            _DoctorRow(
+                              assetIcon: 'assets/images/Book_an_appointment/doctor.svg',
+                              iconColor: AppColors.purple,
+                              label: 'ทันตแพทย์',
+                              value: doctorName,
+                              subValue: doctorTitle,
+                            ),
+                            _ServiceRow(
+                              assetIcon: 'assets/images/Book_an_appointment/toothten.svg',
+                              label: symptoms.isNotEmpty ? 'อาการ' : 'บริการ',
+                              value: (symptoms.isNotEmpty ? symptoms : services)
+                                  .join(' / '),
+                              subLabel: serviceSubLabel,
+                            ),
+                            _LocationRow(
+                              assetIcon: 'assets/images/Book_an_appointment/heroicons_map-pin-16-solid.svg',
+                              label: 'สาขา',
+                              clinicName: clinicName,
+                              address: clinicAddress,
+                            ),
+                            _dashedDivider(context),
+                            Padding(
+                              padding: EdgeInsets.all(context.rs(16)),
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.rs(16),
+                                  vertical: context.rs(10),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEEEEFF),
+                                  borderRadius: BorderRadius.circular(
+                                    context.rs(16),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              'หมายเลขการจอง',
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: context.rs(11),
+                                                fontWeight: FontWeight.w400,
+                                                color: AppColors.textGray,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            right: context.rs(2),
+                                          ),
+                                          child: SvgPicture.asset(
+                                            'assets/images/Book_an_appointment/copy.svg',
+                                            width: context.rs(9),
+                                            height: context.rs(8),
+                                            colorFilter: ColorFilter.mode(
+                                              AppColors.purple,
+                                              BlendMode.srcIn,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: context.rs(4)),
+                                    Center(
+                                      child: Text(
+                                        bookingId,
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: context.rs(20),
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.purple,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
-                    SizedBox(height: context.rs(12)),
+                      SizedBox(height: context.rs(12)),
 
-                    // ---- Contact ----
-                    _ContactCard(onContact: onContact),
-                  ],
+                      // ---- ข้อมูลที่ควรทราบ ----
+                      _SectionCard(
+                        title: 'ข้อมูลที่ควรทราบ',
+                        bottomPadding: 10,
+                        child: _GeneralInfoContent(),
+                      ),
+
+                      SizedBox(height: context.rs(12)),
+
+                      // ---- Contact ----
+                      _ContactCard(onContact: onContact),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
-  Widget _divider(BuildContext context) => Padding(
-        padding: EdgeInsets.symmetric(vertical: context.rs(2)),
-        child: Divider(
-          color: AppColors.inputBorder,
-          height: 1,
-          thickness: 0.5,
-        ),
-      );
+  Widget _dashedDivider(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(vertical: context.rs(8)),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final dashWidth = context.rs(8);
+        final dashGap = context.rs(4);
+        final count = (constraints.maxWidth / (dashWidth + dashGap))
+            .floor()
+            .clamp(2, 50);
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(
+            count,
+            (_) => Container(
+              width: dashWidth,
+              height: 1,
+              decoration: BoxDecoration(
+                color: Color(0xFFC9C9DF),
+                borderRadius: BorderRadius.circular(1),
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }
 
 // ============================================================
-// _SummaryAppBar — title กลาง + ปุ่ม X ขวา
+// _SummaryAppBar — arrow-left + title centered + right icon
 // ============================================================
 class _SummaryAppBar extends StatelessWidget {
   const _SummaryAppBar({required this.title, this.onClose});
@@ -166,36 +264,42 @@ class _SummaryAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        context.rs(24),
-        MediaQuery.of(context).size.height * 0.01,
-        context.rs(24),
-        context.rs(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      height: context.rs(54),
+      padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
+      alignment: Alignment.center,
+      child: Stack(
         children: [
-          // placeholder ซ้าย
-          SizedBox(width: context.rs(24)),
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: context.rs(15),
-              fontWeight: FontWeight.w600,
-              color: AppColors.black,
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(16),
+                fontWeight: FontWeight.w600,
+                color: AppColors.black,
+              ),
             ),
           ),
-          GestureDetector(
-            onTap: onClose ?? () => Navigator.pushReplacement(
-              context,
-              noAnimRoute(const HomePageTwo()),
-            ),
-            child: Icon(
-              Icons.close,
-              size: context.rs(22),
-              color: AppColors.black,
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: onClose,
+              child: Container(
+                alignment: Alignment.center,
+                width: context.rs(24),
+                height: context.rs(24),
+                child: SvgPicture.asset(
+                  'assets/images/Book_an_appointment/close.svg',
+                  width: context.rs(11),
+                  height: context.rs(11),
+                  colorFilter: ColorFilter.mode(
+                    AppColors.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -205,7 +309,7 @@ class _SummaryAppBar extends StatelessWidget {
 }
 
 // ============================================================
-// _SuccessBanner — พื้นหลังสีม่วง + icon check + ชื่อคลินิก
+// _SuccessBanner — green circle + white check + purple/gray text
 // ============================================================
 class _SuccessBanner extends StatelessWidget {
   const _SuccessBanner({required this.clinicName});
@@ -213,58 +317,54 @@ class _SuccessBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        vertical: context.rs(20),
-        horizontal: context.rs(16),
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.purple,
-        borderRadius: BorderRadius.circular(context.rs(16)),
-      ),
-      child: Column(
-        children: [
-          // ---- check circle ----
-          Container(
-            width: context.rs(52),
-            height: context.rs(52),
-            decoration: const BoxDecoration(
-              color: AppColors.white,
-              shape: BoxShape.circle,
+    return Row(
+      children: [
+        SvgPicture.asset(
+          'assets/images/Book_an_appointment/bluecheck.svg',
+          width: context.rs(73),
+          height: context.rs(72.78),
+        ),
+        SizedBox(width: context.rs(12)),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ---- green check circle ----
+            Text(
+              'จองคิวสำเร็จ',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(18),
+                fontWeight: FontWeight.w700,
+                color: AppColors.purple,
+              ),
             ),
-            child: Icon(
-              Icons.check,
-              size: context.rs(30),
-              color: AppColors.purple,
+
+            SizedBox(height: context.rs(4)),
+
+            Text(
+              'ขอบคุณที่วางใจ',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(12),
+                fontWeight: FontWeight.w400,
+                color: AppColors.textGray,
+              ),
             ),
-          ),
 
-          SizedBox(height: context.rs(10)),
+            SizedBox(height: context.rs(2)),
 
-          Text(
-            'จองคิวสำเร็จแล้ว',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: context.rs(16),
-              fontWeight: FontWeight.w700,
-              color: AppColors.white,
+            Text(
+              clinicName,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: context.rs(12),
+                fontWeight: FontWeight.w400,
+                color: AppColors.textGray,
+              ),
             ),
-          ),
-
-          SizedBox(height: context.rs(4)),
-
-          Text(
-            clinicName,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: context.rs(13),
-              fontWeight: FontWeight.w400,
-              color: AppColors.white.withValues(alpha: 0.85),
-            ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -273,9 +373,14 @@ class _SuccessBanner extends StatelessWidget {
 // _SectionCard — กล่องขอบโค้งพร้อม title section
 // ============================================================
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+  const _SectionCard({
+    required this.title,
+    required this.child,
+    this.bottomPadding = 2,
+  });
   final String title;
   final Widget child;
+  final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -284,6 +389,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.homeBackground,
         borderRadius: BorderRadius.circular(context.rs(16)),
+        border: Border.all(color: AppColors.purple, width: context.rs(1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,9 +405,9 @@ class _SectionCard extends StatelessWidget {
               title,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: context.rs(13),
-                fontWeight: FontWeight.w600,
-                color: AppColors.black,
+                fontSize: context.rs(16),
+                fontWeight: FontWeight.w500,
+                color: AppColors.purple,
               ),
             ),
           ),
@@ -310,7 +416,7 @@ class _SectionCard extends StatelessWidget {
               context.rs(16),
               0,
               context.rs(16),
-              context.rs(14),
+              context.rs(bottomPadding),
             ),
             child: child,
           ),
@@ -321,99 +427,33 @@ class _SectionCard extends StatelessWidget {
 }
 
 // ============================================================
-// _InfoRow — แถวข้อมูลทั่วไป (icon + label + value)
+// _InfoRow — แถวข้อมูลทั่วไป (SVG icon + label + value)
 // ============================================================
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
-    required this.icon,
+    required this.assetIcon,
     required this.iconColor,
     required this.label,
     required this.value,
-    this.isDoctor = false,
-    this.doctorName = '',
   });
 
-  final IconData icon;
+  final String assetIcon;
   final Color iconColor;
   final String label;
   final String value;
-  final bool isDoctor;
-  final String doctorName;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: context.rs(10)),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: context.rs(18), color: iconColor),
-          SizedBox(width: context.rs(10)),
-          Expanded(
-            child: isDoctor
-                ? Text(
-                    doctorName,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(13),
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.black,
-                    ),
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: context.rs(12),
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textGray,
-                        ),
-                      ),
-                      SizedBox(height: context.rs(2)),
-                      Text(
-                        value,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: context.rs(13),
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// _ServiceRow — แถวบริการ (icon ฟัน + ชื่อบริการ + sub label)
-// ============================================================
-class _ServiceRow extends StatelessWidget {
-  const _ServiceRow({required this.label, required this.subLabel});
-  final String label;
-  final String subLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: context.rs(10)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            'assets/images/Book_an_appointment/icons/checkup.svg',
+            assetIcon,
             width: context.rs(18),
             height: context.rs(18),
-            colorFilter: const ColorFilter.mode(
-              AppColors.purple,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
           ),
           SizedBox(width: context.rs(10)),
           Expanded(
@@ -424,9 +464,154 @@ class _ServiceRow extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontFamily: 'Inter',
+                    fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textGray,
+                  ),
+                ),
+                SizedBox(height: context.rs(2)),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.purple,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _DoctorRow — แถวทันตแพทย์ (icon + label + value + sub value)
+// ============================================================
+class _DoctorRow extends StatelessWidget {
+  const _DoctorRow({
+    required this.assetIcon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+    required this.subValue,
+  });
+
+  final String assetIcon;
+  final Color iconColor;
+  final String label;
+  final String value;
+  final String subValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: context.rs(10)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            assetIcon,
+            width: context.rs(18),
+            height: context.rs(18),
+            colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          ),
+          SizedBox(width: context.rs(10)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textGray,
+                  ),
+                ),
+                SizedBox(height: context.rs(2)),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.purple,
+                  ),
+                ),
+                SizedBox(height: context.rs(2)),
+                Text(
+                  subValue,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textGray,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _ServiceRow — แถวบริการ (SVG tooth icon + label + sub label)
+// ============================================================
+class _ServiceRow extends StatelessWidget {
+  const _ServiceRow({
+    required this.assetIcon,
+    required this.label,
+    required this.value,
+    required this.subLabel,
+  });
+
+  final String assetIcon;
+  final String label;
+  final String value;
+  final String subLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: context.rs(10)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            assetIcon,
+            width: context.rs(18),
+            height: context.rs(18),
+          ),
+          SizedBox(width: context.rs(10)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textGray,
+                  ),
+                ),
+                SizedBox(height: context.rs(2)),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: context.rs(13),
                     fontWeight: FontWeight.w500,
-                    color: AppColors.black,
+                    color: AppColors.purple,
                   ),
                 ),
                 SizedBox(height: context.rs(2)),
@@ -452,7 +637,14 @@ class _ServiceRow extends StatelessWidget {
 // _LocationRow — แถวที่อยู่คลินิก
 // ============================================================
 class _LocationRow extends StatelessWidget {
-  const _LocationRow({required this.clinicName, required this.address});
+  const _LocationRow({
+    required this.assetIcon,
+    required this.label,
+    required this.clinicName,
+    required this.address,
+  });
+  final String assetIcon;
+  final String label;
   final String clinicName;
   final String address;
 
@@ -461,12 +653,13 @@ class _LocationRow extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: context.rs(10)),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            Icons.location_on_outlined,
-            size: context.rs(18),
-            color: AppColors.purple,
+          SvgPicture.asset(
+            assetIcon,
+            width: context.rs(22),
+            height: context.rs(22),
+            colorFilter: ColorFilter.mode(AppColors.purple, BlendMode.srcIn),
           ),
           SizedBox(width: context.rs(10)),
           Expanded(
@@ -474,12 +667,22 @@ class _LocationRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(12),
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textGray,
+                  ),
+                ),
+                SizedBox(height: context.rs(2)),
+                Text(
                   clinicName,
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: context.rs(13),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.black,
+                    fontSize: context.rs(14),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.purple,
                   ),
                 ),
                 SizedBox(height: context.rs(3)),
@@ -503,107 +706,63 @@ class _LocationRow extends StatelessWidget {
 }
 
 // ============================================================
-// _BookingIdCard — กล่องเลขที่อ้างอิงการจอง
-// ============================================================
-class _BookingIdCard extends StatelessWidget {
-  const _BookingIdCard({required this.bookingId});
-  final String bookingId;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        vertical: context.rs(14),
-        horizontal: context.rs(16),
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.homeBackground,
-        borderRadius: BorderRadius.circular(context.rs(16)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'หมายเลขการจอง',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: context.rs(12),
-              fontWeight: FontWeight.w400,
-              color: AppColors.textGray,
-            ),
-          ),
-          SizedBox(height: context.rs(6)),
-          Text(
-            bookingId,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: context.rs(16),
-              fontWeight: FontWeight.w700,
-              color: AppColors.purple,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// _GeneralInfoContent — เนื้อหาข้อมูลทั่วไป (bullet list)
+// _GeneralInfoContent — เนื้อหาข้อมูลที่ควรทราบ (bullet list)
 // ============================================================
 class _GeneralInfoContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = _generalInfoItems(context);
     return Column(
-      children: items
-          .map((item) => _GeneralInfoItem(item: item))
-          .toList(),
+      children: items.map((item) => _GeneralInfoItem(item: item)).toList(),
     );
   }
 
   List<_InfoItem> _generalInfoItems(BuildContext context) => [
-        _InfoItem(
-          icon: Icons.access_time_outlined,
-          iconColor: AppColors.orange,
-          text: 'กรุณามาถึงก่อนเวลานัด อย่างน้อย 15 นาที',
-          highlight: null,
-        ),
-        _InfoItem(
-          icon: Icons.cancel_outlined,
-          iconColor: AppColors.reddentbook,
-          text:
-              'หากยกเลิกการนัดหมายภายใน 48 ชั่วโมงก่อนวันนัด จะถูกหักค่ามัดจำ 30%\nหากยกเลิกหลังจากนั้น จะถูกหักค่ามัดจำ 100%',
-          highlight: '48 ชั่วโมงก่อนวันนัด จะถูกหักค่ามัดจำ 30%\nหากยกเลิกหลังจากนั้น จะถูกหักค่ามัดจำ 100%',
-        ),
-        _InfoItem(
-          icon: Icons.info_outline,
-          iconColor: AppColors.purple,
-          text:
-              'กรุณาแจ้งโรคประจำตัว หรือยาที่รับประทานอยู่แก่ทันตแพทย์ก่อนรับบริการ',
-          highlight: null,
-        ),
-        _InfoItem(
-          icon: Icons.info_outline,
-          iconColor: AppColors.purple,
-          text: 'ห้ามรับประทานอาหารก่อนการรักษา 2 ชั่วโมง',
-          highlight: null,
-        ),
-      ];
+    _InfoItem(
+      assetIcon: 'assets/images/Book_an_appointment/schedule_bold.svg',
+      iconColor: AppColors.purple,
+      text: 'กรุณามาถึงก่อนเวลานัดหมายอย่างน้อย 15 นาที',
+      highlight: null,
+    ),
+    _InfoItem(
+      assetIcon: 'assets/images/Book_an_appointment/tdesign_money.svg',
+      iconColor: AppColors.purple,
+      text: 'กรณีหากต้องการยกเลิกหรือเลื่อน',
+      highlight:
+          '1. ยกเลิกล่วงหน้า **48 ชั่วโมง**ขึ้นไปคืนเงินมัดจำ **100%** \n'
+          '2. ยกเลิกก่อนวันนัด **24-48 ชั่วโมง**คืนเงินมัดจำ **50%** \n'
+          '3. ยกเลิกนัด**น้อยกว่า 24 ชั่วโมง** หรือไม่มาตามนัด **ไม่คืนเงินมัดจำ** \n'
+          '4. กรณีคลินิกเป็นฝ่ายยกเลิก หรือ เลื่อนนัด คืนเงินเต็มจำนวน หรือ \n'
+          '    ให้ผู้ป่วยเลือกเลื่อนนัดโดยใช้มัดจำเดิม',
+    ),
+    _InfoItem(
+      assetIcon: 'assets/images/Book_an_appointment/mingcute_warning-line.svg',
+      iconColor: AppColors.purple,
+      text: 'กรุณานำบัตรประชาชนมาด้วยในวันนัดหมาย',
+      highlight: null,
+    ),
+  ];
 }
 
 class _InfoItem {
   const _InfoItem({
-    required this.icon,
+    required this.assetIcon,
     required this.iconColor,
     required this.text,
     required this.highlight,
   });
-  final IconData icon;
+  final String assetIcon;
   final Color iconColor;
   final String text;
   final String? highlight;
+}
+
+List<TextSpan> _highlightSpans(String text, {required TextStyle redStyle}) {
+  final parts = text.split('**');
+  return [
+    for (var i = 0; i < parts.length; i++)
+      TextSpan(text: parts[i], style: i.isOdd ? redStyle : null),
+  ];
 }
 
 class _GeneralInfoItem extends StatelessWidget {
@@ -613,26 +772,57 @@ class _GeneralInfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: context.rs(7)),
+      padding: EdgeInsets.symmetric(vertical: context.rs(6)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            item.icon,
-            size: context.rs(16),
-            color: item.iconColor,
+          SvgPicture.asset(
+            item.assetIcon,
+            width: context.rs(18),
+            height: context.rs(18),
+            colorFilter: ColorFilter.mode(item.iconColor, BlendMode.srcIn),
           ),
           SizedBox(width: context.rs(10)),
           Expanded(
-            child: Text(
-              item.text,
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: context.rs(12),
-                fontWeight: FontWeight.w400,
-                color: AppColors.black,
-                height: 1.55,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.text,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: context.rs(12),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textGray,
+                    height: 1.55,
+                  ),
+                ),
+                if (item.highlight != null)
+                  Padding(
+                    padding: EdgeInsets.only(top: context.rs(4)),
+                    child: Text.rich(
+                      TextSpan(
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(10),
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textGray,
+                          height: 1.55,
+                        ),
+                        children: _highlightSpans(
+                          item.highlight!,
+                          redStyle: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(10),
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.red,
+                            height: 1.55,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -654,26 +844,22 @@ class _ContactCard extends StatelessWidget {
       onTap: onContact,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(context.rs(14)),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.rs(20),
+          vertical: context.rs(5),
+        ),
         decoration: BoxDecoration(
           color: AppColors.homeBackground,
           borderRadius: BorderRadius.circular(context.rs(16)),
         ),
         child: Row(
           children: [
-            // ---- icon chat ----
-            Container(
-              width: context.rs(40),
-              height: context.rs(40),
-              decoration: BoxDecoration(
-                color: AppColors.purpleLight,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.chat_bubble_outline,
-                size: context.rs(20),
-                color: AppColors.purple,
-              ),
+            // ---- icon headphone ----
+            SvgPicture.asset(
+              'assets/images/Book_an_appointment/boxicons_headphone-mic.svg',
+              width: context.rs(24),
+              height: context.rs(24),
+              colorFilter: ColorFilter.mode(AppColors.purple, BlendMode.srcIn),
             ),
 
             SizedBox(width: context.rs(12)),
@@ -684,33 +870,26 @@ class _ContactCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ต้องการสอบถามเพิ่มเติม?',
+                    'ต้องการความช่วยเหลือ ?',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: context.rs(13),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
+                      fontSize: context.rs(14),
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.purple,
                     ),
                   ),
-                  SizedBox(height: context.rs(2)),
                   Text(
-                    'ติดต่อเราได้ที่ 039-134-456 หรือ Line @dentbook',
+                    'ติดต่อเราได้ที่ 039-123-456 หรือ Line @dentbook',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: context.rs(11),
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.textGray,
                       height: 1.4,
                     ),
                   ),
                 ],
               ),
-            ),
-
-            Icon(
-              Icons.chevron_right,
-              size: context.rs(20),
-              color: AppColors.textGray,
             ),
           ],
         ),

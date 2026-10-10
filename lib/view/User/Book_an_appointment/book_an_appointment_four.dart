@@ -395,10 +395,16 @@ class _BookAnAppointmentFourState extends State<BookAnAppointmentFour> {
                 bottom: context.rs(48),
                 child: GestureDetector(
                   onTap: () {
+                    final selectedLabels = _selectedIndexes.map((i) => _filteredGrid[i].label).toList();
+                    if (_otherSelected && _otherDetailController.text.trim().isNotEmpty) {
+                      selectedLabels.add(_otherDetailController.text.trim());
+                    }
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const BookAnAppointmentFive(),
+                        builder: (_) => BookAnAppointmentFive(
+                          services: selectedLabels,
+                        ),
                       ),
                     );
                   },

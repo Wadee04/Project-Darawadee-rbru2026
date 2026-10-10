@@ -9,6 +9,7 @@ import '../../../supabase_client.dart' show supabase;
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import '../Signup/phone_number.dart';
+import '../../../services/service_locator.dart';
 
 // ============================================================
 // OTPPage - หน้ากรอกรหัสยืนยันตัวตน
@@ -128,24 +129,39 @@ class _OTPPageState extends State<OTPPage> {
     try {
       var userId = _verifiedUserId;
       if (userId == null) {
-        final response = await supabase.auth.verifyOTP(
-          email: widget.target,
-          token: _otpValue,
-          type: OtpType.signup,
-        );
+        if (useMock) {
+          final verified = await ServiceLocator.user.verifyOtp(
+            email: widget.target,
+            otp: _otpValue,
+          );
+          if (!verified) {
+            throw StateError('Invalid OTP');
+          }
+          final user = await ServiceLocator.user.getCurrentUser();
+          userId = user.id;
+          _verifiedUserId = userId;
+        } else {
+          final response = await supabase.auth.verifyOTP(
+            email: widget.target,
+            token: _otpValue,
+            type: OtpType.signup,
+          );
 
-        userId = response.user?.id;
-        if (userId == null) {
-          throw StateError('Signup OTP verification returned no user');
+          userId = response.user?.id;
+          if (userId == null) {
+            throw StateError('Signup OTP verification returned no user');
+          }
+          _verifiedUserId = userId;
         }
-        _verifiedUserId = userId;
       }
 
-      await supabase.from('users').upsert({
-        'id': userId,
-        'email': widget.target,
-        'full_name': widget.fullName,
-      });
+      if (!useMock) {
+        await supabase.from('users').upsert({
+          'id': userId,
+          'email': widget.target,
+          'full_name': widget.fullName,
+        });
+      }
 
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
@@ -190,7 +206,11 @@ class _OTPPageState extends State<OTPPage> {
     setState(() => _isResending = true);
 
     try {
-      await supabase.auth.resend(type: OtpType.signup, email: widget.target);
+      if (useMock) {
+        await ServiceLocator.user.sendOtp(widget.target);
+      } else {
+        await supabase.auth.resend(type: OtpType.signup, email: widget.target);
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

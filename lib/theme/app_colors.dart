@@ -24,8 +24,10 @@ class AppColors {
   static const Color blue = Color(0xFFA7E7FF); // ฟ้า
   static const Color blue10 = Color(0x1AA7E7FF); // #A7E7FF at 10%
   static const Color blue50 = Color(0xFFF6FDFF); // #A7E7FF at 50%
+  static const Color bluebookone = Color(0xFFD0F6FF); // #D0F6FF
   static const Color blueLight = Color(0xFFEAF0FB); // ฟ้าอ่อน
   static const Color reddentbook = Color(0xFFDD191D); // แดง
+  static const Color red = Color(0xFFFF383C); // แดง
   static const Color greendentbook = Color(0xFF34C759); // แดง
 
 

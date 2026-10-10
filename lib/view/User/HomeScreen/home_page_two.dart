@@ -5,6 +5,8 @@ import '../../../components/shared_widgets.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import '../Book_an_appointment/book_an_appointment_one.dart';
+import '../My_queue/my_queue_one.dart';
+import '../Profile/profile.dart';
 import 'home_page_one.dart';
 import 'home_page_three.dart';
 
@@ -33,10 +35,12 @@ class HomePageTwo extends StatefulWidget {
     this.userName = 'คุณดาราวดี อลัย',
     this.clinicName = 'Dentbook Clinic',
     this.clinicProvince = 'กรุงเทพมหานคร',
-    this.appointmentService = 'ขูดหินปูน',
-    this.appointmentNumber = 'A-001',
-    this.appointmentDoctor = 'ทพ.อรุณี ใจดี',
-    this.appointmentTime = '10.00 น.',
+    this.appointmentService,
+    this.appointmentDoctor,
+    this.appointmentTime,
+    this.symptoms = const [],
+    this.services = const [],
+    this.bookingId,
     this.queueItem = const ClinicQueueItem(
       roomName: 'ห้อง 1',
       doctorName: 'ทพญ. อรุณี',
@@ -53,10 +57,12 @@ class HomePageTwo extends StatefulWidget {
   final String userName;
   final String clinicName;
   final String clinicProvince;
-  final String appointmentService;
-  final String appointmentNumber;
-  final String appointmentDoctor;
-  final String appointmentTime;
+  final String? appointmentService;
+  final String? appointmentDoctor;
+  final String? appointmentTime;
+  final List<String> symptoms;
+  final List<String> services;
+  final String? bookingId;
   final ClinicQueueItem queueItem;
   final VoidCallback? onNotification;
   final VoidCallback? onProfile;
@@ -70,6 +76,309 @@ class HomePageTwo extends StatefulWidget {
 
 class _HomePageTwoState extends State<HomePageTwo> {
   int _navIndex = 0;
+
+  void _showAppointmentDetail(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(horizontal: context.rs(20), vertical: context.rs(24)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(context.rs(20)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.all(context.rs(20)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(context.rs(10)),
+                    decoration: BoxDecoration(
+                      color: AppColors.purpleLight,
+                      borderRadius: BorderRadius.circular(context.rs(12)),
+                    ),
+                    child: Icon(
+                      Icons.calendar_today_rounded,
+                      size: context.rs(20),
+                      color: AppColors.purple,
+                    ),
+                  ),
+                  SizedBox(width: context.rs(12)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'รายละเอียดการจอง',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(16),
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.black,
+                          ),
+                        ),
+                        Text(
+                          widget.clinicName,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: context.rs(12),
+                            color: AppColors.textGray,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(ctx),
+                    child: Container(
+                      padding: EdgeInsets.all(context.rs(6)),
+                      decoration: BoxDecoration(
+                        color: AppColors.homeBackground,
+                        borderRadius: BorderRadius.circular(context.rs(8)),
+                      ),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: context.rs(18),
+                        color: AppColors.textGray,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: context.rs(20)),
+
+              // Divider
+              Divider(color: AppColors.inputBorder, height: 1),
+              SizedBox(height: context.rs(16)),
+
+              // Booking ID
+              if (widget.bookingId != null) ...[
+                Row(
+                  children: [
+                    Icon(
+                      Icons.confirmation_number_rounded,
+                      size: context.rs(18),
+                      color: AppColors.purple,
+                    ),
+                    SizedBox(width: context.rs(10)),
+                    Text(
+                      'หมายเลขการจอง',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(12),
+                        color: AppColors.textGray,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      widget.bookingId!,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(14),
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.purple,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: context.rs(16)),
+              ],
+
+              // Date & Time
+              Row(
+                children: [
+                  Icon(
+                    Icons.access_time_rounded,
+                    size: context.rs(18),
+                    color: AppColors.purple,
+                  ),
+                  SizedBox(width: context.rs(10)),
+                  Text(
+                    'วันเวลานัดหมาย',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(12),
+                      color: AppColors.textGray,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${widget.appointmentTime ?? '10:00 น.'}',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(14),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: context.rs(12)),
+
+              // Doctor
+              Row(
+                children: [
+                  Icon(
+                    Icons.person_rounded,
+                    size: context.rs(18),
+                    color: AppColors.purple,
+                  ),
+                  SizedBox(width: context.rs(10)),
+                  Text(
+                    'ทันตแพทย์',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(12),
+                      color: AppColors.textGray,
+                    ),
+                  ),
+                  const Spacer(),
+                  Flexible(
+                    child: Text(
+                      widget.appointmentDoctor ?? 'ทพ.อรุณี ใจดี',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(14),
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.black,
+                      ),
+                      textAlign: TextAlign.end,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: context.rs(12)),
+
+              // Service / Symptoms
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.medical_services_rounded,
+                    size: context.rs(18),
+                    color: AppColors.purple,
+                  ),
+                  SizedBox(width: context.rs(10)),
+                  Text(
+                    widget.symptoms.isNotEmpty ? 'อาการ' : 'บริการ',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: context.rs(12),
+                      color: AppColors.textGray,
+                    ),
+                  ),
+                  const Spacer(),
+                  Flexible(
+                    child: Text(
+                      _buildServiceSymptomsText(),
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(14),
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.black,
+                      ),
+                      textAlign: TextAlign.end,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: context.rs(20)),
+
+              // Action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        // TODO: Handle change appointment
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: AppColors.purple, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(context.rs(12)),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: context.rs(12)),
+                      ),
+                      child: Text(
+                        'เปลี่ยนวัน/เวลา',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(13),
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.purple,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: context.rs(12)),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        // TODO: Handle cancel
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.red,
+                        foregroundColor: AppColors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(context.rs(12)),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: context.rs(12)),
+                      ),
+                      child: Text(
+                        'ยกเลิกนัด',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(13),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _buildServiceSymptomsText() {
+    if (widget.symptoms.isNotEmpty) {
+      if (widget.symptoms.length <= 2) {
+        return widget.symptoms.join(', ');
+      } else {
+        return '${widget.symptoms.take(2).join(', ')} +${widget.symptoms.length - 2}';
+      }
+    } else if (widget.services.isNotEmpty) {
+      if (widget.services.length == 1) {
+        return widget.services.first;
+      } else if (widget.services.length == 2) {
+        return '${widget.services[0]}, ${widget.services[1]}';
+      } else {
+        return '${widget.services[0]}, ${widget.services[1]} +${widget.services.length - 2}';
+      }
+    }
+    return widget.appointmentService ?? 'ตรวจสุขภาพช่องปากและฟัน';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,11 +544,16 @@ class _HomePageTwoState extends State<HomePageTwo> {
                     SizedBox(height: context.rs(10)),
 
                     // ---- Appointment card (มีนัด) ----
-                    _ActiveAppointmentCard(
-                      service: widget.appointmentService,
-                      number: widget.appointmentNumber,
-                      doctor: widget.appointmentDoctor,
-                      time: widget.appointmentTime,
+                    GestureDetector(
+                      onTap: () => _showAppointmentDetail(context),
+                      child: _ActiveAppointmentCard(
+                        service: widget.appointmentService ?? 'ขูดหินปูน',
+                        doctor: widget.appointmentDoctor ?? 'ทพ.อรุณี ใจดี',
+                        time: widget.appointmentTime ?? '10.00 น.',
+                        symptoms: widget.symptoms,
+                        services: widget.services,
+                        bookingId: widget.bookingId,
+                      ),
                     ),
 
                     SizedBox(height: context.rs(20)),
@@ -369,8 +683,20 @@ class _HomePageTwoState extends State<HomePageTwo> {
                     MaterialPageRoute(builder: (_) => const BookAnAppointmentOne()),
                   );
                 }
-                if (i == 2) widget.onMyQueue?.call();
-                if (i == 3) widget.onProfile?.call();
+                if (i == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyQueueOne()),
+                  );
+                }
+                if (i == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfilePage(),
+                    ),
+                  );
+                }
               },
             ),
           ],
@@ -417,19 +743,44 @@ class _IconBtn extends StatelessWidget {
 // ============================================================
 class _ActiveAppointmentCard extends StatelessWidget {
   const _ActiveAppointmentCard({
-    required this.service,
-    required this.number,
-    required this.doctor,
-    required this.time,
+    this.service = 'ขูดหินปูน',
+    this.doctor = 'ทพ.อรุณี ใจดี',
+    this.time = '10.00 น.',
+    this.symptoms = const [],
+    this.services = const [],
+    this.bookingId,
   });
 
   final String service;
-  final String number;
   final String doctor;
   final String time;
+  final List<String> symptoms;
+  final List<String> services;
+  final String? bookingId;
+
+  String _buildDisplayText() {
+    if (symptoms.isNotEmpty) {
+      if (symptoms.length <= 2) {
+        return symptoms.join(', ');
+      } else {
+        return '${symptoms.take(2).join(', ')} +${symptoms.length - 2}';
+      }
+    } else if (services.isNotEmpty) {
+      if (services.length == 1) {
+        return services.first;
+      } else if (services.length == 2) {
+        return '${services[0]}, ${services[1]}';
+      } else {
+        return '${services[0]}, ${services[1]} +${services.length - 2}';
+      }
+    }
+    return '';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final displayText = _buildDisplayText();
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -464,37 +815,49 @@ class _ActiveAppointmentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Text(
-                  service,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      service,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: context.rs(16),
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.white,
+                        height: 1.1,
+                      ),
+                    ),
+                    if (displayText.isNotEmpty) ...[
+                      SizedBox(height: context.rs(4)),
+                      Text(
+                        displayText,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: context.rs(13),
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.white.withValues(alpha: 0.9),
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (bookingId != null)
+                Text(
+                  bookingId!,
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: context.rs(16),
+                    fontSize: context.rs(20),
                     fontWeight: FontWeight.w700,
                     color: AppColors.white,
-                    height: 1.1,
+                    letterSpacing: 1,
                   ),
                 ),
-              ),
-              Transform.translate(
-                offset: const Offset(0, -11),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: context.rs(4),
-                  ),
-                  child: Text(
-                    number,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: context.rs(20),
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.white,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
+          SizedBox(height: context.rs(8)),
           Text(
             '$doctor - $time',
             style: TextStyle(

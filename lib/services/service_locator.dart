@@ -30,7 +30,7 @@ export '../mock/mock_notification_service.dart' show NotificationSettings;
 // ============================================================
 // *** เปลี่ยนบรรทัดนี้เพื่อ switch Mock ↔ Supabase ***
 // ============================================================
-const bool useMock = false; // false = Supabase จริง
+const bool useMock = true; // false = Supabase จริง
 // ============================================================
 
 class ServiceLocator {

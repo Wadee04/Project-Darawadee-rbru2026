@@ -6,6 +6,7 @@ import '../../../services/service_locator.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/responsive.dart';
 import '../Book_an_appointment/book_an_appointment_one.dart';
+import '../Profile/profile.dart';
 import 'my_queue_two.dart';
 
 // ============================================================
@@ -80,12 +81,7 @@ class QueueItem {
 // MyQueueOne Widget
 // ============================================================
 class MyQueueOne extends StatefulWidget {
-  const MyQueueOne({
-    super.key,
-    this.onHome,
-    this.onBooking,
-    this.onProfile,
-  });
+  const MyQueueOne({super.key, this.onHome, this.onBooking, this.onProfile});
 
   final VoidCallback? onHome;
   final VoidCallback? onBooking;
@@ -99,14 +95,29 @@ class _MyQueueOneState extends State<MyQueueOne>
     with SingleTickerProviderStateMixin {
   int _navIndex = 2;
   late TabController _tabController;
+  int _selectedFilter = 0;
   List<QueueItem> _allQueues = [];
   bool _loading = true;
+
+  // ---- Filter labels ----
+  static const List<String> _filters = [
+    'คิวที่กำลังจะมาถึง',
+    'คิวที่ผ่านมา',
+    'ยกเลิก/เลื่อนนัด',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChange);
     _loadQueues();
+  }
+
+  void _onTabChange() {
+    if (mounted && _tabController.index != _selectedFilter) {
+      setState(() => _selectedFilter = _tabController.index);
+    }
   }
 
   Future<void> _loadQueues() async {
@@ -117,21 +128,30 @@ class _MyQueueOneState extends State<MyQueueOne>
         _allQueues = (bookings as List).map((b) {
           QueueStatus status;
           switch ((b.status as BookingStatus)) {
-            case BookingStatus.waitingPayment: status = QueueStatus.waitingPayment; break;
-            case BookingStatus.confirmed:      status = QueueStatus.confirmed; break;
-            case BookingStatus.inProgress:     status = QueueStatus.inProgress; break;
-            case BookingStatus.completed:      status = QueueStatus.completed; break;
-            default:                           status = QueueStatus.cancelled;
+            case BookingStatus.waitingPayment:
+              status = QueueStatus.waitingPayment;
+              break;
+            case BookingStatus.confirmed:
+              status = QueueStatus.confirmed;
+              break;
+            case BookingStatus.inProgress:
+              status = QueueStatus.inProgress;
+              break;
+            case BookingStatus.completed:
+              status = QueueStatus.completed;
+              break;
+            default:
+              status = QueueStatus.cancelled;
           }
           return QueueItem(
-            bookingId:       b.bookingCode as String,
-            clinicName:      b.clinicName as String,
-            serviceName:     b.serviceName as String,
-            doctorName:      b.doctorName as String,
+            bookingId: b.bookingCode as String,
+            clinicName: b.clinicName as String,
+            serviceName: b.serviceName as String,
+            doctorName: b.doctorName as String,
             appointmentDate: _fmtDate(b.appointmentDate as DateTime),
             appointmentTime: '${b.appointmentTime} น.',
-            status:          status,
-            depositAmount:   (b.depositAmount as double).toInt(),
+            status: status,
+            depositAmount: (b.depositAmount as double).toInt(),
           );
         }).toList();
         _loading = false;
@@ -142,27 +162,52 @@ class _MyQueueOneState extends State<MyQueueOne>
   }
 
   String _fmtDate(DateTime d) {
-    const days = ['', 'จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์','อาทิตย์'];
-    const months = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม',
-                    'มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const days = [
+      '',
+      'จันทร์',
+      'อัง าร',
+      'พุธ',
+      'พฤหัสบดี',
+      'ศุกร์',
+      'เสาร์',
+      'อาทิตย์',
+    ];
+    const months = [
+      '',
+      'มกราคม',
+      'กุมภาพันธ์',
+      'มีนาคม',
+      'เมษายน',
+      'พฤษภาคม',
+      'มิถุนายน',
+      'กรกฎาคม',
+      'สิงหาคม',
+      'กันยายน',
+      'ตุลาคม',
+      'พฤศจิกายน',
+      'ธันวาคม',
+    ];
     return '${days[d.weekday]} ${d.day} ${months[d.month]} ${d.year + 543}';
   }
 
   List<QueueItem> get _activeQueues => _allQueues
-      .where((q) =>
-          q.status == QueueStatus.waitingPayment ||
-          q.status == QueueStatus.confirmed ||
-          q.status == QueueStatus.inProgress)
+      .where(
+        (q) =>
+            q.status == QueueStatus.waitingPayment ||
+            q.status == QueueStatus.confirmed ||
+            q.status == QueueStatus.inProgress,
+      )
       .toList();
 
-  List<QueueItem> get _historyQueues => _allQueues
-      .where((q) =>
-          q.status == QueueStatus.completed ||
-          q.status == QueueStatus.cancelled)
-      .toList();
+  List<QueueItem> get _completedQueues =>
+      _allQueues.where((q) => q.status == QueueStatus.completed).toList();
+
+  List<QueueItem> get _cancelledQueues =>
+      _allQueues.where((q) => q.status == QueueStatus.cancelled).toList();
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChange);
     _tabController.dispose();
     super.dispose();
   }
@@ -170,42 +215,47 @@ class _MyQueueOneState extends State<MyQueueOne>
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
-      backgroundColor: AppColors.homeBackground,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
             // ---- Header ----
             _MyQueueHeader(),
 
-            // ---- TabBar ----
+            // ---- Filter Chips (สไตล์หน้าเลือกบริการ) ----
             Container(
               color: AppColors.white,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: context.rs(24)),
-                child: TabBar(
-                  controller: _tabController,
-                  labelColor: AppColors.purple,
-                  unselectedLabelColor: AppColors.textGray,
-                  indicatorColor: AppColors.purple,
-                  indicatorWeight: 2.5,
-                  labelStyle: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(13),
-                    fontWeight: FontWeight.w600,
-                  ),
-                  unselectedLabelStyle: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: context.rs(13),
-                    fontWeight: FontWeight.w400,
-                  ),
-                  tabs: const [
-                    Tab(text: 'คิวที่รอดำเนินการ'),
-                    Tab(text: 'ประวัติการจอง'),
+              padding: EdgeInsets.fromLTRB(
+                context.rs(24),
+                context.rs(12),
+                context.rs(24),
+                context.rs(12),
+              ),
+              child: SizedBox(
+                height: context.rs(32),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < _filters.length; i++)
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: i == _filters.length - 1
+                                ? 0
+                                : context.rs(8),
+                          ),
+                          child: _FilterChip(
+                            label: _filters[i],
+                            selected: _selectedFilter == i,
+                            onTap: () {
+                              setState(() => _selectedFilter = i);
+                              _tabController.animateTo(i);
+                            },
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -216,10 +266,10 @@ class _MyQueueOneState extends State<MyQueueOne>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Tab 1: คิวที่รอดำเนินการ
+                  // คิวที่กำลังจะมาถึง
                   _QueueList(
                     items: _activeQueues,
-                    emptyMessage: 'ยังไม่มีคิวที่รอดำเนินการ',
+                    emptyMessage: 'ยังไม่มีคิวที่กำลังจะมาถึง',
                     emptySubMessage: 'จองคิวเพื่อเริ่มใช้บริการ',
                     showBookButton: true,
                     onBookTap: () {
@@ -239,10 +289,25 @@ class _MyQueueOneState extends State<MyQueueOne>
                       );
                     },
                   ),
-                  // Tab 2: ประวัติการจอง
+                  // คิวที่ผ่านมา
                   _QueueList(
-                    items: _historyQueues,
-                    emptyMessage: 'ยังไม่มีประวัติการจอง',
+                    items: _completedQueues,
+                    emptyMessage: 'ยังไม่มีคิวที่ผ่านมา',
+                    emptySubMessage: '',
+                    showBookButton: false,
+                    onCardTap: (item) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MyQueueTwo(queue: item),
+                        ),
+                      );
+                    },
+                  ),
+                  // ยกเลิก/เลื่อนนัด
+                  _QueueList(
+                    items: _cancelledQueues,
+                    emptyMessage: 'ยังไม่มีคิวที่ยกเลิก/เลื่อนนัด',
                     emptySubMessage: '',
                     showBookButton: false,
                     onCardTap: (item) {
@@ -272,7 +337,12 @@ class _MyQueueOneState extends State<MyQueueOne>
                     ),
                   );
                 }
-                if (i == 3) widget.onProfile?.call();
+                if (i == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfilePage()),
+                  );
+                }
               },
             ),
           ],
@@ -283,7 +353,7 @@ class _MyQueueOneState extends State<MyQueueOne>
 }
 
 // ============================================================
-// _MyQueueHeader — หัวหน้าพร้อมชื่อหน้า
+// _MyQueueHeader — หัวหน้าพร้อมชื่อหน้า (จัดกึ่งกลางเหมือนหน้าอื่นๆ)
 // ============================================================
 class _MyQueueHeader extends StatelessWidget {
   @override
@@ -292,43 +362,72 @@ class _MyQueueHeader extends StatelessWidget {
       color: AppColors.white,
       padding: EdgeInsets.fromLTRB(
         context.rs(24),
-        MediaQuery.of(context).size.height * 0.015,
+        MediaQuery.of(context).size.height * 0.01,
         context.rs(24),
-        context.rs(14),
+        context.rs(8),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icon คิว
-          Container(
-            width: context.rs(36),
-            height: context.rs(36),
-            decoration: BoxDecoration(
-              color: AppColors.homeBackground,
-              borderRadius: BorderRadius.circular(context.rs(10)),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                'assets/images/homescreen/queue_of.svg',
-                width: context.rs(20),
-                height: context.rs(20),
-                colorFilter: const ColorFilter.mode(
-                  AppColors.purple,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: context.rs(10)),
           Text(
             'คิวของฉัน',
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: context.rs(17),
-              fontWeight: FontWeight.w700,
+              fontSize: context.rs(15),
+              fontWeight: FontWeight.w600,
               color: AppColors.black,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _FilterChip — chip กรองรายการ (สไตล์หน้าเลือกบริการ)
+// ============================================================
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: context.rs(14),
+          vertical: context.rs(5),
+        ),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.orange : Colors.white,
+          border: selected
+              ? null
+              : Border.all(
+                  color: Colors.black.withValues(alpha: 0.20),
+                  width: 1,
+                ),
+          borderRadius: BorderRadius.circular(context.rs(20)),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: context.rs(11),
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              color: selected ? AppColors.white : AppColors.textGray,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -367,16 +466,14 @@ class _QueueList extends StatelessWidget {
 
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(
+        context.rs(24),
         context.rs(16),
-        context.rs(16),
-        context.rs(16),
+        context.rs(24),
         context.rs(16),
       ),
       itemCount: items.length,
-      itemBuilder: (_, i) => _QueueCard(
-        item: items[i],
-        onTap: () => onCardTap(items[i]),
-      ),
+      itemBuilder: (_, i) =>
+          _QueueCard(item: items[i], onTap: () => onCardTap(items[i])),
     );
   }
 }
@@ -491,8 +588,7 @@ class _QueueCard extends StatelessWidget {
                   ),
                   SizedBox(height: context.rs(6)),
                   _CardDetailRow(
-                    svgAsset:
-                        'assets/images/Book_an_appointment/iconamoon_clock-fill.svg',
+                    svgAsset: 'assets/images/Book_an_appointment/iconamoon_clock-fill.svg',
                     text: item.appointmentTime,
                   ),
 
@@ -581,11 +677,8 @@ class _StatusBadge extends StatelessWidget {
 // _CardDetailRow — แถวข้อมูลใน card (icon + text)
 // ============================================================
 class _CardDetailRow extends StatelessWidget {
-  const _CardDetailRow({
-    this.icon,
-    this.svgAsset,
-    required this.text,
-  }) : assert(icon != null || svgAsset != null);
+  const _CardDetailRow({this.icon, this.svgAsset, required this.text})
+    : assert(icon != null || svgAsset != null);
 
   final IconData? icon;
   final String? svgAsset;
@@ -600,8 +693,7 @@ class _CardDetailRow extends StatelessWidget {
             svgAsset!,
             width: context.rs(14),
             height: context.rs(14),
-            colorFilter:
-                ColorFilter.mode(AppColors.purple, BlendMode.srcIn),
+            colorFilter: ColorFilter.mode(AppColors.purple, BlendMode.srcIn),
           )
         else
           Icon(icon, size: context.rs(14), color: AppColors.purple),

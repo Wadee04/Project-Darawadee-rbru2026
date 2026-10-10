@@ -7,7 +7,7 @@ import '../../../theme/responsive.dart';
 import 'book_an_appointment_nine.dart';
 
 // ============================================================
-// BookAnAppointmentEight - หน้าชำระมัดจำ
+// BookAnAppointmentEight - หน้าสรุปการชำระมัดจำ
 // ============================================================
 
 class BookAnAppointmentEight extends StatelessWidget {
@@ -17,24 +17,30 @@ class BookAnAppointmentEight extends StatelessWidget {
     this.onPay,
     this.doctorName = 'ทพญ. อรุณี ปรานอัศนี',
     this.doctorSpecialty = 'ทันตแพทย์ทั่วไป',
-    this.serviceName = 'ตรวจสุขภาพ + X-ray / อุดฟัน',
+    this.doctorImageAsset,
+    this.serviceName = 'ตรวจสุขภาพช่องปากและฟัน',
     this.appointmentDate = 'วันพุธ ที่ 12 สิงหาคม 2569',
     this.appointmentTime = '09:00',
-    this.clinicName = 'DentBook Clinic สาขาจันทบุรี',
+    this.clinicName = 'Denbook Clinic สาขาจันทบุรี',
     this.bookingNumber = 'SC680516-001',
     this.depositAmount = 200,
+    this.symptoms = const [],
+    this.services = const [],
   });
 
   final VoidCallback? onBack;
   final VoidCallback? onPay;
   final String doctorName;
   final String doctorSpecialty;
+  final String? doctorImageAsset;
   final String serviceName;
   final String appointmentDate;
   final String appointmentTime;
   final String clinicName;
   final String bookingNumber;
   final int depositAmount;
+  final List<String> symptoms;
+  final List<String> services;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +100,19 @@ class BookAnAppointmentEight extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const BookAnAppointmentNine(),
+                        builder: (_) => BookAnAppointmentNine(
+                          doctorName: doctorName,
+                          doctorSpecialty: doctorSpecialty,
+                          doctorImageAsset: doctorImageAsset,
+                          serviceName: serviceName,
+                          appointmentDate: appointmentDate,
+                          appointmentTime: appointmentTime,
+                          clinicName: clinicName,
+                          bookingNumber: bookingNumber,
+                          depositAmount: depositAmount,
+                          symptoms: symptoms,
+                          services: services,
+                        ),
                       ),
                     );
                   },
