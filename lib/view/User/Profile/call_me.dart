@@ -171,19 +171,25 @@ class _HeroBanner extends StatelessWidget {
             borderRadius: BorderRadius.only(
               bottomRight: Radius.circular(context.rs(16)),
             ),
-            child: Image.asset(
-              'assets/images/profile/mascot-orange.png',
-              width: context.rs(155),
-              fit: BoxFit.contain,
-              alignment: Alignment.bottomCenter,
-              errorBuilder: (context, e, s) => SizedBox(
+            child: SizedBox(
+              width: context.rs(110),
+              height: context.rs(110),
+              child: Image.asset(
+                'assets/images/profile/mascot-orange.png',
                 width: context.rs(155),
-                height: context.rs(155),
-                child: Icon(
-                  Icons.sentiment_very_satisfied_outlined,
-                  size: context.rs(60),
-                  color: AppColors.purple,
+                fit: BoxFit.contain,
+                alignment: Alignment.bottomCenter,
+                errorBuilder: (context, e, s) => SizedBox(
+                  width: context.rs(110),
+                  height: context.rs(110),
+                  child: Icon(
+                    Icons.sentiment_very_satisfied_outlined,
+                    size: context.rs(60),
+                    color: AppColors.purple,
+                  ),
                 ),
+              ),
+            ),
               ),
             ),
           ),
