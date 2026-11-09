@@ -190,8 +190,6 @@ class _HeroBanner extends StatelessWidget {
                 ),
               ),
             ),
-              ),
-            ),
           ),
         ],
       ),
